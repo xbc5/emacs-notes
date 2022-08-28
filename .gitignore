@@ -1,6 +1,6 @@
 # Created by https://www.toptal.com/developers/gitignore/api/emacs,vim,linux
 # Edit at https://www.toptal.com/developers/gitignore?templates=emacs,vim,linux
-
+custom.el
 ### Emacs ###
 # -*- mode: gitignore; -*-
 *~
