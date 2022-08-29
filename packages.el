@@ -4,9 +4,11 @@
 ; org
 (package! org-fancy-priorities)
 (package! org-roam-server :disable t) ; not yet supported for roam v2
-(package! org-ref)
-(package! bibtex-completion) ; required by helm|ivy-bibtex
-(package! helm-bibtex)
+
+; orb
 (package! org-roam-bibtex)
+(package! bibtex-completion) ; required by helm|ivy-bibtex
+(package! org-ref)
+(package! helm-bibtex)
 
 (package! plantuml-mode)

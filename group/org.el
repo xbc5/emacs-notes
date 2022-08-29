@@ -73,51 +73,28 @@
 
 (defun dnd-unescape-uri () nil) ;; BUG: something something undefined
 
+; References and citations
 (require 'org-ref-helm)
-
-(setq org-ref-insert-link-function 'org-ref-insert-link-hydra/body
-      org-ref-insert-cite-function 'org-ref-cite-insert-helm
-      org-ref-insert-label-function 'org-ref-insert-label-link
-      org-ref-insert-ref-function 'org-ref-insert-ref-link
-      org-ref-cite-onclick-function (lambda (_) (org-ref-citation-hydra/body)))
-
-(setq my/bib-file "~/org/bib/refs.bib"
-      my/bib-pdfs "~/org/bib/pdfs"
-      my/bib-notes-dir "~/org/bib/notes"
-      my/bib-notes-file "~/org/bib/notes.org") ; FIXME: I am not entirely sure what this does
-
-;; built-in packages
-(setq reftex-default-bibliography my/bib-file
-      bibtex-completion-bibliography my/bib-file
-      bibtex-completion-library-path my/bib-pdfs
-      bibtex-completion-notes-path my/bib-notes-dir
-      bibtex-completion-pdf-open-function (lambda (fpath)
-                                            (start-process "open" "*open*" "open" fpath)))
-(use-package! org-ref
-              :config
-              (setq org-ref-notes-directory my/bib-notes-dir
-                    org-ref-bibliography-notes my/bib-notes-file
-                    org-ref-default-bibliography (list my/bib-file)
-                    org-ref-pdf-directory my/bib-pdfs))
-
+(use-package! org-ref-helm
+  :init (setq org-ref-insert-link-function 'org-ref-insert-link-hydra/body
+	      org-ref-insert-cite-function 'org-ref-cite-insert-ivy
+	      org-ref-insert-label-function 'org-ref-insert-label-link
+	      org-ref-insert-ref-function 'org-ref-insert-ref-link
+	      org-ref-cite-onclick-function (lambda (_) (org-ref-citation-hydra/body))))
+(let ((notes-dir "~/org/bib/notes") (bib-file "~/org/bib/refs.bib"))
+  (use-package! org-ref
+                :config
+                (setq org-ref-notes-directory notes-dir
+                      org-ref-default-bibliography (list bib-file)))
+  (setq bibtex-completion-bibliography bib-file
+        bibtex-completion-notes-path notes-dir))
 (map! :desc "Insert a citation"
       :map org-mode-map "C-c ]"
       #'org-ref-insert-link-hydra/body)
-
-; TODO: bind helm-bibtex
-; FIXME: this template is broken.
 (after! org-roam-bibtex
-  (after! org-roam
-    (setq orb-templates
-          '(("b" "bib" plain (function org-roam-capture--get-point)
-             "\n\n* Context\n* Notes\n* Thoughts\n* Questions"
-             :file-name "bib/notes/${citekey}"
-             :head "#+TITLE: ${citekey}: ${title}\n#+ROAM_KEY: ${ref}\n#+ROAM_TAGS: \"bib notes\" unfinished TODO %?"
-             :unnarrowed t)))
-    ;(add-hook 'org-roam-mode 'org-roam-bibtex-mode)
-    (require 'org-ref)
-    (org-roam-bibtex-mode)))
-;;; org-roam.el -*- lexical-binding: t; -*-
+        (require 'org-ref)
+        (org-roam-bibtex-mode))
+
 (map! :leader
       :prefix "r"
       :desc "org-roam-node-find" "f" #'org-roam-node-find
@@ -146,19 +123,24 @@
       org-roam-file-completion-tag-position 'append ;; 'prepend | 'append | 'omit
       +org-roam-open-buffer-on-find-file nil)  ;; disable auto-loading of backlinks
 
+; fuzzy select a cite key, parsed from bibtex files
+(defun my/get-bibtex-key (node)
+  (completing-read "Citation key: "
+                   (mapcar #'(lambda (x) (cdr (assoc "=key=" x)))
+                           (bibtex-completion-candidates))))
 
-(setq org-roam-capture-templates '(("i" "idea" plain "\n* Ideas"
-                                    :if-new (file+head "${slug}-%<%Y%m%d%H%M%S>.org"
-                                                        "#+title: ${title}")
-                                    :unnarrowed t)
-                                   ("p" "project idea" plain "\n* Ideas"
-                                    :if-new (file+head "project/%(+org-project-subdir)/${slug}-%<%Y%m%d%H%M%S>.org"
-                                                       "#+title: ${title}")
-                                     :unnarrowed t)
-                                  ("b" "bib notes" plain "\n* Notes"
-                                     :if-new (file+head "bib/notes/${slug}.org"
-                                                        ":PROPERTIES:\n:ROAM_REFS: cite:${slug}\n:END:\n#+title: ${title}")
-                                     :unnarrowed t)))
+(setq org-roam-capture-templates '(("i" "idea" plain "\n\n* details\n* conclusion"
+                                    :unnarrowed t
+                                    :target (file+head "${slug}-%<%Y%m%d%H%M%S>.org"
+                                                        "#+title: ${title}"))
+                                   ("p" "project idea" plain "\n\n* details\n *conclusion"
+                                    :unnarrowed t
+                                    :target (file+head "project/%(+org-project-subdir)/${slug}-%<%Y%m%d%H%M%S>.org"
+                                                       "#+title: ${title}"))
+                                  ("b" "bib notes" plain "\n\n* notes\n* thoughts\n* questions"
+                                   :unnarrowed t
+                                   :target (file+head "bib/notes/${slug}.org"
+                                                      ":PROPERTIES:\n:ROAM_REFS: cite:${my/get-bibtex-key}\n:END:\n#+title: ${title}\n#+filetags: :bib:"))))
 
 ;; This code is for subdirectory projects
 ;;
