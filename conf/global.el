@@ -1,5 +1,3 @@
-;;; ../projects/linux/emacs-notes/group/global.el -*- lexical-binding: t; -*-
-
 (setq doom-font (font-spec :family "monospace" :size 15 :weight 'semi-light)
       doom-variable-pitch-font (font-spec :family "sans" :size 13)
       doom-theme 'doom-one

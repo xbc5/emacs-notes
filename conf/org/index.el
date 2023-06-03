@@ -1,0 +1,6 @@
+(load! "org")
+(load! "org-ref")
+(load! "org-roam")
+(load! "org-ql")
+;(load! "org-roam-server")
+;(load! "lib")
