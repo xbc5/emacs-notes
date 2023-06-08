@@ -24,15 +24,15 @@
 
 (setq org-roam-capture-templates '(("i" "idea" plain "\n\n* details\n* conclusion"
                                     :unnarrowed t
-                                    :target (file+head "${slug}-%<%Y%m%d%H%M%S>.org"
+                                    :target (file+head "%<%Y%m%d%H%M%S>.org"
                                                         "#+title: ${title}"))
                                    ("p" "project idea" plain "\n\n* details\n *conclusion"
                                     :unnarrowed t
-                                    :target (file+head "project/%(+org-project-subdir)/${slug}-%<%Y%m%d%H%M%S>.org"
+                                    :target (file+head "project/%(+org-project-subdir)/%<%Y%m%d%H%M%S>.org"
                                                        "#+title: ${title}"))
                                   ("b" "bib notes" plain "\n\n* notes\n* thoughts\n* questions"
                                    :unnarrowed t
-                                   :target (file+head "bib/notes/${slug}.org"
+                                   :target (file+head "bib/notes/%<%Y%m%d%H%M%S>.org"
                                                       ":PROPERTIES:\n:ROAM_REFS: cite:${my/get-bibtex-key}\n:END:\n#+title: ${title}\n#+filetags: :bib:"))))
 
 (add-hook 'after-init-hook 'org-roam-mode)
