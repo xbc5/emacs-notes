@@ -2,5 +2,6 @@
 (load! "org-ref")
 (load! "org-roam")
 (load! "org-ql")
+(load! "nursery")
 ;(load! "org-roam-server")
 ;(load! "lib")
