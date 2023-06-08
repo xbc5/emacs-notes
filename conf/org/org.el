@@ -9,7 +9,7 @@
     (browse-url (format "https://coinmarketcap.com/currencies/%s" path)))
   (defun my/open-reddit-link (path)
     "Open Reddit page."
-    (browse-url (format "https://libredd.it/%s" path)))
+    (browse-url (format "https://www.reddit.com/%s" path)))
   (defun my/open-caniuse-link (path)
     "Open Can I Use reference."
     (browse-url (format "https://caniuse.com/?search=%s" path)))
