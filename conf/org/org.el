@@ -29,7 +29,7 @@
   (org-add-link-type "hn" 'my/open-hn-link)
   (org-add-link-type "HN" 'my/open-hn-link)
   (setq org-startup-folded t
-        org-agenda-files '("~/org/bib/notes") ; BUG: should work, but doesn't: dir not in Org mode
+        org-agenda-files '("~/org/agenda") ; BUG(#19): should work, but doesn't: dir not in Org mode
         org-agenda-file-regexp "^.*\\.org$" ; should apply to ^ dir only
         org-cycle-max-level 2
         org-directory "~/org"
@@ -45,11 +45,7 @@
           ("DONE" :foreground "#666666")
           ("DROP" :foreground "#666666"))
         org-capture-templates '(("f" "Fleeting notes" entry (file+olp+datetree "fleeting.org") "* %?")
-                                ("t" "TODO")
-                                ;; TODO: use a variable of some kind
-                                ("tb" "Biz" entry (file+headline "todo.org" "Biz") "* TODO [#D] %?")
-                                ("td" "Dev" entry (file+headline "todo.org" "Dev") "* TODO [#D] %?")
-                                ("tg" "General" entry (file+headline "todo.org" "General") "* TODO [#D] %?"))
+                                ("a" "Agenda" entry (function my/find-agenda-file) (function my/agenda-template)))
         org-highest-priority 65
         org-lowest-priority 69
         org-default-priority 68

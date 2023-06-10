@@ -22,18 +22,14 @@
       org-roam-file-completion-tag-position 'append ;; 'prepend | 'append | 'omit
       +org-roam-open-buffer-on-find-file nil)  ;; disable auto-loading of backlinks
 
-(setq org-roam-capture-templates '(("i" "idea" plain "\n\n* details\n* conclusion"
+(setq org-roam-capture-templates '(("i" "idea" plain "\n\n* meta\n* related\n* details\n%?\n* conclusion"
                                     :unnarrowed t
                                     :target (file+head "%<%Y%m%d%H%M%S>.org"
                                                         "#+title: ${title}"))
-                                   ("p" "project idea" plain "\n\n* details\n *conclusion"
-                                    :unnarrowed t
-                                    :target (file+head "project/%(+org-project-subdir)/%<%Y%m%d%H%M%S>.org"
-                                                       "#+title: ${title}"))
-                                  ("b" "bib notes" plain "\n\n* notes\n* thoughts\n* questions"
+                                  ("b" "bib notes" plain "\n\n* meta\n* conclusions\n* summary\n* notes\n%?\n* thoughts\n"
                                    :unnarrowed t
                                    :target (file+head "bib/notes/%<%Y%m%d%H%M%S>.org"
-                                                      ":PROPERTIES:\n:ROAM_REFS: cite:${my/get-bibtex-key}\n:END:\n#+title: ${title}\n#+filetags: :bib:"))))
+                                                      ":PROPERTIES:\n:ROAM_REFS: cite:${citekey}\n:AUTHORS: ${author}\n:END:\n#+title: ${title}\n#+filetags: :bib:"))))
 
 (add-hook 'after-init-hook 'org-roam-mode)
 (org-roam-db-autosync-mode)
