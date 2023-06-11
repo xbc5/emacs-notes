@@ -32,7 +32,6 @@
         org-agenda-files '("~/org/agenda") ; BUG(#19): should work, but doesn't: dir not in Org mode
         org-agenda-file-regexp "^.*\\.org$" ; should apply to ^ dir only
         org-cycle-max-level 2
-        org-directory "~/org"
         org-refile-targets '((nil :maxlevel . 3)
                              (("*.org") :maxlevel . 3))   ;; refile to other files
         org-outline-path-complete-in-steps nil                                       ;; refile in a single go

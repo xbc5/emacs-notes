@@ -2,7 +2,7 @@
 
 ;misc
 (load! "conf/global")
-(load! "conf/shims")
+(load! "lib/index")
 
 ;meta
 (load! "conf/spell")
@@ -11,3 +11,4 @@
 (load! "conf/hl-todo")
 (load! "conf/plantuml-mode")
 (load! "conf/org/index")
+(load! "conf/helm-bibtex")

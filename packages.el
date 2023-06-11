@@ -45,3 +45,5 @@
           :recipe (:host github
                    :repo "chrisbarrett/nursery"
                    :files ("lisp/org-roam-review.el")))
+
+(package! free-keys)
