@@ -1,24 +1,6 @@
 (use-package! org
   :config
   (make-directory "~/org" t)  ;; t to ignore 'exists' error
-  (defun my/open-rfc-link (path)
-    "Open IETF docs given only a number > 0."
-    (browse-url (format "https://tools.ietf.org/html/rfc%s" path)))
-  (defun my/open-coinmarketcap-link (path)
-    "Open CMC token page."
-    (browse-url (format "https://coinmarketcap.com/currencies/%s" path)))
-  (defun my/open-reddit-link (path)
-    "Open Reddit page."
-    (browse-url (format "https://www.reddit.com/%s" path)))
-  (defun my/open-caniuse-link (path)
-    "Open Can I Use reference."
-    (browse-url (format "https://caniuse.com/?search=%s" path)))
-  (defun my/open-mdncss-link (path)
-    "Open an MDN CSS reference page."
-    (browse-url (format "https://developer.mozilla.org/en-US/docs/Web/CSS/%s" path)))
-  (defun my/open-hn-link (path)
-    "Open an HN link."
-    (browse-url (format "https://news.ycombinator.com/item?id=%s" path)))
   (add-to-list 'org-modules 'ol-info) ;; for 'info:' links
   (org-add-link-type "rfc" 'my/open-rfc-link)
   (org-add-link-type "RFC" 'my/open-rfc-link)

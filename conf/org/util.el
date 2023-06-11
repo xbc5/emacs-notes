@@ -16,8 +16,8 @@
 
 (defun my/pick-agenda-file ()
   "Pick an agenda file from a completion list, otherwise create it."
-  ; DON'T create files in the agenda directory WITH SPACES or WITHOUT
-  ; the .ORG EXTENSION. To be safe: use this picker when creating files too.
+  ;; DON'T create files in the agenda directory WITH SPACES or WITHOUT
+  ;; the .ORG EXTENSION. To be safe: use this picker when creating files too.
   (my/abs-agenda-fpath
    (my/fix-org-file-name
     (completing-read "Choose an agenda file: " (my/ls-agenda-dir)) )))
@@ -50,3 +50,22 @@
 (defun my/agenda-template ()
   "Return the agenda template contents. Use this for capture templates."
   (my/template "agenda"))
+
+  (defun my/open-rfc-link (path)
+    "Open IETF docs given only a number > 0."
+    (browse-url (format "https://tools.ietf.org/html/rfc%s" path)))
+  (defun my/open-coinmarketcap-link (path)
+    "Open CMC token page."
+    (browse-url (format "https://coinmarketcap.com/currencies/%s" path)))
+  (defun my/open-reddit-link (path)
+    "Open Reddit page."
+    (browse-url (format "https://www.reddit.com/%s" path)))
+  (defun my/open-caniuse-link (path)
+    "Open Can I Use reference."
+    (browse-url (format "https://caniuse.com/?search=%s" path)))
+  (defun my/open-mdncss-link (path)
+    "Open an MDN CSS reference page."
+    (browse-url (format "https://developer.mozilla.org/en-US/docs/Web/CSS/%s" path)))
+  (defun my/open-hn-link (path)
+    "Open an HN link."
+    (browse-url (format "https://news.ycombinator.com/item?id=%s" path)))
