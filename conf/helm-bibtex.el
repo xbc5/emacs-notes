@@ -1,5 +1,5 @@
 (use-package! helm-bibtex
-  :bind ("M-n" . helm-bibtex)
+  :bind ("M-p" . helm-bibtex)
   :config
   (setq bibtex-completion-display-formats
         '((t . "${=has-pdf=:1}${=has-note=:1} ${author:36} ${title:*} ${year:4}"))

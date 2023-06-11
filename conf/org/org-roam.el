@@ -1,6 +1,5 @@
 (map! :leader
       :prefix "r"
-      :desc "org-roam-node-find" "f" #'org-roam-node-find
       :desc "org-roam-alias-add" "a" #'org-roam-alias-add
       :desc "org-roam-tag-add" "t" #'org-roam-tag-add
       :desc "org-roam-refile" "rf" #'org-roam-refile
@@ -8,6 +7,9 @@
       :desc "org-roam-graph" "g" #'org-roam-graph
       :desc "org-roam-node-insert" "i" #'org-roam-node-insert
       :desc "org-roam-capture" "c" #'org-roam-capture)
+
+(use-package! org-roam
+  :bind (("M-n" . org-roam-node-find)))
 
 
 ;; batch all SQL operations as a single transaction (fixes slow file saves).
