@@ -11,3 +11,5 @@
 (load! "conf/plantuml-mode")
 (load! "conf/org/index")
 (load! "conf/helm-bibtex")
+
+(org-roam-mode)

@@ -1,5 +1,3 @@
-(setq my/org-agenda-dir (concat org-directory "/agenda/"))
-
 (defun my/ls-agenda-dir ()
   "Get a directory listing of agenda files inside the agenda directory."
   (directory-files my/org-agenda-dir nil org-agenda-file-regexp)) ; NEVER return full path
@@ -37,8 +35,6 @@
     (insert-file-contents file)
     (buffer-string)))
 
-(setq my/templates-dir (concat doom-user-dir "/templates"))
-
 (defun my/template-path (name)
   "Return the full template path for the given file name (without extension)."
   (concat my/templates-dir "/" name ".org"))
@@ -51,21 +47,21 @@
   "Return the agenda template contents. Use this for capture templates."
   (my/template "agenda"))
 
-  (defun my/open-rfc-link (path)
-    "Open IETF docs given only a number > 0."
-    (browse-url (format "https://tools.ietf.org/html/rfc%s" path)))
-  (defun my/open-coinmarketcap-link (path)
-    "Open CMC token page."
-    (browse-url (format "https://coinmarketcap.com/currencies/%s" path)))
-  (defun my/open-reddit-link (path)
-    "Open Reddit page."
-    (browse-url (format "https://www.reddit.com/%s" path)))
-  (defun my/open-caniuse-link (path)
-    "Open Can I Use reference."
-    (browse-url (format "https://caniuse.com/?search=%s" path)))
-  (defun my/open-mdncss-link (path)
-    "Open an MDN CSS reference page."
-    (browse-url (format "https://developer.mozilla.org/en-US/docs/Web/CSS/%s" path)))
-  (defun my/open-hn-link (path)
-    "Open an HN link."
-    (browse-url (format "https://news.ycombinator.com/item?id=%s" path)))
+(defun my/open-rfc-link (path)
+  "Open IETF docs given only a number > 0."
+  (browse-url (format "https://tools.ietf.org/html/rfc%s" path)))
+(defun my/open-coinmarketcap-link (path)
+  "Open CMC token page."
+  (browse-url (format "https://coinmarketcap.com/currencies/%s" path)))
+(defun my/open-reddit-link (path)
+  "Open Reddit page."
+  (browse-url (format "https://www.reddit.com/%s" path)))
+(defun my/open-caniuse-link (path)
+  "Open Can I Use reference."
+  (browse-url (format "https://caniuse.com/?search=%s" path)))
+(defun my/open-mdncss-link (path)
+  "Open an MDN CSS reference page."
+  (browse-url (format "https://developer.mozilla.org/en-US/docs/Web/CSS/%s" path)))
+(defun my/open-hn-link (path)
+  "Open an HN link."
+  (browse-url (format "https://news.ycombinator.com/item?id=%s" path)))

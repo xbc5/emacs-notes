@@ -1,23 +1,21 @@
 (use-package! org
+  :init
+  (make-directory org-directory t)
   :config
-  (make-directory "~/org" t)  ;; t to ignore 'exists' error
   (add-to-list 'org-modules 'ol-info) ;; for 'info:' links
-  (org-add-link-type "rfc" 'my/open-rfc-link)
   (org-add-link-type "RFC" 'my/open-rfc-link)
-  (org-add-link-type "cmc" 'my/open-coinmarketcap-link)
+  (org-add-link-type "CMC" 'my/open-coinmarketcap-link)
   (org-add-link-type "caniuse" 'my/open-caniuse-link)
-  (org-add-link-type "mdn-css" 'my/open-mdncss-link)
   (org-add-link-type "reddit" 'my/open-reddit-link)
-  (org-add-link-type "hn" 'my/open-hn-link)
   (org-add-link-type "HN" 'my/open-hn-link)
   (setq org-startup-folded t
-        org-agenda-files '("~/org/agenda") ; BUG(#19): should work, but doesn't: dir not in Org mode
+        org-agenda-files '(my/org-agenda-dir) ; BUG(#19): should work, but doesn't: dir not in Org mode
         org-agenda-file-regexp "^.*\\.org$" ; should apply to ^ dir only
         org-cycle-max-level 2
         org-refile-targets '((nil :maxlevel . 3)
-                             (("*.org") :maxlevel . 3))   ;; refile to other files
-        org-outline-path-complete-in-steps nil                                       ;; refile in a single go
-        org-refile-use-outline-path t                                                ;; show file path for refiling
+                             (("*.org") :maxlevel . 3)) ; refile to other files
+        org-outline-path-complete-in-steps nil ; refile in a single go
+        org-refile-use-outline-path t ; show file path for refiling
         org-todo-keywords '((sequence "TODO(t)" "STRT(i)" "WAIT(w)" "|" "DONE(d)" "DROP(c)"))
         org-todo-keyword-faces
         '(("TODO" :foreground "#16cafa")
@@ -35,12 +33,3 @@
                              (67 :foreground "yellow" :weight bold)
                              (68 :foreground "green" :weight bold)
                              (69 :foreground "#2a7286" :weight bold))))
-
-;; "todo" priorities: use symbols instead of '[#A]' etc.
-(use-package! org-fancy-priorities
-  :hook (org-mode . org-fancy-priorities-mode)
-  :config (setq org-fancy-priorities-list '((65 . "1")
-                                            (66 . "2")
-                                            (67 . "3")
-                                            (68 . "4")
-                                            (69 . "9"))))

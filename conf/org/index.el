@@ -3,6 +3,7 @@
 (load! "org-ref")
 (load! "org-roam")
 (load! "org-ql")
+(load! "org-fancy-priorities")
 (load! "nursery")
 (load! "org-roam-bibtex")
 ;(load! "org-roam-server")
