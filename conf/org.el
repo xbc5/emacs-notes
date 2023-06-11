@@ -1,6 +1,8 @@
 (use-package! org
-  :init
-  (make-directory org-directory t)
+  :bind ("M-M" . org-capture)
+
+  :init (make-directory org-directory t)
+
   :config
   (add-to-list 'org-modules 'ol-info) ;; for 'info:' links
   (org-add-link-type "RFC" 'my/open-rfc-link)
