@@ -1,2 +1,0 @@
-(load! "shims")
-(load! "util")

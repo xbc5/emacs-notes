@@ -1,15 +1,21 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
-;misc
+;; misc
 (load! "conf/global")
-(load! "lib/index")
+(load! "lib/shims")
+(load! "lib/util")
 
-;meta
-(load! "conf/spell")
-
-;pkg
+;; pkg
 (load! "conf/plantuml-mode")
-(load! "conf/org/index")
 (load! "conf/helm-bibtex")
+(load! "conf/spell")
+(load! "conf/org")
+(load! "conf/org-ref")
+(load! "conf/org-roam")
+(load! "conf/org-ql")
+(load! "conf/org-fancy-priorities")
+(load! "conf/nursery")
+(load! "conf/org-roam-bibtex")
+;;(load! "conf/org-roam-server")
 
 (org-roam-mode)
