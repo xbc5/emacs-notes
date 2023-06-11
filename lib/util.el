@@ -49,9 +49,13 @@
   "Return the template contents for the given extensionless file name."
   (my/read-file (my/template-path name)))
 
-(defun my/agenda-template ()
-  "Return the agenda template contents. Use this for capture templates."
-  (my/template "agenda"))
+(defun my/task-template ()
+  "Return the task template contents. Use this for capture templates."
+  (my/template "task"))
+
+(defun my/bookmark-template ()
+  "Return the bookmark template contents. Use this for capture templates."
+  (my/template "bookmark"))
 
 (defun my/open-rfc-link (path)
   "Open IETF docs given only a number > 0."

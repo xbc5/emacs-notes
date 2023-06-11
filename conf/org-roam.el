@@ -2,6 +2,7 @@
 ;; from magit for some reason.
 (map! :leader
       :prefix "r"
+      :desc "org-roam-buffer-toggle" "l" #'org-roam-buffer-toggle
       :desc "org-roam-node-insert" "i" #'org-roam-node-insert)
 
 (setq my/roam-templates

@@ -1,0 +1,7 @@
+* TODO [#E] [%\2] %^{Title} %^G
+:PROPERTIES:
+:KIND: bookmark
+:SOURCE_TYPE: %^{Source type|article|video|paper|comments|book}
+:END:
+[[%^{URL}][Link]]
+%?
