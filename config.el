@@ -8,7 +8,6 @@
 (load! "conf/spell")
 
 ;pkg
-(load! "conf/hl-todo")
 (load! "conf/plantuml-mode")
 (load! "conf/org/index")
 (load! "conf/helm-bibtex")
