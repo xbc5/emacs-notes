@@ -82,6 +82,9 @@
 (defun my/open-hn-link (path)
   "Open an HN link."
   (browse-url (format "https://news.ycombinator.com/item?id=%s" path)))
+(defun my/open-twitter-link (path)
+  "Open a Tweet."
+  (browse-url (format "https://www.twitter.com/%s" path)))
 
 (defun my/get-agenda-filter (key)
   "Given a key, return the associated agenda filter string."

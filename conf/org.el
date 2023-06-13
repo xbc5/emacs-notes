@@ -12,6 +12,7 @@
   (org-add-link-type "HN" 'my/open-hn-link)
   (org-add-link-type "SOQ" 'my/open-stackoverflow-question)
   (org-add-link-type "SOA" 'my/open-stackoverflow-answer)
+  (org-add-link-type "twitter" 'my/open-twitter-link)
   (setq org-startup-folded t
         org-agenda-files '(my/org-agenda-dir) ; BUG(#19): should work, but doesn't: dir not in Org mode
         org-agenda-file-regexp "^.*\\.org$" ; should apply to ^ dir only
