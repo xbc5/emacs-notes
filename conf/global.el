@@ -25,6 +25,8 @@
               (list "Elisp [active]" "+elisp" active)
               (list "privacy [active]" "+privacy" active)
               (list "software [active]" "+software" active)
+              (list "anti-aging [active]" "+antiaging" active)
+              (list "biotech [active]" "+biotech" active)
               (list "Emacs [active]" "+Emacs|+orgroam|+orgmode|+elisp" active))))
 
 (map! :desc "completion-at-point" "<M-SPC>" #'completion-at-point)
