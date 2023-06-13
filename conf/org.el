@@ -1,3 +1,7 @@
+(map! :leader
+      :prefix "m"
+      :desc "Apply custom agenda filters" "t" 'my/set-agenda-filter)
+
 (use-package! org
   :bind ("M-M" . org-capture)
 
