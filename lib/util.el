@@ -57,6 +57,13 @@
   "Return the bookmark template contents. Use this for capture templates."
   (my/template "bookmark"))
 
+(defun my/open-stackoverflow-question (path)
+  "Open a link to a StackOverflow question. An SO link will end in useless text,
+  only the ID matters: e.g. https://stackoverflow.com/questions/12345/ignore-this-part"
+  (browse-url (format "https://stackoverflow.com/questions/%s" path)))
+(defun my/open-stackoverflow-answer (path)
+  "Open a link to a specific StackOverflow answer within a page."
+  (browse-url (format "https://stackoverflow.com/a/%s" path)))
 (defun my/open-rfc-link (path)
   "Open IETF docs given only a number > 0."
   (browse-url (format "https://tools.ietf.org/html/rfc%s" path)))
@@ -76,14 +83,33 @@
   "Open an HN link."
   (browse-url (format "https://news.ycombinator.com/item?id=%s" path)))
 
+(defun my/get-agenda-filter (key)
+  "Given a key, return the associated agenda filter string."
+  (s-join "" (cdr (assoc key my/agenda-filters))))
+
+(defun my/get-alist-keys (lst)
+  "Given an alist, return a list of its keys."
+  (mapcar (lambda (el) (car el)) lst))
+
+(defun my/pick-agenda-filter ()
+  "Prompt the user to pick a premade filter defined in my/agenda-filters."
+  (my/get-agenda-filter
+   (completing-read "Tag: " (my/get-alist-keys my/agenda-filters))))
+
+(defun my/set-agenda-filter ()
+  "Prompt the user to pick and apply a premade filter defined in my/agenda-filters."
+  (interactive)
+  (org-tags-view t (my/pick-agenda-filter)))
+
+
 ;; This code is for subdirectory projects
-;(setq org-roam-capture-templates
-;        '(("d" "default" plain
-;           #'org-roam-capture--get-point
-;          "%?"
-;           :file-name "%(+org-notes-subdir)/%<%Y%m%d%H%M%S>-${slug}"
-;           :head "#+TITLE: ${title}\n#+TIME-STAMP: <>\n\n"
-;           :unnarrowed t)))
+;; (setq org-roam-capture-templates
+;;        '(("d" "default" plain
+;;           #'org-roam-capture--get-point
+;;          "%?"
+;;           :file-name "%(+org-notes-subdir)/%<%Y%m%d%H%M%S>-${slug}"
+;;           :head "#+TITLE: ${title}\n#+TIME-STAMP: <>\n\n"
+;;           :unnarrowed t)))
 
 ;; (defun +org-project-subdir ()
 ;;   "Select a project subdirectory."

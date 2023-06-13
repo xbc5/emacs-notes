@@ -10,7 +10,7 @@
             ''speed (list 'quote val))))
 
 ;; BUG(#19): remove this shim when fixed
-(defun my/unfuck-agenda-files ()
+(defun shim/org-agenda-files ()
   "org-ref clobbers org-agenda-files somehow, use this to unfuck that for fuck sake."
   (interactive)
   (setq org-agenda-files '("~/org/agenda")))

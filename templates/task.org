@@ -1,4 +1,4 @@
-* TODO [#E] [task] %^{Title} %^G
+* TODO [#E] %^{Title} %^G
 :PROPERTIES:
 :KIND: task
 :END:

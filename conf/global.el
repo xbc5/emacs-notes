@@ -13,4 +13,18 @@
       my/refs (concat my/bib "/refs.bib" )
       my/bib-notes (concat my/bib "/notes"))
 
+(let* ((active "-TODO=\"DONE\"-TODO=\"DROP\""))
+  (setq my/agenda-filters
+        (list (list "AI [active]" "+AI" active)
+              (list "study [active]" "+study" active)
+              (list "Org-Roam [active]" "+orgroam" active)
+              (list "Org-Mode [active]" "+orgmode" active)
+              (list "futurology [active]" "+futurology" active)
+              (list "dark traits [active]" "+darktraits" active)
+              (list "psychology [active]" "+psychology" active)
+              (list "Elisp [active]" "+elisp" active)
+              (list "privacy [active]" "+privacy" active)
+              (list "software [active]" "+software" active)
+              (list "Emacs [active]" "+Emacs|+orgroam|+orgmode|+elisp" active))))
+
 (map! :desc "completion-at-point" "<M-SPC>" #'completion-at-point)

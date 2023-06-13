@@ -6,7 +6,7 @@
       :desc "org-roam-node-insert" "i" #'org-roam-node-insert)
 
 (setq my/roam-templates
-      '(("i" "idea" plain "\n\n* meta\n* related\n* details\n%?\n* conclusion"
+      '(("i" "idea" plain "\n\n* meta\n* related\n* brief\n* summary\n* conclusion\n* details\n%?"
          :unnarrowed t
          :target (file+head "%<%Y%m%d%H%M%S>.org"
                             "#+title: ${title}"))
