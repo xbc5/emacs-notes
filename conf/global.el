@@ -15,7 +15,7 @@
 
 (let* ((active "-TODO=\"DONE\"-TODO=\"DROP\"")
        (books "+SOURCE_TYPE=\"book\"|+book|+books")
-       (immediate "+LEVEL={\(A\|B\)}"))
+       (immediate "+PRIORITY=\"A\""))
   (setq my/agenda-filters
         (list (list "AI [active]" "+AI" active)
               (list "study [active]" "+study" active)
