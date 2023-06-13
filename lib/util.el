@@ -57,6 +57,10 @@
   "Return the bookmark template contents. Use this for capture templates."
   (my/template "bookmark"))
 
+(defun my/book-template ()
+  "Return the book template contents. Use this for capture templates."
+  (my/template "book"))
+
 (defun my/open-stackoverflow-question (path)
   "Open a link to a StackOverflow question. An SO link will end in useless text,
   only the ID matters: e.g. https://stackoverflow.com/questions/12345/ignore-this-part"

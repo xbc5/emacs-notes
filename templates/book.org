@@ -1,0 +1,6 @@
+* TODO [#E] %^{Title} %^G
+:PROPERTIES:
+:KIND: task
+:SOURCE_TYPE: book
+:END:
+%?

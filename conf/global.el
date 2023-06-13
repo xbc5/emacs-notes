@@ -14,7 +14,8 @@
       my/bib-notes (concat my/bib "/notes"))
 
 (let* ((active "-TODO=\"DONE\"-TODO=\"DROP\"")
-       (immediate "+LEVEL={A\|B}"))
+       (books "+SOURCE_TYPE=\"book\"|+book|+books")
+       (immediate "+LEVEL={\(A\|B\)}"))
   (setq my/agenda-filters
         (list (list "AI [active]" "+AI" active)
               (list "study [active]" "+study" active)
@@ -30,6 +31,7 @@
               (list "biotech [active]" "+biotech" active)
               (list "immediate [active,all]" immediate active)
               (list "UAP [active]" "+UAP" active)
+              (list "books [active]" books active)
               (list "Emacs [active]" "+Emacs|+orgroam|+orgmode|+elisp" active))))
 
 (map! :desc "completion-at-point" "<M-SPC>" #'completion-at-point)
