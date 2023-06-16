@@ -15,8 +15,14 @@
          :target (file+head "bib/notes/%<%Y%m%d%H%M%S>.org"
                             ":PROPERTIES:\n:ROAM_REFS: cite:${citekey}\n:AUTHORS: ${author}\n:END:\n#+title: ${title}\n#+filetags: :bib:"))))
 
+(defun my/org-roam-node-find-split ()
+  "Perform a Roam node find, but open the buffer in a split."
+  (interactive)
+  (org-roam-node-find t))
+
 (use-package! org-roam
   :bind (("M-n" . #'org-roam-node-find)
+         ("M-N" . #'my/org-roam-node-find-split)
          ("M-Y" . #'org-roam-alias-add)
          ("M-R" . #'org-roam-refile)
          ("M-T" . #'org-roam-tag-add))
