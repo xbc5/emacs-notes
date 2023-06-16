@@ -10,6 +10,10 @@
          :unnarrowed t
          :target (file+head "%<%Y%m%d%H%M%S>.org"
                             "#+title: ${title}"))
+        ("e" "encrypted idea" plain "\n\n* meta\n* related\n* brief\n* summary\n* conclusion\n* details\n%?"
+         :unnarrowed t
+         :target (file+head "%<%Y%m%d%H%M%S>.org.gpg"
+                            "#+title: ${title}"))
         ("b" "bib notes" plain "\n\n* meta\n* conclusions\n* summary\n* notes\n%?\n* thoughts\n"
          :unnarrowed t
          :target (file+head "bib/notes/%<%Y%m%d%H%M%S>.org"
