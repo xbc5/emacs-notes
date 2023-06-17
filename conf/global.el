@@ -11,7 +11,7 @@
       my/org-agenda-dir (concat org-directory "/agenda/")
       my/bib (concat org-directory "/bib")
       my/refs (concat my/bib "/refs.bib" )
-      my/bib-notes (concat my/bib "/notes"))
+      my/bib-notes (concat org-roam-directory "/lit"))
 
 (let* ((active "-TODO=\"DONE\"-TODO=\"DROP\"")
        (books "+SOURCE_TYPE=\"book\"|+book|+books")
