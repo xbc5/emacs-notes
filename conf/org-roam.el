@@ -6,17 +6,17 @@
       :desc "org-roam-node-insert" "i" #'org-roam-node-insert)
 
 (setq my/roam-templates
-      '(("i" "idea" plain "\n\n* meta\n* related\n* brief\n* summary\n* conclusion\n* details\n%?"
+      '(("p" "permanent note" plain "\n\n* meta\n* related\n* brief\n* summary\n* conclusion\n* details\n%?"
          :unnarrowed t
-         :target (file+head "%<%Y%m%d%H%M%S>.org"
+         :target (file+head "perm/%<%Y%m%d%H%M%S>.org"
                             "#+title: ${title}"))
-        ("e" "encrypted idea" plain "\n\n* meta\n* related\n* brief\n* summary\n* conclusion\n* details\n%?"
+        ("e" "encrypted note" plain "\n\n* meta\n* related\n* brief\n* summary\n* conclusion\n* details\n%?"
          :unnarrowed t
-         :target (file+head "%<%Y%m%d%H%M%S>.org.gpg"
+         :target (file+head "secure/%<%Y%m%d%H%M%S>.org.gpg"
                             "#+title: ${title}"))
-        ("b" "bib notes" plain "\n\n* meta\n* conclusions\n* summary\n* notes\n%?\n* thoughts\n"
+        ("l" "literature note" plain "\n\n* meta\n* conclusions\n* summary\n* notes\n%?\n* thoughts\n"
          :unnarrowed t
-         :target (file+head "bib/notes/%<%Y%m%d%H%M%S>.org"
+         :target (file+head "lit/%<%Y%m%d%H%M%S>.org"
                             ":PROPERTIES:\n:ROAM_REFS: cite:${citekey}\n:AUTHORS: ${author}\n:END:\n#+title: ${title}\n#+filetags: :bib:"))))
 
 (defun my/org-roam-node-find-split ()
