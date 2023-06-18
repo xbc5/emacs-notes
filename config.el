@@ -1,5 +1,4 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
-
 ;; misc
 (load! "conf/global")
 (load! "lib/shims")
