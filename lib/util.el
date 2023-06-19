@@ -51,10 +51,12 @@
 
 (defun my/tags (name)
   "Return the tags from the given tag file as a list."
-  (mkdir my/tag-files t)
-  (split-string
-    (my/read-file (concat my/tag-files "/" name))
-    "\n" t " "))
+  (let ((fpath (concat my/tag-files "/" name)))
+    (mkdir my/tag-files t)
+    (unless (file-exists-p fpath) (f-touch fpath))
+    (split-string
+     (my/read-file fpath)
+     "\n" t " ")))
 
 (defun my/write-tag (fname tag)
   "Write a single tag to {my/tag-fles}/{fname}."
@@ -65,13 +67,17 @@
   "Pick a tag from {my/tag-fles}/{fname}, if it doesn't exist -- write it."
   (let* ((tags (my/tags fname))
          (choice (replace-regexp-in-string " +" "_"
-                   (s-trim (completing-read (concat msg ": ") tags)))))
+                                           (s-trim (completing-read (concat msg ": ") tags)))))
     (unless (member choice tags) (my/write-tag fname choice))
     choice))
 
 (defun my/pick-article-kind (node)
   "Select an article kind, or insert it if it doesn't exist."
   (my/pick-tags "article" "Article kind"))
+
+(defun my/pick-person-kind (node)
+  "Select a kind of person (i.e. profession or what they're known for). Insert it if it doesn't exist."
+  (my/pick-tags "person" "Kind of person"))
 
 (defun my/open-stackoverflow-question (path)
   "Open a link to a StackOverflow question. An SO link will end in useless text,
