@@ -6,6 +6,7 @@
       :desc "org-roam-node-insert" "i" #'org-roam-node-insert)
 
 (setq my/roam-templates
+      ;; least used letters in the alphabet: (1/1111) zqjxkvbywgp (1/47)
       '(("p" "permanent note" plain "\n\n* meta\n* related\n* brief\n* summary\n* conclusion\n* details\n%?"
          :unnarrowed t
          :target (file+head "perm/%<%Y%m%d%H%M%S>.org"
@@ -13,6 +14,10 @@
         ("e" "encrypted note" plain "\n\n* meta\n* related\n* brief\n* summary\n* conclusion\n* details\n%?"
          :unnarrowed t
          :target (file+head "secure/%<%Y%m%d%H%M%S>.org.gpg"
+                            "#+title: ${title}"))
+        ("v" "quote" plain (function (lambda () (my/template "quote")))
+         :unnarrowed t
+         :target (file+head "quote/%<%Y%m%d%H%M%S>.org"
                             "#+title: ${title}"))
         ("l" "literature note" plain "\n\n* meta\n* conclusions\n* summary\n* notes\n%?\n* thoughts\n"
          :unnarrowed t

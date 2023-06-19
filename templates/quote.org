@@ -1,0 +1,8 @@
+* meta
+* brief
+* quote
+#+begin_quote
+%? -- 
+#+end_quote
+
+Source: [[cite:&${my/pick-bibtex-key}]]

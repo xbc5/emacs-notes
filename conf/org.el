@@ -33,9 +33,9 @@
           ("DONE" :foreground "#666666")
           ("DROP" :foreground "#666666"))
         org-capture-templates '(("f" "Fleeting notes" entry (file+olp+datetree "fleeting.org") "* %?")
-                                ("l" "Bookmark" entry (function my/find-agenda-file) (function my/bookmark-template))
-                                ("b" "Book" entry (function my/find-agenda-file) (function my/book-template))
-                                ("t" "Task" entry (function my/find-agenda-file) (function my/task-template)))
+                                ("l" "Bookmark" entry (function my/find-agenda-file) (function (lambda () (my/template "bookmark"))))
+                                ("b" "Book" entry (function my/find-agenda-file) (function (lambda () (my/template "book"))))
+                                ("t" "Task" entry (function my/find-agenda-file) (function (lambda () (my/template "task")))))
         org-highest-priority 65
         org-lowest-priority 69
         org-default-priority 68

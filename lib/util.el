@@ -1,4 +1,4 @@
-(defun my/get-bibtex-key (node)
+(defun my/pick-bibtex-key (node)
   "A BibTeX key picker using completing-read."
   (completing-read "Citation key: "
                    (mapcar #'(lambda (x) (cdr (assoc "=key=" x)))
@@ -48,18 +48,6 @@
 (defun my/template (name)
   "Return the template contents for the given extensionless file name."
   (my/read-file (my/template-path name)))
-
-(defun my/task-template ()
-  "Return the task template contents. Use this for capture templates."
-  (my/template "task"))
-
-(defun my/bookmark-template ()
-  "Return the bookmark template contents. Use this for capture templates."
-  (my/template "bookmark"))
-
-(defun my/book-template ()
-  "Return the book template contents. Use this for capture templates."
-  (my/template "book"))
 
 (defun my/open-stackoverflow-question (path)
   "Open a link to a StackOverflow question. An SO link will end in useless text,
