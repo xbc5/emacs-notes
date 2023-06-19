@@ -7,7 +7,11 @@
 
 (setq my/roam-templates
       ;; least used letters in the alphabet: (1/1111) zqjxkvbywgp (1/47)
-      '(("c" "concept" plain "\n\n* meta\n* related\n* brief\n* summary\n* conclusion\n* details\n%?"
+      '(("a" "article" plain (function (lambda () (my/template "article")))
+         :unnarrowed t
+         :target (file+head "article/%<%Y%m%d%H%M%S>.org"
+                            "#+title: ${title}\n#+filetags: :${my/pick-article-kind}:"))
+        ("c" "concept" plain "\n\n* meta\n* related\n* brief\n* summary\n* conclusion\n* details\n%?"
          :unnarrowed t
          :target (file+head "concept/%<%Y%m%d%H%M%S>.org"
                             "#+title: ${title}"))
@@ -15,22 +19,18 @@
          :unnarrowed t
          :target (file+head "secure/%<%Y%m%d%H%M%S>.org.gpg"
                             "#+title: ${title}"))
-        ("v" "quote" plain (function (lambda () (my/template "quote")))
+        ("l" "literature" plain "\n\n* meta\n* conclusions\n* summary\n* notes\n%?\n* thoughts\n"
          :unnarrowed t
-         :target (file+head "quote/%<%Y%m%d%H%M%S>.org"
-                            "#+title: ${title}"))
-        ("a" "article" plain (function (lambda () (my/template "article")))
-         :unnarrowed t
-         :target (file+head "article/%<%Y%m%d%H%M%S>.org"
-                            "#+title: ${title}\n#+filetags: :${my/pick-article-kind}:"))
+         :target (file+head "lit/%<%Y%m%d%H%M%S>.org"
+                            ":PROPERTIES:\n:ROAM_REFS: cite:${citekey}\n:AUTHORS: ${author}\n:END:\n#+title: ${title}\n"))
         ("p" "person" plain (function (lambda () (my/template "person")))
          :unnarrowed t
          :target (file+head "person/%<%Y%m%d%H%M%S>.org"
                             "#+title: ${title}\n#+filetags: :${my/pick-person-kind}:"))
-        ("l" "literature" plain "\n\n* meta\n* conclusions\n* summary\n* notes\n%?\n* thoughts\n"
+        ("v" "quote" plain (function (lambda () (my/template "quote")))
          :unnarrowed t
-         :target (file+head "lit/%<%Y%m%d%H%M%S>.org"
-                            ":PROPERTIES:\n:ROAM_REFS: cite:${citekey}\n:AUTHORS: ${author}\n:END:\n#+title: ${title}\n"))))
+         :target (file+head "quote/%<%Y%m%d%H%M%S>.org"
+                            "#+title: ${title}"))))
 
 (defun my/org-roam-node-find-split ()
   "Perform a Roam node find, but open the buffer in a split."
