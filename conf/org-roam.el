@@ -7,11 +7,11 @@
 
 (setq my/roam-templates
       ;; least used letters in the alphabet: (1/1111) zqjxkvbywgp (1/47)
-      '(("c" "permanent note" plain "\n\n* meta\n* related\n* brief\n* summary\n* conclusion\n* details\n%?"
+      '(("c" "concept" plain "\n\n* meta\n* related\n* brief\n* summary\n* conclusion\n* details\n%?"
          :unnarrowed t
-         :target (file+head "perm/%<%Y%m%d%H%M%S>.org"
+         :target (file+head "concept/%<%Y%m%d%H%M%S>.org"
                             "#+title: ${title}"))
-        ("e" "encrypted note" plain "\n\n* meta\n* related\n* brief\n* summary\n* conclusion\n* details\n%?"
+        ("e" "encrypted" plain "\n\n* meta\n* related\n* brief\n* summary\n* conclusion\n* details\n%?"
          :unnarrowed t
          :target (file+head "secure/%<%Y%m%d%H%M%S>.org.gpg"
                             "#+title: ${title}"))
@@ -27,7 +27,7 @@
          :unnarrowed t
          :target (file+head "person/%<%Y%m%d%H%M%S>.org"
                             "#+title: ${title}\n#+filetags: :${my/pick-person-kind}:"))
-        ("l" "literature note" plain "\n\n* meta\n* conclusions\n* summary\n* notes\n%?\n* thoughts\n"
+        ("l" "literature" plain "\n\n* meta\n* conclusions\n* summary\n* notes\n%?\n* thoughts\n"
          :unnarrowed t
          :target (file+head "lit/%<%Y%m%d%H%M%S>.org"
                             ":PROPERTIES:\n:ROAM_REFS: cite:${citekey}\n:AUTHORS: ${author}\n:END:\n#+title: ${title}\n"))))
