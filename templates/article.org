@@ -1,0 +1,7 @@
+* brief
+* details
+%?
+
+* media
+[[${Video URL}][Video]]
+

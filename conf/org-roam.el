@@ -19,10 +19,14 @@
          :unnarrowed t
          :target (file+head "quote/%<%Y%m%d%H%M%S>.org"
                             "#+title: ${title}"))
+        ("a" "article" plain (function (lambda () (my/template "article")))
+         :unnarrowed t
+         :target (file+head "article/%<%Y%m%d%H%M%S>.org"
+                            ":PROPERTIES:\n:ARTICLE: %^{Kind|game|movie|album|product|song|mix}\n:END:\n#+title: ${title}\n#+filetags: :%\\1:"))
         ("l" "literature note" plain "\n\n* meta\n* conclusions\n* summary\n* notes\n%?\n* thoughts\n"
          :unnarrowed t
          :target (file+head "lit/%<%Y%m%d%H%M%S>.org"
-                            ":PROPERTIES:\n:ROAM_REFS: cite:${citekey}\n:AUTHORS: ${author}\n:END:\n#+title: ${title}\n#+filetags: :bib:"))))
+                            ":PROPERTIES:\n:ROAM_REFS: cite:${citekey}\n:AUTHORS: ${author}\n:END:\n#+title: ${title}\n"))))
 
 (defun my/org-roam-node-find-split ()
   "Perform a Roam node find, but open the buffer in a split."
