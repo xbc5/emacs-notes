@@ -7,6 +7,7 @@
       display-line-numbers-type t
       org-directory "~/org"
       org-roam-directory org-directory
+      my/tag-files (concat org-roam-directory "/tags")
       my/templates-dir (concat doom-user-dir "/templates") ; e.g. org capture templates
       my/org-agenda-dir (concat org-directory "/agenda/")
       my/bib (concat org-roam-directory "/bib" )

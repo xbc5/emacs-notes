@@ -22,7 +22,7 @@
         ("a" "article" plain (function (lambda () (my/template "article")))
          :unnarrowed t
          :target (file+head "article/%<%Y%m%d%H%M%S>.org"
-                            ":PROPERTIES:\n:ARTICLE: %^{Kind|game|movie|album|product|song|mix}\n:END:\n#+title: ${title}\n#+filetags: :%\\1:"))
+                            "#+title: ${title}\n#+filetags: :${my/pick-article-kind}:"))
         ("l" "literature note" plain "\n\n* meta\n* conclusions\n* summary\n* notes\n%?\n* thoughts\n"
          :unnarrowed t
          :target (file+head "lit/%<%Y%m%d%H%M%S>.org"

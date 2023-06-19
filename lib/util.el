@@ -49,6 +49,30 @@
   "Return the template contents for the given extensionless file name."
   (my/read-file (my/template-path name)))
 
+(defun my/tags (name)
+  "Return the tags from the given tag file as a list."
+  (mkdir my/tag-files t)
+  (split-string
+    (my/read-file (concat my/tag-files "/" name))
+    "\n" t " "))
+
+(defun my/write-tag (fname tag)
+  "Write a single tag to {my/tag-fles}/{fname}."
+  (mkdir my/tag-files t)
+  (append-to-file (concat tag "\n") nil (concat my/tag-files "/" fname)))
+
+(defun my/pick-tags (fname msg)
+  "Pick a tag from {my/tag-fles}/{fname}, if it doesn't exist -- write it."
+  (let* ((tags (my/tags fname))
+         (choice (replace-regexp-in-string " +" "_"
+                   (s-trim (completing-read (concat msg ": ") tags)))))
+    (unless (member choice tags) (my/write-tag fname choice))
+    choice))
+
+(defun my/pick-article-kind (node)
+  "Select an article kind, or insert it if it doesn't exist."
+  (my/pick-tags "article" "Article kind"))
+
 (defun my/open-stackoverflow-question (path)
   "Open a link to a StackOverflow question. An SO link will end in useless text,
   only the ID matters: e.g. https://stackoverflow.com/questions/12345/ignore-this-part"
