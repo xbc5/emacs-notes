@@ -1,13 +1,13 @@
-(map! :leader
+(make-directory org-directory t)
+(setq org-agenda-files (list my/org-agenda-dir)) ; set outside of after! as per the manual
+
+(map! "M-M" #'org-capture
+      :leader
       :prefix "m"
       :desc "Apply custom agenda filters" "t" 'my/set-agenda-filter)
 
-(use-package! org
-  :bind ("M-M" . org-capture)
-
-  :init (make-directory org-directory t)
-
-  :config
+;; org is a module, and we're reconfiguring it here (i.e. don't use use-package!)
+(after! org
   (add-to-list 'org-modules 'ol-info) ;; for 'info:' links
   (org-add-link-type "RFC" 'my/open-rfc-link)
   (org-add-link-type "CMC" 'my/open-coinmarketcap-link)
@@ -18,7 +18,6 @@
   (org-add-link-type "SOA" 'my/open-stackoverflow-answer)
   (org-add-link-type "twitter" 'my/open-twitter-link)
   (setq org-startup-folded t
-        org-agenda-files (list my/org-agenda-dir)
         org-agenda-file-regexp "^.*\\.org$"
         org-cycle-max-level 2
         org-refile-targets '((nil :maxlevel . 3)
