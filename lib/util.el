@@ -75,6 +75,10 @@
   "Select an article kind, or insert it if it doesn't exist."
   (my/pick-tags "article" "Article kind"))
 
+(defun my/pick-idea-kind (node)
+  "Select an idea kind, or insert it if it doesn't exist."
+  (my/pick-tags "idea" "Idea kind"))
+
 (defun my/pick-person-kind (node)
   "Select a kind of person (i.e. profession or what they're known for). Insert it if it doesn't exist."
   (my/pick-tags "person" "Kind of person"))

@@ -19,6 +19,10 @@
          :unnarrowed t
          :target (file+head "secure/%<%Y%m%d%H%M%S>.org.gpg"
                             "#+title: ${title}"))
+        ("i" "idea" plain (function (lambda () (my/template "idea")))
+         :unnarrowed t
+         :target (file+head "idea/%<%Y%m%d%H%M%S>.org"
+                            "#+title: ${title}\n#+filetags: :${my/pick-idea-kind}:"))
         ("l" "literature" plain "\n\n* meta\n* conclusions\n* summary\n* notes\n%?\n* thoughts\n"
          :unnarrowed t
          :target (file+head "lit/%<%Y%m%d%H%M%S>.org"
