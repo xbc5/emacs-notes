@@ -24,6 +24,10 @@
          :unnarrowed t
          :target (file+head "person/%<%Y%m%d%H%M%S>.org"
                             "#+title: ${title}\n#+filetags: :${my/pick-person-kind}:"))
+        ("s" "comment" plain (function (lambda () (my/template "comment")))
+         :unnarrowed t
+         :target (file+head "quote/%<%Y%m%d%H%M%S>.org"
+                            ":PROPERTIES:\n:ROAM_REFS: ${URL}\n:END:\n#+title: ${title}\n#+filetags: :comment:"))
         ("v" "quote" plain (function (lambda () (my/template "quote")))
          :unnarrowed t
          :target (file+head "quote/%<%Y%m%d%H%M%S>.org"
