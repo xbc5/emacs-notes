@@ -6,4 +6,9 @@
   (interactive)
   (org-set-property "BRIEF"
                     (read-string "Set brief: "
-                                 (org-property-values "BRIEF"))))
+                                 (my/roam-property-values "BRIEF"))))
+
+(defun my/roam-property-values (key)
+  (cdr
+   (assoc key (org-roam-node-properties
+               (org-roam-node-at-point)))))
