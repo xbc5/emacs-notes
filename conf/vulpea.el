@@ -68,8 +68,17 @@
                    :tags (my/roam-tag-list)
                    :body  "* meta\n* summary\n* details\n%?")))
 
+(defun my/vulpea--capture-lit (title)
+  (interactive "sTitle: ")
+  (vulpea-create title "lit/%<%Y%m%d%H%M%S>.org"
+                 :properties (my/vulpea-props :type "literature"
+                                              :roamrefs "cite:${citekey}")
+                 :tags (my/roam-tag-list)
+                 :body  "* meta\n* summary\n* conclusion\n* details\n%?"))
+
 ;; credit to nobiot
 (defvar my/capture-switch)
 (setq my/capture-switch '((?a "article" (lambda (title) (my/vulpea--capture-article title)))
                           (?c "concept" (lambda (title) (my/vulpea--capture-concept title)))
-                          (?i "idea" (lambda (title) (my/vulpea--capture-idea title)))))
+                          (?i "idea" (lambda (title) (my/vulpea--capture-idea title)))
+                          (?l "literature" (lambda (title) (my/vulpea--capture-lit title)))))
