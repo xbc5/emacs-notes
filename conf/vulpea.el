@@ -17,6 +17,8 @@
       (setf head (concat head (format "[[%s][Preview]]\n" preview-url))))
     head))
 
+(setq my/vulpea--typical-body "* meta\n* summary\n* details\n%?\n* conclusion\n")
+
 ;; TODO: add message to menu: e.g. Download source:
 ;; TODO: add [u]se option on file conflict
 ;; TODO: do URL embeds
@@ -54,7 +56,7 @@
                    :properties (my/vulpea-props :type "concept"
                                                 :aliases "${aliasx}")
                    :tags (my/roam-tag-list)
-                   :body  "* meta\n* summary\n* conclusion\n* details\n%?")))
+                   :body my/vulpea--typical-body)))
 
 (defun my/vulpea--capture-idea (title)
   (interactive "sTitle: ")
@@ -74,11 +76,25 @@
                  :properties (my/vulpea-props :type "literature"
                                               :roamrefs "cite:${citekey}")
                  :tags (my/roam-tag-list)
-                 :body  "* meta\n* summary\n* conclusion\n* details\n%?"))
+                 :body my/vulpea--typical-body))
+
+(defun my/vulpea--capture-person (title)
+  (interactive "sTitle: ")
+  (let* ((aliases (my/prompt-for-aliases))
+         (cat (my/pick-tags "person" "Type of person"))
+         (tags (my/roam-tag-list)))
+    (vulpea-create title "person/%<%Y%m%d%H%M%S>.org"
+                   :context (list :aliasx aliases :cat cat)
+                   :properties (my/vulpea-props :type "person"
+                                                :cat "${cat}"
+                                                :aliases "${aliasx}")
+                   :tags (cons cat tags)
+                   :body my/vulpea--typical-body)))
 
 ;; credit to nobiot
 (defvar my/capture-switch)
 (setq my/capture-switch '((?a "article" (lambda (title) (my/vulpea--capture-article title)))
                           (?c "concept" (lambda (title) (my/vulpea--capture-concept title)))
                           (?i "idea" (lambda (title) (my/vulpea--capture-idea title)))
-                          (?l "literature" (lambda (title) (my/vulpea--capture-lit title)))))
+                          (?l "literature" (lambda (title) (my/vulpea--capture-lit title)))
+                          (?p "person" (lambda (title) (my/vulpea--capture-person title)))))
