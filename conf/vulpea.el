@@ -61,13 +61,16 @@
 (defun my/vulpea--capture-idea (title)
   (interactive "sTitle: ")
   (let* ((aliases (my/prompt-for-aliases))
-         (cat (my/pick-tags "idea" "Type of idea")))
+         (cat (my/pick-tags "idea" "Type of idea"))
+         (subcat (when (string= cat "project")
+                   (my/pick-tags "project" "Type of project")))
+         (tags (list cat subcat)))
     (vulpea-create title "idea/%<%Y%m%d%H%M%S>.org"
                    :context (list :aliasx aliases :cat cat)
                    :properties (my/vulpea-props :type "idea"
                                                 :cat "${cat}"
                                                 :aliases "${aliasx}")
-                   :tags (my/roam-tag-list)
+                   :tags (append tags (my/roam-tag-list))
                    :body  "* meta\n* summary\n* details\n%?")))
 
 (defun my/vulpea--capture-lit (title)
