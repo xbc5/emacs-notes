@@ -3,18 +3,23 @@
 (load! "conf/global")
 (load! "lib/shims")
 (load! "lib/util")
+(load! "lib/smenu")
+(load! "lib/roam")
+(load! "lib/img")
+(load! "lib/vulpea")
 
 ;; pkg
 (load! "conf/plantuml-mode")
-(load! "conf/helm-bibtex")
 (load! "conf/spell")
 (load! "conf/org")
-(load! "conf/org-ref")
+(load! "conf/refs") ; slow boot
 (load! "conf/org-roam")
+(load! "conf/vulpea")
 (load! "conf/org-ql")
 (load! "conf/org-fancy-priorities")
 (load! "conf/nursery")
-(load! "conf/org-roam-bibtex")
-;;(load! "conf/org-roam-server")
+;(load! "conf/org-roam-server")
 
-(org-roam-mode)
+; WARN: slows down boot by ~6s
+; (require 'org-roam)
+; (org-roam-mode)

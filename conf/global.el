@@ -11,6 +11,7 @@
       my/templates-dir (concat doom-user-dir "/templates") ; e.g. org capture templates
       my/org-agenda-dir (concat org-directory "/agenda/")
       my/bib (concat org-roam-directory "/bib" )
+      my/imgs (concat org-roam-directory "/img")
       my/bib-file-re "\.\\(bib\\|org\\)$" ; match files in bib dir
       my/bib-files (directory-files my/bib t my/bib-file-re) ; bib/*.{org,bib}
       my/lit-notes (concat org-roam-directory "/lit"))

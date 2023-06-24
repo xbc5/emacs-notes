@@ -58,6 +58,14 @@
      (my/read-file fpath)
      "\n" t " ")))
 
+(defun my/tags-p (fname tag)
+  "Return t if TAG exists inside tags file (FNAME)."
+  (not (eq nil (member tag (my/tags fname)))))
+
+(defun my/slugify (str &optional trail)
+  "Take str, trim it, and replace all spaces with underscores."
+  (replace-regexp-in-string " +" (or trail "_") (s-trim str)))
+
 (defun my/write-tag (fname tag)
   "Write a single tag to {my/tag-fles}/{fname}."
   (mkdir my/tag-files t)
@@ -130,6 +138,11 @@
   (interactive)
   (org-tags-view t (my/pick-agenda-filter)))
 
+(defun my/prompt (msg) (s-trim (read-string (concat msg ": "))))
+
+(defun my/file-exists-p (path)
+  "file-exists-p returns t for blank strings, this fixes that."
+  (and (not (string-blank-p path)) (file-exists-p path)))
 
 ;; This code is for subdirectory projects
 ;; (setq org-roam-capture-templates

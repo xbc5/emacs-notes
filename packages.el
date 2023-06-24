@@ -11,6 +11,7 @@
 (unpin! org-roam)
 
 (when (package! org-roam)
+  (package! vulpea)
   (package! org-roam-server :disable t) ; not yet supported for roam v2
   (when (package! org-ref) ; we don't want ref is no roam
     (when (package! helm-bibtex) ; we don't need if no ref
