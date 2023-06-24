@@ -31,9 +31,9 @@
          (rating  (when (my/tags-p "needs-rating" cat)
                     (my/rating-prompt)))
          (year  (when (my/tags-p "needs-year" cat)
-                    (my/year-prompt)))
+                  (my/year-prompt)))
          (state  (when (my/tags-p "needs-state" cat)
-                    (my/pick-tags "state" "Article state")))
+                   (my/pick-tags "state" "Article state")))
          (tags (my/roam-tag-list)))
     (vulpea-create title "article/%<%Y%m%d%H%M%S>.org"
                    :context (list :aliasx aliases :cat cat :rating rating :state state :year year)
@@ -56,7 +56,20 @@
                    :tags (my/roam-tag-list)
                    :body  "* meta\n* summary\n* conclusion\n* details\n%?")))
 
+(defun my/vulpea--capture-idea (title)
+  (interactive "sTitle: ")
+  (let* ((aliases (my/prompt-for-aliases))
+         (cat (my/pick-tags "idea" "Type of idea")))
+    (vulpea-create title "idea/%<%Y%m%d%H%M%S>.org"
+                   :context (list :aliasx aliases :cat cat)
+                   :properties (my/vulpea-props :type "idea"
+                                                :cat "${cat}"
+                                                :aliases "${aliasx}")
+                   :tags (my/roam-tag-list)
+                   :body  "* meta\n* summary\n* details\n%?")))
+
 ;; credit to nobiot
 (defvar my/capture-switch)
 (setq my/capture-switch '((?a "article" (lambda (title) (my/vulpea--capture-article title)))
-                          (?c "concept" (lambda (title) (my/vulpea--capture-concept title)))))
+                          (?c "concept" (lambda (title) (my/vulpea--capture-concept title)))
+                          (?i "idea" (lambda (title) (my/vulpea--capture-idea title)))))
