@@ -50,6 +50,7 @@
         "M-Y" #'org-roam-alias-add
         "M-R" #'org-roam-refile
         "M-T" #'org-roam-tag-add
+        "M-B" #'my/roam-set-brief
         :leader
         :prefix "r"
         :desc "org-roam-buffer-toggle" "l" #'org-roam-buffer-toggle
