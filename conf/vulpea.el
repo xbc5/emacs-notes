@@ -29,7 +29,7 @@
          (preview-url  (when (my/tags-p "needs-preview" cat)
                          (my/prompt "Preview URL")))
          (cover-block  (when (my/tags-p "needs-cover" cat)
-                         (my/img-block-prompt "cover" title "Cover URL")))
+                         (my/img-block-prompt "cover" title "Cover")))
          (rating  (when (my/tags-p "needs-rating" cat)
                     (my/rating-prompt)))
          (year  (when (my/tags-p "needs-year" cat)

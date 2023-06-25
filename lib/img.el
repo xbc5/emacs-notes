@@ -6,7 +6,14 @@ a local file path.")
       '((?d "download" (lambda (tag name &optional msg)
                          (my/img--fetch-prompt tag name msg))) ; local fpath
         (?l "local" (lambda (tag name &optional msg)
-                      (my/img--pick-local msg (my/img--prep-search-string name tag)))))) ; local fpath
+                      (my/img--pick-local msg (my/img--prep-search-string name tag))))
+        (?e "embed" (lambda (&optional tag name msg)
+                      (my/prompt (my/img--msg "IMG URL" msg))))))
+
+(defun my/img--msg (suffix &optional prefix)
+  (if (or (eq prefix nil) (string-blank-p prefix))
+      suffix
+    (concat prefix " " suffix)))
 
 (defun my/img-block-prompt (tag name &optional msg width)
   "Return an image block. This is a public function
@@ -20,24 +27,26 @@ replaced with _; lowercased. You do not need to
 provide an extension -- the URL should end in an
 extension, and it will use that.
 
-MSG is the message that you will see when prompting
-you for a URL. Don't add colons or spaces -- use
-'Foo URL' for example.
+MSG is the prompt message prefix that you will see.
+It's suffixed with either ' IMG URL' or ' IMG FILE':
+e.g. 'Cover' => 'Cover IMG URL'.
 
 WIDTH is the width inserted into the ORG_ATTR prop.
 It defaults to my/img-width, or 800 if that isn't set."
-  (my/img--block-from-path
-   (my/smenu--choose-image tag name msg) width))
+  (let* ((path (my/smenu--choose-image tag name msg)))
+    (if (org-url-p path)
+        (my/img--block path width)
+      (my/img--block-from-path path width))))
 
 (defun my/img--valid-ext-p (path)
   "Check if path has an image file extension."
   (s-matches? (image-file-name-regexp) path))
 
-(defun my/img--fetch-prompt (tag name &optional msg)
+(defun my/img--fetch-prompt (tag name msg)
   "Works exactly like my/img-fetch, except it prompts
 for a URL. MSG is the prompt message (without a colon
 or space)."
-  (let* ((url (my/prompt (or msg "URL"))))
+  (let* ((url (my/prompt (my/img--msg "IMG URL" msg))))
     (when (string-blank-p url) (error "You MUST provide a URL"))
     (my/img--fetch url tag name)))
 
@@ -82,7 +91,7 @@ to initially narrow the search and make it easy
 to find the relevant file."
   (f-short
    (f-join my/imgs
-           (my/ls my/imgs (or msg "Choose IMG") initial-input))))
+           (my/ls my/imgs (my/img--msg "IMG file" msg) initial-input))))
 
 (defun my/ls (dir &optional msg initial-input)
   "Do a completing-read ls on my/imgs."
@@ -127,17 +136,18 @@ to find the relevant file."
       (or my/img-width 800)
     800))
 
+(defun my/img--block (path width)
+  (when (or (eq path nil) (string-blank-p path))
+    (error (format "Invalid path for image block: '%s'" path) ))
+  (format "#+ATTR_ORG: :width %d\n[[%s][Img]]\n" width path))
+
 (defun my/img--block-from-path (path &optional width)
   "Return an image block string initialised with the path."
   (unless (my/file-exists-p path) (error (format "IMG does not exist: '%s'" path)))
 
   (let* ((p (my/img--special-path path))
          (w (or width (my/img--default-width))))
-    (format "#+ATTR_ORG: :width %d\n[[%s][Img]]\n" w p)))
-
-(defun my/img--block-from-url (url tag name)
-  "Return an image block string with a stored image from URL."
-  (my/img--block-from-path (my/img--fetch url tag name)))
+    (my/img--block p w)))
 
 (defun my/smenu--choose-image (tag name &optional msg)
   "Ask the user how to obtain an image via an smenu
