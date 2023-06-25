@@ -31,8 +31,7 @@ It defaults to my/img-width, or 800 if that isn't set."
 
 (defun my/img--valid-ext-p (path)
   "Check if path has an image file extension."
-  (let* ((ext (file-name-extension path)))
-    (not (eq nil (member ext (list "jpg" "png" "bmp" "gif"))))))
+  (s-matches? (image-file-name-regexp) path))
 
 (defun my/img--fetch-prompt (tag name &optional msg)
   "Works exactly like my/img-fetch, except it prompts
