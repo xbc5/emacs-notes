@@ -26,6 +26,7 @@ This allows you to dynamically exclude unused props."
          (rating (or (plist-get args :rating) ""))
          (state (or (plist-get args :state) ""))
          (year (plist-get args :year))
+         (roamrefs (or (plist-get args :roamrefs) ""))
          (props '()))
     (unless (string-blank-p type)
       (setf props (cons (cons "NOTE_TYPE" type) props)))
@@ -39,6 +40,8 @@ This allows you to dynamically exclude unused props."
       (setf props (cons (cons "STATE" state) props)))
     (unless (eq year nil) ; is number or nil
       (setf props (cons (cons "YEAR" year) props)))
+    (unless (string-blank-p roamrefs)
+      (setf props (cons (cons "ROAM_REFS" roamrefs) props)))
     props))
 
 (defun my/rating-prompt (&optional msg)

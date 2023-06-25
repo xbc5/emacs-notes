@@ -1,4 +1,4 @@
-(defun my/pick-bibtex-key (node)
+(defun my/pick-bibtex-key (&optional node)
   "A BibTeX key picker using completing-read."
   (completing-read "Citation key: "
                    (mapcar #'(lambda (x) (cdr (assoc "=key=" x)))

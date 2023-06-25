@@ -94,10 +94,43 @@
                    :tags (cons cat tags)
                    :body my/vulpea--typical-body)))
 
+(setq my/vulpea--quote-upper-body-t "
+* meta
+* summary
+* details
+#+begin_quote
+%?
+#+end_quote
+
+")
+
+(defun my/vulpea--quote-body (&optional url)
+  (let* ((upper my/vulpea--quote-upper-body-t)
+         (src "Source: %s\n\n")
+         (lower (if (or (eq nil url) (string-blank-p url))
+                    (format src "[[cite:&${my/pick-bibtex-key}]]") ; cite
+                  (format src (format "[[%s][%s]]" url (my/prompt "Source name")))))) ; url
+    (concat upper lower)))
+
+(defun my/vulpea--capture-quote (title)
+  (interactive "sTitle: ")
+  (let* ((cat (my/pick-tags "quote" "Type of quote"))
+         (tags (my/roam-tag-list))
+         (url (when (not (string= cat "literature"))
+                (my/prompt "Quote URL"))))
+    (vulpea-create title "quote/%<%Y%m%d%H%M%S>.org"
+                   :context (list :cat cat :roamrefs url)
+                   :properties (my/vulpea-props :type "quote"
+                                                :cat "${cat}"
+                                                :roamrefs "${roamrefs}")
+                   :tags (cons cat tags)
+                   :body (my/vulpea--quote-body url))))
+
 ;; credit to nobiot
 (defvar my/capture-switch)
 (setq my/capture-switch '((?a "article" (lambda (title) (my/vulpea--capture-article title)))
                           (?c "concept" (lambda (title) (my/vulpea--capture-concept title)))
                           (?i "idea" (lambda (title) (my/vulpea--capture-idea title)))
                           (?l "literature" (lambda (title) (my/vulpea--capture-lit title)))
-                          (?p "person" (lambda (title) (my/vulpea--capture-person title)))))
+                          (?p "person" (lambda (title) (my/vulpea--capture-person title)))
+                          (?q "quote" (lambda (title) (my/vulpea--capture-quote title)))))
