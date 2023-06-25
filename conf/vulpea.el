@@ -11,9 +11,9 @@
 
 (defun my/vulpea--article-body (preview-url cover-block)
   (let* ((head "* details\n%?\n* media\n"))
-    (unless (string-blank-p cover-block)
+    (unless (or (eq cover-block nil) (string-blank-p cover-block))
       (setf head (concat head (format "%s\n\n" cover-block))))
-    (unless (string-blank-p preview-url)
+    (unless (or (eq preview-url nil) (string-blank-p preview-url))
       (setf head (concat head (format "[[%s][Preview]]\n" preview-url))))
     head))
 
