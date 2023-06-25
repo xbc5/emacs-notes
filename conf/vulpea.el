@@ -38,13 +38,12 @@
                    (my/pick-tags "state" "Article state")))
          (tags (my/roam-tag-list)))
     (vulpea-create title "article/%<%Y%m%d%H%M%S>.org"
-                   :context (list :aliasx aliases :cat cat :rating rating :state state :year year)
                    :properties (my/vulpea-props :type "article"
-                                                :cat "${cat}"
-                                                :aliases "${aliasx}"
-                                                :state "${state}"
-                                                :year "${year}"
-                                                :rating "${rating}")
+                                                :cat cat
+                                                :aliases aliases
+                                                :state state
+                                                :year year
+                                                :rating rating)
                    :tags (cons cat tags)
                    :body (my/vulpea--article-body preview-url cover-block))))
 
@@ -52,9 +51,8 @@
   (interactive "sTitle: ")
   (let* ((aliases (my/prompt-for-aliases)))
     (vulpea-create title "concept/%<%Y%m%d%H%M%S>.org"
-                   :context (list :aliasx aliases)
                    :properties (my/vulpea-props :type "concept"
-                                                :aliases "${aliasx}")
+                                                :aliases aliases)
                    :tags (my/roam-tag-list)
                    :body my/vulpea--typical-body)))
 
@@ -66,10 +64,9 @@
                    (my/pick-tags "project" "Type of project")))
          (tags (list cat subcat)))
     (vulpea-create title "idea/%<%Y%m%d%H%M%S>.org"
-                   :context (list :aliasx aliases :cat cat)
                    :properties (my/vulpea-props :type "idea"
-                                                :cat "${cat}"
-                                                :aliases "${aliasx}")
+                                                :cat cat
+                                                :aliases aliases)
                    :tags (append tags (my/roam-tag-list))
                    :body  "* meta\n* summary\n* details\n%?")))
 
@@ -79,10 +76,9 @@
          (cat (my/pick-tags "person" "Type of person"))
          (tags (my/roam-tag-list)))
     (vulpea-create title "person/%<%Y%m%d%H%M%S>.org"
-                   :context (list :aliasx aliases :cat cat)
                    :properties (my/vulpea-props :type "person"
-                                                :cat "${cat}"
-                                                :aliases "${aliasx}")
+                                                :cat cat
+                                                :aliases aliases)
                    :tags (cons cat tags)
                    :body my/vulpea--typical-body)))
 
@@ -111,10 +107,9 @@
          (url (when (not (string= cat "literature"))
                 (my/prompt "Quote URL"))))
     (vulpea-create title "quote/%<%Y%m%d%H%M%S>.org"
-                   :context (list :cat cat :roamrefs url)
                    :properties (my/vulpea-props :type "quote"
-                                                :cat "${cat}"
-                                                :roamrefs "${roamrefs}")
+                                                :cat cat
+                                                :roamrefs url)
                    :tags (cons cat tags)
                    :body (my/vulpea--quote-body url))))
 
