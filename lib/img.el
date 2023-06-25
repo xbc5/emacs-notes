@@ -52,16 +52,16 @@ ignore it (because it has one)."
   "Set extension if it doesn't have one; replace extension in
 name that doesn't match ext."
   (if (my/img--valid-ext-p name)
-      (replace-regexp-in-string "\.[a-zA-Z]\\{1,6\\}$" (concat "." ext) name)
+      (replace-regexp-in-string (image-file-name-regexp) (concat "." ext) name)
     (concat name "." ext)))
 
 (defun my/img--prep-fname (name tag ext)
   "Add a tag, extension, slugify, trim, and lowercase the name."
   (when (string-blank-p name) (error "You cannot use a blank name."))
-  (let* ((n (downcase (my/slugify name "-")))
+  (let* ((n (my/slugify name "-"))
          (with-tag (my/img--set-tag n tag))
          (with-ext (my/img--set-ext with-tag ext)))
-    with-ext))
+    (downcase with-ext)))
 
 (defun my/img--prep-search-string (name &optional tag)
   ""
