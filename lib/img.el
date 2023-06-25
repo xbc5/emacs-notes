@@ -1,7 +1,12 @@
-(defvar my/smenu-image-choices nil "The menu choices for 'my/smenu--choose-image")
-(setq my/smenu-image-choices '((?d "download" (lambda (tag name &optional msg)
-                                                (my/img--fetch-prompt tag name msg)))
-                               (?l "local" (lambda (tag name msg) (print "local")))))
+(defvar my/smenu-image-choices nil
+  "The menu choices for 'my/smenu--choose-image.
+The functions should return a path: a URL or
+a local file path.")
+(setq my/smenu-image-choices
+      '((?d "download" (lambda (tag name &optional msg)
+                         (my/img--fetch-prompt tag name msg))) ; local fpath
+        (?l "local" (lambda (tag name &optional msg)
+                      (my/img--pick-local msg (my/img--prep-search-string name tag)))))) ; local fpath
 
 (defun my/img-block-prompt (tag name &optional msg width)
   "Return an image block. This is a public function
@@ -59,14 +64,32 @@ name that doesn't match ext."
          (with-ext (my/img--set-ext with-tag ext)))
     with-ext))
 
+(defun my/img--prep-search-string (name &optional tag)
+  ""
+  (let* ((tidy (replace-regexp-in-string " \\{2,\\}" " " (downcase (s-trim name)))))
+    (if (eq tag nil)
+        tidy
+      (format "%s-- %s" tag tidy))))
+
 (defun my/img--prep-fpath (name tag ext)
   "Apply my/img--prep-fname to NAME, and return an absolute path
 to the image."
   (concat my/imgs "/" (my/img--prep-fname name tag ext)))
 
+(defun my/img--pick-local (&optional msg initial-input)
+  "Pick an image from my/imgs.
+MSG is the display message; Use INITIAL-INPUT
+to initially narrow the search and make it easy
+to find the relevant file."
+  (f-short
+   (f-join my/imgs
+           (my/ls my/imgs (or msg "Choose IMG") initial-input))))
+
 (defun my/ls (dir &optional msg initial-input)
-  "Do a completing-read ls on my/imgs"
-  (completing-read (or msg "Choose: ") (directory-files dir) nil nil initial-input))
+  "Do a completing-read ls on my/imgs."
+  (completing-read
+   (if msg (concat msg ": ") "Choose path: ")
+   (directory-files dir) nil nil initial-input))
 
 (defun my/img--fetch (url tag name)
   "Fetch an image and store it in my/imgs; return the path."
@@ -121,6 +144,7 @@ to the image."
   "Ask the user how to obtain an image via an smenu
 prompt. The available option are set via my/smenu-image-choices.
 
-It executes the chosen function and returns an empty string."
+It executes the chosen function and should return a path:
+a URL or local file path, something suitable for an image block."
   (let* ((choice (smenu-dispatch my/smenu-image-choices)))
     (if choice (funcall (nth 2 choice) tag name msg) "")))
