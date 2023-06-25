@@ -73,14 +73,6 @@
                    :tags (append tags (my/roam-tag-list))
                    :body  "* meta\n* summary\n* details\n%?")))
 
-(defun my/vulpea--capture-lit (title)
-  (interactive "sTitle: ")
-  (vulpea-create title "lit/%<%Y%m%d%H%M%S>.org"
-                 :properties (my/vulpea-props :type "literature"
-                                              :roamrefs "cite:${citekey}")
-                 :tags (my/roam-tag-list)
-                 :body my/vulpea--typical-body))
-
 (defun my/vulpea--capture-person (title)
   (interactive "sTitle: ")
   (let* ((aliases (my/prompt-for-aliases))
@@ -131,6 +123,5 @@
 (setq my/capture-switch '((?a "article" (lambda (title) (my/vulpea--capture-article title)))
                           (?c "concept" (lambda (title) (my/vulpea--capture-concept title)))
                           (?i "idea" (lambda (title) (my/vulpea--capture-idea title)))
-                          (?l "literature" (lambda (title) (my/vulpea--capture-lit title)))
                           (?p "person" (lambda (title) (my/vulpea--capture-person title)))
                           (?q "quote" (lambda (title) (my/vulpea--capture-quote title)))))
