@@ -7,7 +7,20 @@
 (require 'vulpea)
 
 (use-package! vulpea
+  :after org-roam ; so that we reset keymaps
+  :config
+  (map! "M-n" #'my/vulpea-node-find
+        "M-N" #'my/vulpea-node-find-split
+        :leader
+        :prefix "r"
+        :desc "org-roam-node-insert" "i" #'my/vulpea-node-insert)
+
   :hook ((org-roam-db-autosync-mode . vulpea-db-autosync-enable)))
+
+(defun my/vulpea-node-find-split ()
+  "Perform a Roam node find, but open the buffer in a split."
+  (interactive)
+  (my/vulpea-node-find t))
 
 (defun my/vulpea--article-body (preview-url cover-block)
   (let* ((head "* details\n%?\n* media\n"))
@@ -22,9 +35,9 @@
 ;; TODO: add message to menu: e.g. Download source:
 ;; TODO: add [u]se option on file conflict
 ;; TODO: do URL embeds
-(defun my/vulpea--capture-article (title)
-  (interactive "sTitle: ")
-  (let* ((aliases (my/prompt-for-aliases))
+(defun my/vulpea--capture-article (node)
+  (let* ((title (org-roam-node-title node))
+         (aliases (my/prompt-for-aliases))
          (cat (my/pick-tags "article" "Article category"))
          (preview-url  (when (my/tags-p "needs-preview" cat)
                          (my/prompt "Preview URL")))
@@ -47,18 +60,18 @@
                    :tags (cons cat tags)
                    :body (my/vulpea--article-body preview-url cover-block))))
 
-(defun my/vulpea--capture-concept (title)
-  (interactive "sTitle: ")
-  (let* ((aliases (my/prompt-for-aliases)))
+(defun my/vulpea--capture-concept (node)
+  (let* ((title (org-roam-node-title node))
+         (aliases (my/prompt-for-aliases)))
     (vulpea-create title "concept/%<%Y%m%d%H%M%S>.org"
                    :properties (my/vulpea-props :type "concept"
                                                 :aliases aliases)
                    :tags (my/roam-tag-list)
                    :body my/vulpea--typical-body)))
 
-(defun my/vulpea--capture-idea (title)
-  (interactive "sTitle: ")
-  (let* ((aliases (my/prompt-for-aliases))
+(defun my/vulpea--capture-idea (node)
+  (let* ((title (org-roam-node-title node))
+         (aliases (my/prompt-for-aliases))
          (cat (my/pick-tags "idea" "Type of idea"))
          (subcat (when (string= cat "project")
                    (my/pick-tags "project" "Type of project")))
@@ -70,9 +83,9 @@
                    :tags (append tags (my/roam-tag-list))
                    :body  "* meta\n* summary\n* details\n%?")))
 
-(defun my/vulpea--capture-person (title)
-  (interactive "sTitle: ")
-  (let* ((aliases (my/prompt-for-aliases))
+(defun my/vulpea--capture-person (node)
+  (let* ((title (org-roam-node-title node))
+         (aliases (my/prompt-for-aliases))
          (cat (my/pick-tags "person" "Type of person"))
          (tags (my/roam-tag-list)))
     (vulpea-create title "person/%<%Y%m%d%H%M%S>.org"
@@ -100,9 +113,9 @@
                   (format src (format "[[%s][%s]]" url (my/prompt "Source name")))))) ; url
     (concat upper lower)))
 
-(defun my/vulpea--capture-quote (title)
-  (interactive "sTitle: ")
-  (let* ((cat (my/pick-tags "quote" "Type of quote"))
+(defun my/vulpea--capture-quote (node)
+  (let* ((title (org-roam-node-title node))
+         (cat (my/pick-tags "quote" "Type of quote"))
          (tags (my/roam-tag-list))
          (url (when (not (string= cat "literature"))
                 (my/prompt "Quote URL"))))
@@ -115,8 +128,8 @@
 
 ;; credit to nobiot
 (defvar my/capture-switch)
-(setq my/capture-switch '((?a "article" (lambda (title) (my/vulpea--capture-article title)))
-                          (?c "concept" (lambda (title) (my/vulpea--capture-concept title)))
-                          (?i "idea" (lambda (title) (my/vulpea--capture-idea title)))
-                          (?p "person" (lambda (title) (my/vulpea--capture-person title)))
-                          (?q "quote" (lambda (title) (my/vulpea--capture-quote title)))))
+(setq my/capture-switch '((?a "article" my/vulpea--capture-article)
+                          (?c "concept" my/vulpea--capture-concept)
+                          (?i "idea" my/vulpea--capture-idea)
+                          (?p "person" my/vulpea--capture-person)
+                          (?q "quote" my/vulpea--capture-quote)))

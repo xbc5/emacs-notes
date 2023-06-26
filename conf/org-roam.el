@@ -7,7 +7,7 @@
          :target (file+head "lit/%<%Y%m%d%H%M%S>.org"
                             ":PROPERTIES:\n:ROAM_REFS: cite:${citekey}\n:AUTHORS: ${author}\n:END:\n#+title: ${title}\n"))))
 
-(defun my/org-roam-node-find-split ()
+(defun my/roam-node-find-split ()
   "Perform a Roam node find, but open the buffer in a split."
   (interactive)
   (org-roam-node-find t))
@@ -19,8 +19,8 @@
   (setq org-roam-completion-everywhere t
         org-roam-capture-templates my/roam-templates)
 
-  (map! "M-n" #'my/roam-node-find
-        "M-N" #'my/org-roam-node-find-split
+  (map! "M-n" #'org-roam-node-find
+        "M-N" #'my/roam-node-find-split
         "M-Y" #'org-roam-alias-add
         "M-R" #'org-roam-refile
         "M-T" #'org-roam-tag-add

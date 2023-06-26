@@ -139,7 +139,7 @@ to find the relevant file."
 (defun my/img--block (path width)
   (when (or (eq path nil) (string-blank-p path))
     (error (format "Invalid path for image block: '%s'" path) ))
-  (format "#+ATTR_ORG: :width %d\n[[%s][Img]]\n" width path))
+  (format "#+ATTR_ORG: :width %d\n[[%s][Img]]\n" width path)) ;; FIXME: use org-link-make-string
 
 (defun my/img--block-from-path (path &optional width)
   "Return an image block string initialised with the path."
