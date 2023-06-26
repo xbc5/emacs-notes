@@ -27,7 +27,7 @@
     (unless (or (eq cover-block nil) (string-blank-p cover-block))
       (setf head (concat head (format "%s\n\n" cover-block))))
     (unless (or (eq preview-url nil) (string-blank-p preview-url))
-      (setf head (concat head (format "[[%s][Preview]]\n" preview-url))))
+      (setf head (concat head (org-link-make-string preview-url "Preview"))))
     head))
 
 (setq my/vulpea--typical-body "* meta\n* summary\n* details\n%?\n* conclusion\n")
@@ -109,8 +109,8 @@
   (let* ((upper my/vulpea--quote-upper-body-t)
          (src "Source: %s\n\n")
          (lower (if (or (eq nil url) (string-blank-p url))
-                    (format src "[[cite:&${my/pick-bibtex-key}]]") ; cite
-                  (format src (format "[[%s][%s]]" url (my/prompt "Source name")))))) ; url
+                    (org-link-make-string "cite:&${my/pick-bibtex-key}") ; cite
+                  (format src (org-link-make-string url (my/prompt "Source name")))))) ; url
     (concat upper lower)))
 
 (defun my/vulpea--capture-quote (node)
