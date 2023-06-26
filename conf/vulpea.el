@@ -11,9 +11,7 @@
   :config
   (map! "M-n" #'my/vulpea-node-find
         "M-N" #'my/vulpea-node-find-split
-        :leader
-        :prefix "r"
-        :desc "org-roam-node-insert" "i" #'my/vulpea-node-insert)
+        "M-I" #'my/vulpea-node-insert)
 
   :hook ((org-roam-db-autosync-mode . vulpea-db-autosync-enable)))
 
