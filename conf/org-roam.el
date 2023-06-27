@@ -25,10 +25,10 @@
         "M-R" #'org-roam-refile
         "M-T" #'org-roam-tag-add
         "M-B" #'my/roam-set-brief
+        "M-I" #'org-roam-node-insert
         :leader
         :prefix "r"
-        :desc "org-roam-buffer-toggle" "l" #'org-roam-buffer-toggle
-        :desc "org-roam-node-insert" "i" #'org-roam-node-insert)
+        :desc "org-roam-buffer-toggle" "l" #'org-roam-buffer-toggle)
 
   (add-hook 'after-init-hook #'org-roam-mode)
   (add-hook 'org-roam-mode-hook #'org-roam-db-autosync-mode))
