@@ -9,7 +9,7 @@ Don't worry about leading or trailing spaces."
 (defun my/vulpea-capture-prompt (node)
   "Prompt the user to choose a capture template.
 NODE is a Roam node."
-  (funcall (nth 0 (smenu my/capture-switch)) node))
+  (funcall (nth 0 (smenu "Template type" my/capture-switch)) node))
 
 (cl-defun my/vulpea-node-find (&optional other-window initial-input filter-fn pred &key templates)
   (interactive current-prefix-arg)
