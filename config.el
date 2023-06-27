@@ -2,8 +2,12 @@
 ;; misc
 (load! "conf/global")
 (load! "lib/shims")
+(load! "lib/types")
 (load! "lib/util")
 (load! "lib/smenu")
+(load! "lib/fs")
+(load! "lib/net")
+(load! "lib/error")
 (load! "lib/roam")
 (load! "lib/img")
 (load! "lib/vulpea")

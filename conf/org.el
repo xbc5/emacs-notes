@@ -18,6 +18,7 @@
   (org-add-link-type "SOA" 'my/open-stackoverflow-answer)
   (org-add-link-type "twitter" 'my/open-twitter-link)
   (setq org-startup-folded t
+        org-image-actual-width 800 ; default img width
         org-agenda-file-regexp "^.*\\.org$"
         org-cycle-max-level 2
         org-refile-targets '((nil :maxlevel . 3)

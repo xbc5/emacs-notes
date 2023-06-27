@@ -71,11 +71,13 @@
   (mkdir my/tag-files t)
   (append-to-file (concat tag "\n") nil (concat my/tag-files "/" fname)))
 
-(defun my/pick-tags (fname msg)
+(cl-defun my/pick-tags (fname msg &key match)
   "Pick a tag from {my/tag-fles}/{fname}, if it doesn't exist -- write it."
   (let* ((tags (my/tags fname))
-         (choice (replace-regexp-in-string " +" "_"
-                                           (s-trim (completing-read (concat msg ": ") tags)))))
+         (choice
+          (replace-regexp-in-string
+           " +" "_" (s-trim
+                     (completing-read (concat msg ": ") tags nil match)))))
     (unless (member choice tags) (my/write-tag fname choice))
     choice))
 
@@ -138,7 +140,16 @@
   (interactive)
   (org-tags-view t (my/pick-agenda-filter)))
 
-(defun my/prompt (msg) (s-trim (read-string (concat msg ": "))))
+
+(defun my/prompt-msg (msg &optional prefix)
+  "This is the message component for my/prompt.
+You can reuse it for completing read for example."
+  (if prefix
+      (concat prefix " " msg ": ")
+    (concat msg ": ")))
+
+(defun my/prompt (msg &optional prefix)
+  (s-trim (read-string (my/prompt-msg msg prefix))))
 
 (defun my/file-exists-p (path)
   "file-exists-p returns t for blank strings, this fixes that."
