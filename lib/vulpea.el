@@ -65,6 +65,6 @@ This allows you to dynamically exclude unused props."
       (setf props (cons (cons "STATE" state) props)))
     (unless (eq year nil) ; is number or nil
       (setf props (cons (cons "YEAR" year) props)))
-    (unless (eq roamrefs nil)
+    (unless (xnil-or-blank roamrefs)
       (setf props (cons (cons "ROAM_REFS" roamrefs) props)))
     props))

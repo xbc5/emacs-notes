@@ -47,6 +47,8 @@
                   (xprompt-year)))
          (state  (when (my/tags-p "needs-state" cat)
                    (my/pick-tags "state" "Article state")))
+         (roamrefs  (when (my/tags-p "needs-url" cat)
+                      (xprompt-url "Homepage URL")))
          (tags (my/roam-tag-list)))
     (vulpea-create title "article/%<%Y%m%d%H%M%S>.org"
                    :properties (my/vulpea-props :type "article"
@@ -54,7 +56,8 @@
                                                 :aliases aliases
                                                 :state state
                                                 :year year
-                                                :rating rating)
+                                                :rating rating
+                                                :roamrefs roamrefs)
                    :tags (cons cat tags)
                    :body (my/vulpea--article-body preview-url cover-block))))
 
