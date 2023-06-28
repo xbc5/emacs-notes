@@ -35,16 +35,16 @@
 ;; TODO: do URL embeds
 (defun my/vulpea--capture-article (node)
   (let* ((title (org-roam-node-title node))
-         (aliases (my/prompt-for-aliases))
+         (aliases (xprompt-aliases))
          (cat (my/pick-tags "article" "Article category"))
          (preview-url  (when (my/tags-p "needs-preview" cat)
-                         (my/prompt "Preview URL")))
+                         (xprompt-url "Preview URL")))
          (cover-block  (when (my/tags-p "needs-cover" cat)
-                         (my/vulpea--img-block-prompt "cover" title "Cover")))
+                         (ximg-block-create :tag "cover" :name title :desc "Cover IMG")))
          (rating  (when (my/tags-p "needs-rating" cat)
-                    (my/rating-prompt)))
+                    (xprompt-rating)))
          (year  (when (my/tags-p "needs-year" cat)
-                  (my/year-prompt)))
+                  (xprompt-year)))
          (state  (when (my/tags-p "needs-state" cat)
                    (my/pick-tags "state" "Article state")))
          (tags (my/roam-tag-list)))
@@ -60,7 +60,7 @@
 
 (defun my/vulpea--capture-concept (node)
   (let* ((title (org-roam-node-title node))
-         (aliases (my/prompt-for-aliases)))
+         (aliases (xprompt-aliases)))
     (vulpea-create title "concept/%<%Y%m%d%H%M%S>.org"
                    :properties (my/vulpea-props :type "concept"
                                                 :aliases aliases)
@@ -69,7 +69,7 @@
 
 (defun my/vulpea--capture-idea (node)
   (let* ((title (org-roam-node-title node))
-         (aliases (my/prompt-for-aliases))
+         (aliases (xprompt-aliases))
          (cat (my/pick-tags "idea" "Type of idea"))
          (subcat (when (string= cat "project")
                    (my/pick-tags "project" "Type of project")))
@@ -83,7 +83,7 @@
 
 (defun my/vulpea--capture-person (node)
   (let* ((title (org-roam-node-title node))
-         (aliases (my/prompt-for-aliases))
+         (aliases (xprompt-aliases))
          (cat (my/pick-tags "person" "Type of person"))
          (tags (my/roam-tag-list)))
     (vulpea-create title "person/%<%Y%m%d%H%M%S>.org"
@@ -106,9 +106,10 @@
 (defun my/vulpea--quote-body (&optional url)
   (let* ((upper my/vulpea--quote-upper-body-t)
          (src "Source: %s\n\n")
-         (lower (if (or (eq nil url) (string-blank-p url))
+         (lower (if (xnil-or-blank url)
                     (org-link-make-string "cite:&${my/pick-bibtex-key}") ; cite
-                  (format src (org-link-make-string url (my/prompt "Source name")))))) ; url
+                  (format src (org-link-make-string
+                               url (xstr-default (xprompt "Source name") "link")))))) ; url
     (concat upper lower)))
 
 (defun my/vulpea--capture-quote (node)
@@ -116,7 +117,7 @@
          (cat (my/pick-tags "quote" "Type of quote"))
          (tags (my/roam-tag-list))
          (url (when (not (string= cat "literature"))
-                (my/prompt "Quote URL"))))
+                (xprompt-url "Quote URL")))) ; not required: we prompt for a cite key otherwise
     (vulpea-create title "quote/%<%Y%m%d%H%M%S>.org"
                    :properties (my/vulpea-props :type "quote"
                                                 :cat cat

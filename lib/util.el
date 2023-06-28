@@ -140,17 +140,6 @@
   (interactive)
   (org-tags-view t (my/pick-agenda-filter)))
 
-
-(defun my/prompt-msg (msg &optional prefix)
-  "This is the message component for my/prompt.
-You can reuse it for completing read for example."
-  (if prefix
-      (concat prefix " " msg ": ")
-    (concat msg ": ")))
-
-(defun my/prompt (msg &optional prefix)
-  (s-trim (read-string (my/prompt-msg msg prefix))))
-
 (defun my/file-exists-p (path)
   "file-exists-p returns t for blank strings, this fixes that."
   (and (not (string-blank-p path)) (file-exists-p path)))

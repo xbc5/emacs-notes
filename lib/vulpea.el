@@ -1,10 +1,3 @@
-(defun my/prompt-for-aliases()
-  "Prompt for multiple aliases, separated by ';'.
-Don't worry about leading or trailing spaces."
-  (s-join " " (mapcar (lambda (s)
-                        (format "\"%s\"" (s-trim s)))
-                      (s-split ";" (read-string "Alias: ") t))))
-
 ;; credit to nobiot
 (defun my/vulpea-capture-prompt (node)
   "Prompt the user to choose a capture template.
@@ -75,25 +68,3 @@ This allows you to dynamically exclude unused props."
     (unless (eq roamrefs nil)
       (setf props (cons (cons "ROAM_REFS" roamrefs) props)))
     props))
-
-(defun my/rating-prompt (&optional msg)
-  "Prompt the user for a rating between 0-100. Return nil
-if no score given; error is outside of bounds. Returns a number."
-  (let* ((score (my/prompt (format "%s (0-100)" (or msg "Rating")))))
-    (if (string-blank-p score)
-        nil
-      (let* ((parsed (cl-parse-integer score)))
-        (when (or (< parsed 0) (> parsed 100))
-          (error (format "score must be between 0-100" parsed)))
-        parsed))))
-
-(defun my/year-prompt (&optional msg)
-  "Prompt the user for a year between -9999 and 9999. Returns nil
-if no input given."
-  (let* ((year (my/prompt (or msg "Year"))))
-    (if (string-blank-p year)
-        nil
-      (let* ((parsed (cl-parse-integer year)))
-        (when (or (< parsed -9999) (> parsed 9999) )
-          (error (format "Year must be -9999 < n < 9999: %d" parsed)))
-        parsed))))

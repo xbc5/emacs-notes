@@ -7,6 +7,7 @@
 (load! "lib/smenu")
 (load! "lib/fs")
 (load! "lib/net")
+(load! "lib/prompt")
 (load! "lib/error")
 (load! "lib/roam")
 (load! "lib/img")
