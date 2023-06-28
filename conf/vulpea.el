@@ -117,7 +117,7 @@
          (cat (my/pick-tags "quote" "Type of quote"))
          (tags (my/roam-tag-list))
          (url (when (not (string= cat "literature"))
-                (xprompt-url "Quote URL")))) ; not required: we prompt for a cite key otherwise
+                (xprompt-url "Quote URL")))) ; not required, we prompt for a cite key otherwise
     (vulpea-create title "quote/%<%Y%m%d%H%M%S>.org"
                    :properties (my/vulpea-props :type "quote"
                                                 :cat cat

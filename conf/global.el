@@ -7,9 +7,10 @@
       display-line-numbers-type t
       org-directory "~/org"
       org-roam-directory org-directory
+      ;; WARN: f-join and other utils won't work here, it's too early in the boot.
       my/tag-files (concat org-roam-directory "/tags")
       my/templates-dir (concat doom-user-dir "/templates") ; e.g. org capture templates
-      my/org-agenda-dir (concat org-directory "/agenda/")
+      my/org-agenda-dir (concat org-directory "/agenda")
       my/bib (concat org-roam-directory "/bib" )
       my/imgs (concat org-roam-directory "/img")
       my/bib-file-re "\.\\(bib\\|org\\)$" ; match files in bib dir

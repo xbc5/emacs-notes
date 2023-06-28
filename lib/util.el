@@ -16,7 +16,7 @@
 
 (defun my/abs-agenda-fpath (fname)
   "Given an agenda file name, return the full, absolute path."
-  (concat my/org-agenda-dir fname))
+  (f-join my/org-agenda-dir fname))
 
 (defun my/pick-agenda-file ()
   "Pick an agenda file from a completion list, otherwise create it."
@@ -43,7 +43,7 @@
 
 (defun my/template-path (name)
   "Return the full template path for the given file name (without extension)."
-  (concat my/templates-dir "/" name ".org"))
+  (f-join my/templates-dir (concat name ".org")))
 
 (defun my/template (name)
   "Return the template contents for the given extensionless file name."
@@ -51,7 +51,7 @@
 
 (defun my/tags (name)
   "Return the tags from the given tag file as a list."
-  (let ((fpath (concat my/tag-files "/" name)))
+  (let ((fpath (f-join my/tag-files name)))
     (mkdir my/tag-files t)
     (unless (file-exists-p fpath) (f-touch fpath))
     (split-string
@@ -69,7 +69,7 @@
 (defun my/write-tag (fname tag)
   "Write a single tag to {my/tag-fles}/{fname}."
   (mkdir my/tag-files t)
-  (append-to-file (concat tag "\n") nil (concat my/tag-files "/" fname)))
+  (append-to-file (concat tag "\n") nil (f-join my/tag-files fname)))
 
 (cl-defun my/pick-tags (fname msg &key match)
   "Pick a tag from {my/tag-fles}/{fname}, if it doesn't exist -- write it."
