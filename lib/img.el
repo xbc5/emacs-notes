@@ -29,6 +29,7 @@ title into.
 DESC is the link description. If you don't provide
 one, it will prompt you. You can use the default
 by hitting return."
+  (interactive)
   (let* ((choice (nth 0 (smenu "Make link from" ximg--smenu-sources)))
          (path
           (cond
