@@ -1,3 +1,11 @@
+(defun xstr-neat (str)
+  "Trim and remove excess spaces from STR
+(i.e. one space between words).
+
+Return `STR.
+"
+  (replace-regexp-in-string " +" " " (s-trim str)))
+
 (defun xstr-t (str)
   "Return t if STR is a non-blank (truthy) string."
   (and (stringp str) (not (string-blank-p str))))

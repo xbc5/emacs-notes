@@ -1,5 +1,6 @@
 (package! rg)
 (package! free-keys)
+(package! yaml)
 
 (when (package! org)
   (package! org-fancy-priorities)

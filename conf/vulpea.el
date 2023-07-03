@@ -20,7 +20,7 @@
   (interactive)
   (my/vulpea-node-find t))
 
-(defun my/vulpea--article-body (preview-url cover-block)
+(defun my/vulpea--article-body (&optional preview-url cover-block)
   (let* ((head "* details\n%?\n* media\n"))
     (unless (or (eq cover-block nil) (string-blank-p cover-block))
       (setf head (concat head (format "%s\n\n" cover-block))))
@@ -36,18 +36,18 @@
 (defun my/vulpea--capture-article (node)
   (let* ((title (org-roam-node-title node))
          (aliases (xprompt-aliases))
-         (cat (my/pick-tags "article" "Article category"))
-         (preview-url  (when (my/tags-p "needs-preview" cat)
+         (cat (xtag-pick "article" "Article category"))
+         (preview-url  (when (xtag-exists-p "needs-preview" cat)
                          (xprompt-url "Preview URL")))
-         (cover-block  (when (my/tags-p "needs-cover" cat)
+         (cover-block  (when (xtag-exists-p "needs-cover" cat)
                          (ximg-block-create :tag "cover" :name title :desc "Cover IMG")))
-         (rating  (when (my/tags-p "needs-rating" cat)
+         (rating  (when (xtag-exists-p "needs-rating" cat)
                     (xprompt-rating)))
-         (year  (when (my/tags-p "needs-year" cat)
+         (year  (when (xtag-exists-p "needs-year" cat)
                   (xprompt-year)))
-         (state  (when (my/tags-p "needs-state" cat)
-                   (my/pick-tags "state" "Article state")))
-         (roamrefs  (when (my/tags-p "needs-url" cat)
+         (state  (when (xtag-exists-p "needs-state" cat)
+                   (xtag-pick "state" "Article state")))
+         (roamrefs  (when (xtag-exists-p "needs-url" cat)
                       (xprompt-url "Homepage URL")))
          (tags (my/roam-tag-list)))
     (vulpea-create title "article/%<%Y%m%d%H%M%S>.org"
@@ -61,6 +61,42 @@
                    :tags (cons cat tags)
                    :body (my/vulpea--article-body preview-url cover-block))))
 
+(defun my/vulpea--capture-song (node)
+  (let* ((title (org-roam-node-title node))
+         (view-url (xprompt-url "View URL" t)) ;; i.e. the thing that you'd browse to
+         (stream-url (if (xurl-yt? view-url) view-url (xprompt-url "File URL" t))) ;; MPV can stream YT links
+         (artists (xprompt-crm "Artists" "artist")) ; not required; allow new
+         (genres (xprompt-crm "Genres" "music-genre"))
+         (ctx (xprompt-crm "Song contexts" "song-context"))
+         (tags (my/roam-tag-list))
+         (rating (xprompt-rating nil t))
+         (year (xprompt-year nil t))
+         (license (xlicense-choose))
+         (comm-use (xlicense-commercial-use? license))
+         (download-url  (when comm-use (xprompt-url "Download URL" t)))
+         (info-url  (when comm-use (xprompt-url "Info page URL" t))))
+    (vulpea-create title "article/%<%Y%m%d%H%M%S>.org"
+                   :properties
+                   (my/vulpea-props :type "article"
+                                    :cat "song"
+                                    :state "done" ; when do you ever not listen to a song first?
+                                    :year year
+                                    :rating rating
+                                    :artists artists
+                                    :license license
+                                    :genres genres
+                                    :contexts ctx
+                                    :download-url download-url
+                                    :stream-url stream-url
+                                    :view-url view-url
+                                    :info-url info-url)
+                   :tags (seq-uniq (append '("song")
+                                           (xvulpea--tagify artists)
+                                           (xvulpea--tagify genres)
+                                           (xvulpea--tagify ctx)
+                                           tags))
+                   :body (my/vulpea--article-body view-url)))) ;; TODO
+
 (defun my/vulpea--capture-concept (node)
   (let* ((title (org-roam-node-title node))
          (aliases (xprompt-aliases)))
@@ -73,9 +109,9 @@
 (defun my/vulpea--capture-idea (node)
   (let* ((title (org-roam-node-title node))
          (aliases (xprompt-aliases))
-         (cat (my/pick-tags "idea" "Type of idea"))
+         (cat (xtag-pick "idea" "Type of idea"))
          (subcat (when (string= cat "project")
-                   (my/pick-tags "project" "Type of project")))
+                   (xtag-pick "project" "Type of project")))
          (tags (list cat subcat)))
     (vulpea-create title "idea/%<%Y%m%d%H%M%S>.org"
                    :properties (my/vulpea-props :type "idea"
@@ -87,7 +123,7 @@
 (defun my/vulpea--capture-person (node)
   (let* ((title (org-roam-node-title node))
          (aliases (xprompt-aliases))
-         (cat (my/pick-tags "person" "Type of person"))
+         (cat (xtag-pick "person" "Type of person"))
          (tags (my/roam-tag-list)))
     (vulpea-create title "person/%<%Y%m%d%H%M%S>.org"
                    :properties (my/vulpea-props :type "person"
@@ -117,7 +153,7 @@
 
 (defun my/vulpea--capture-quote (node)
   (let* ((title (org-roam-node-title node))
-         (cat (my/pick-tags "quote" "Type of quote"))
+         (cat (xtag-pick "quote" "Type of quote"))
          (tags (my/roam-tag-list))
          (url (when (not (string= cat "literature"))
                 (xprompt-url "Quote URL")))) ; not required, we prompt for a cite key otherwise
@@ -134,4 +170,5 @@
                           (?c "concept" my/vulpea--capture-concept)
                           (?i "idea" my/vulpea--capture-idea)
                           (?p "person" my/vulpea--capture-person)
-                          (?q "quote" my/vulpea--capture-quote)))
+                          (?q "quote" my/vulpea--capture-quote)
+                          (?s "song" my/vulpea--capture-song)))

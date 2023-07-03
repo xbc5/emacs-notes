@@ -79,7 +79,7 @@ ignore it (because it has one)."
   (if (string-match "^[a-zA-Z0-9_]+--" name)
       name
     (if (eq tag nil)
-        (concat (my/pick-tags "image" "Pick an image tag") "--" name)
+        (concat (xtag-pick "image" "Pick an image tag") "--" name)
       (concat tag "--" name))))
 
 (defun ximg--set-ext (name ext)

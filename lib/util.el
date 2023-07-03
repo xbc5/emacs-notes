@@ -35,12 +35,6 @@
     (my/pick-agenda-file)))
   (goto-char (point-max)))
 
-(defun my/read-file (file)
-  "Read the contents of a file."
-  (with-temp-buffer
-    (insert-file-contents file)
-    (buffer-string)))
-
 (defun my/template-path (name)
   "Return the full template path for the given file name (without extension)."
   (f-join my/templates-dir (concat name ".org")))
@@ -49,49 +43,9 @@
   "Return the template contents for the given extensionless file name."
   (my/read-file (my/template-path name)))
 
-(defun my/tags (name)
-  "Return the tags from the given tag file as a list."
-  (let ((fpath (f-join my/tag-files name)))
-    (mkdir my/tag-files t)
-    (unless (file-exists-p fpath) (f-touch fpath))
-    (split-string
-     (my/read-file fpath)
-     "\n" t " ")))
-
-(defun my/tags-p (fname tag)
-  "Return t if TAG exists inside tags file (FNAME)."
-  (not (eq nil (member tag (my/tags fname)))))
-
 (defun my/slugify (str &optional trail)
   "Take str, trim it, and replace all spaces with underscores."
   (replace-regexp-in-string " +" (or trail "_") (s-trim str)))
-
-(defun my/write-tag (fname tag)
-  "Write a single tag to {my/tag-fles}/{fname}."
-  (mkdir my/tag-files t)
-  (append-to-file (concat tag "\n") nil (f-join my/tag-files fname)))
-
-(cl-defun my/pick-tags (fname msg &key match)
-  "Pick a tag from {my/tag-fles}/{fname}, if it doesn't exist -- write it."
-  (let* ((tags (my/tags fname))
-         (choice
-          (replace-regexp-in-string
-           " +" "_" (s-trim
-                     (completing-read (concat msg ": ") tags nil match)))))
-    (unless (member choice tags) (my/write-tag fname choice))
-    choice))
-
-(defun my/pick-article-kind (node)
-  "Select an article kind, or insert it if it doesn't exist."
-  (my/pick-tags "article" "Article kind"))
-
-(defun my/pick-idea-kind (node)
-  "Select an idea kind, or insert it if it doesn't exist."
-  (my/pick-tags "idea" "Idea kind"))
-
-(defun my/pick-person-kind (node)
-  "Select a kind of person (i.e. profession or what they're known for). Insert it if it doesn't exist."
-  (my/pick-tags "person" "Kind of person"))
 
 (defun my/open-stackoverflow-question (path)
   "Open a link to a StackOverflow question. An SO link will end in useless text,

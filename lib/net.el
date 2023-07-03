@@ -15,3 +15,7 @@ extension. Returns URL. Raises error if it's not."
           (org-file-image-p url)
           (xurl-https? url))
   url)
+
+(setq xurl-yt-re "^https://\\(music.\\|www.\\)?\\(youtube.com\\|youtu.be\\)\\(\/\\|\/.+\\)?$")
+(defun xurl-yt? (url)
+  (not (eq nil (string-match-p xurl-yt-re url))))

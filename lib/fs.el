@@ -62,3 +62,9 @@ and not part of a full path."
     (if (or is-stupid (xstr-t ext))
         (concat base "." ext)
       base)))
+
+(defun my/read-file (file)
+  "Read the contents of a file."
+  (with-temp-buffer
+    (insert-file-contents file)
+    (buffer-string)))

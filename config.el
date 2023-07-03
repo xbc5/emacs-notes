@@ -2,15 +2,19 @@
 ;; misc
 (load! "conf/global")
 (load! "lib/shims")
-(load! "lib/types")
+(load! "lib/xstr")
+(load! "lib/xseq")
 (load! "lib/util")
+(load! "lib/xtag")
 (load! "lib/smenu")
 (load! "lib/fs")
 (load! "lib/net")
 (load! "lib/prompt")
 (load! "lib/error")
+(load! "lib/xorg")
 (load! "lib/roam")
 (load! "lib/img")
+(load! "lib/xlicense")
 (load! "lib/vulpea")
 
 ;; pkg

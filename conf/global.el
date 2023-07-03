@@ -8,7 +8,9 @@
       org-directory "~/org"
       org-roam-directory org-directory
       ;; WARN: f-join and other utils won't work here, it's too early in the boot.
-      my/tag-files (concat org-roam-directory "/tags")
+      xtag--files (concat org-roam-directory "/tags")
+      xlicense-dpath xtag--files
+      xlicense-fpath (concat xlicense-dpath "/license-types.yaml")
       my/templates-dir (concat doom-user-dir "/templates") ; e.g. org capture templates
       my/org-agenda-dir (concat org-directory "/agenda")
       my/bib (concat org-roam-directory "/bib" )
@@ -39,3 +41,10 @@
               (list "Emacs [active]" "+Emacs|+orgroam|+orgmode|+elisp" active))))
 
 (map! :desc "completion-at-point" "<M-SPC>" #'completion-at-point)
+
+(advice-add
+ 'completing-read-multiple
+ :filter-return
+ (lambda (lst)
+   "Trim each returned element."
+   (mapcar #'s-trim lst)))
