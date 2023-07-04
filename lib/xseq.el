@@ -40,3 +40,18 @@ Returns a list. Yes it does."
   (cond ((cl-typep val 'list) val)
         ((cl-typep val 'vector) (append val ()))
         (t (list val))))
+
+(defun xseq-rdm (seq)
+  "Return a randomised version of SEQ."
+  (let* ((new nil)
+         (rdm 0))
+    (while (length> seq 0)
+      (setq rdm (random (length seq)))
+      (setq new (add-to-list 'new (elt seq rdm)))
+      (setq seq (xseq-rm seq rdm)))
+    new))
+
+(defun xseq-rm (seq n)
+  "Remove the Nth items from a SEQ."
+  (xcheck (cons "Index out of bounds" n) (>= n 0) (< n (length seq)))
+  (append (cl-subseq seq 0 n) (cl-subseq seq (+ n 1))))

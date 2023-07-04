@@ -2,6 +2,7 @@
 ;; misc
 (load! "conf/global")
 (load! "lib/shims")
+(load! "lib/xtype")
 (load! "lib/xstr")
 (load! "lib/xseq")
 (load! "lib/util")
@@ -16,6 +17,7 @@
 (load! "lib/img")
 (load! "lib/xlicense")
 (load! "lib/vulpea")
+(load! "lib/xquote")
 
 ;; pkg
 (load! "conf/plantuml-mode")
