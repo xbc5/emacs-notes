@@ -98,6 +98,13 @@
   "file-exists-p returns t for blank strings, this fixes that."
   (and (not (string-blank-p path)) (file-exists-p path)))
 
+(defun this-or-that (this that)
+  "Return the value of the symbol: THIS (if it's
+defined and not nil); otherwise return THAT.
+
+THIS is a symbol; THAT is any value."
+  (if (xnil-ish this) that (symbol-value this)))
+
 ;; This code is for subdirectory projects
 ;; (setq org-roam-capture-templates
 ;;        '(("d" "default" plain

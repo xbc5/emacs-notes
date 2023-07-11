@@ -17,3 +17,13 @@ Return `STR.
 (defun xnil-or-blank (str)
   "Return t if STR is a nil or a blank string."
   (or (eq nil str) (not (eq nil (string-blank-p str)))))
+
+(defun xstr-truncate (str max-len)
+  "When a STR is longer than MAX-LEN, remove the
+extraneous characters.
+
+Returns either a truncated string, or the original
+STR."
+  (if (length> str max-len)
+      (substring str 0 max-len)
+    str))

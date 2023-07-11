@@ -1,6 +1,7 @@
 (setq doom-font (font-spec :family "monospace" :size 15 :weight 'semi-light)
       doom-variable-pitch-font (font-spec :family "sans" :size 13)
       doom-theme 'doom-one
+      xname-max-len 136 ; remember rsync max len
       confirm-kill-processes nil ; roam-server etc
       confirm-kill-emacs nil ; will still confirm for unsaved buffers
       use-package-verbose t ; show package config in details in messages

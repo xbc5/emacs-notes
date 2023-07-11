@@ -4,6 +4,7 @@
 (load! "lib/shims")
 (load! "lib/xtype")
 (load! "lib/xstr")
+(load! "lib/xnum")
 (load! "lib/xseq")
 (load! "lib/util")
 (load! "lib/xtag")
@@ -18,6 +19,7 @@
 (load! "lib/xlicense")
 (load! "lib/vulpea")
 (load! "lib/xquote")
+(load! "lib/xname")
 
 ;; pkg
 (load! "conf/plantuml-mode")

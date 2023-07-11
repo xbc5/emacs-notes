@@ -1,6 +1,7 @@
 (package! rg)
 (package! free-keys)
 (package! yaml)
+(package! el-mock)
 
 (when (package! org)
   (package! org-fancy-priorities)

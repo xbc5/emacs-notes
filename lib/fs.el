@@ -63,8 +63,34 @@ and not part of a full path."
         (concat base "." ext)
       base)))
 
+(defun f-ext+ (path &optional dot)
+  "In addition to f-ext, it will downcase,
+s-trim, and even include the DOT if t."
+  (let* ((ext (f-ext path)))
+    (cond ((and ext dot)
+           (concat "." (downcase (s-trim ext))))
+          (ext (downcase (s-trim ext)))
+          (t ext))))
+
 (defun my/read-file (file)
   "Read the contents of a file."
   (with-temp-buffer
     (insert-file-contents file)
     (buffer-string)))
+
+(defun xfs-read-lines (file &optional omit-nuls)
+  "Read FILE to a list. OMIT-NULS will omit blank
+lines."
+  (let* ((f (s-split "\n" (my/read-file file))))
+    (if omit-nuls (-filter (lambda (l) (not (string-blank-p l))) f) f)))
+
+(defun xfs-write-lines (file lines)
+  "Write LINES (list) to FILE."
+  (f-write (s-join "\n" lines) 'utf-8 file))
+
+(defun xfs-slugify (str &optional trail)
+  "Take STR: trim it, replace all spaces with
+underscores, and replace most specials characters
+with '' -- make it suitable for a file system path."
+  (replace-regexp-in-string " +" (or trail "_")
+                            (s-trim (replace-regexp-in-string "[`\"'$&*^\\]" "" str))))

@@ -50,7 +50,7 @@
          (roamrefs  (when (xtag-exists-p "needs-url" cat)
                       (xprompt-url "Homepage URL")))
          (tags (my/roam-tag-list)))
-    (vulpea-create title "article/%<%Y%m%d%H%M%S>.org"
+    (vulpea-create title (xroam-new-fpath title "article")
                    :properties (my/vulpea-props :type "article"
                                                 :cat cat
                                                 :aliases aliases
@@ -75,7 +75,7 @@
          (comm-use (xlicense-commercial-use? license))
          (download-url  (when comm-use (xprompt-url "Download URL" t)))
          (info-url  (when comm-use (xprompt-url "Info page URL" t))))
-    (vulpea-create title "article/%<%Y%m%d%H%M%S>.org"
+    (vulpea-create title (xroam-new-fpath title "article")
                    :properties
                    (my/vulpea-props :type "article"
                                     :cat "song"
@@ -100,7 +100,7 @@
 (defun my/vulpea--capture-concept (node)
   (let* ((title (org-roam-node-title node))
          (aliases (xprompt-aliases)))
-    (vulpea-create title "concept/%<%Y%m%d%H%M%S>.org"
+    (vulpea-create title (xroam-new-fpath title "concept")
                    :properties (my/vulpea-props :type "concept"
                                                 :aliases aliases)
                    :tags (my/roam-tag-list)
@@ -113,7 +113,7 @@
          (subcat (when (string= cat "project")
                    (xtag-pick "project" "Type of project")))
          (tags (list cat subcat)))
-    (vulpea-create title "idea/%<%Y%m%d%H%M%S>.org"
+    (vulpea-create title (xroam-new-fpath title "idea")
                    :properties (my/vulpea-props :type "idea"
                                                 :cat cat
                                                 :aliases aliases)
@@ -125,7 +125,7 @@
          (aliases (xprompt-aliases))
          (cat (xtag-pick "person" "Type of person"))
          (tags (my/roam-tag-list)))
-    (vulpea-create title "person/%<%Y%m%d%H%M%S>.org"
+    (vulpea-create title (xroam-new-fpath title "person")
                    :properties (my/vulpea-props :type "person"
                                                 :cat cat
                                                 :aliases aliases)
@@ -157,7 +157,7 @@
          (tags (my/roam-tag-list))
          (url (when (not (string= cat "literature"))
                 (xprompt-url "Quote URL")))) ; not required, we prompt for a cite key otherwise
-    (vulpea-create title "quote/%<%Y%m%d%H%M%S>.org"
+    (vulpea-create title (xroam-new-fpath title "quote")
                    :properties (my/vulpea-props :type "quote"
                                                 :cat cat
                                                 :roamrefs url)

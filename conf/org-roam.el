@@ -12,6 +12,7 @@
   (interactive)
   (org-roam-node-find t))
 
+
 (make-directory org-roam-directory t)
 
 ;; org-roam is a module, so we reconfigure it
