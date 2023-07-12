@@ -1,6 +1,7 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 ;; misc
 (load! "conf/global")
+(load! "secrets/secrets-1")
 (load! "lib/shims")
 (load! "lib/xtype")
 (load! "lib/xstr")
