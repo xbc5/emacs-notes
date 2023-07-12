@@ -20,6 +20,8 @@
 (load! "lib/vulpea")
 (load! "lib/xquote")
 (load! "lib/xname")
+(load! "lib/xtime")
+(load! "lib/xtv")
 
 ;; pkg
 (load! "conf/plantuml-mode")

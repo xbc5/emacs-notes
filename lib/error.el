@@ -1,3 +1,5 @@
+(require 'dash)
+
 (defun xcheck (msg &rest preds)
   "Check that all PREDS are t, otherwise error with
 MSG. MSG is a string or a cons cell. If you pass a

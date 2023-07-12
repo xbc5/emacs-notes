@@ -60,7 +60,7 @@ by hitting return."
 
     ;; if user provides empty link description, it defaults to Img
     (let* ((d (or desc (xprompt "Link description [Img]"))))
-      (ximg--block path (if (xstr-t d) d "Img")))))
+      (ximg-block path (if (xstr-t d) d "Img")))))
 
 (defun ximg--dir-p (path)
   "Determine if PATH is my/imgs."
@@ -124,7 +124,7 @@ If both args are nil it returns a blank string."
   (unless (boundp 'my/imgs) (error "You must set my/imgs")())
   (replace-regexp-in-string (concat "^" my/imgs) "../img" path))
 
-(defun ximg--block (path &optional desc)
+(defun ximg-block (path &optional desc)
   "Return an image block string initialised with the
 PATH. DESC is the link description.
 

@@ -25,6 +25,15 @@ error on blank string."
       (xcheck (cons err url) (xurl-https? url)))
     url))
 
+(defun xprompt-yt (prompt &optional required?)
+  "Prompt for a URL and validate it. If REQUIRED then
+error on blank string."
+  (let ((url (xprompt prompt required?))
+        (err "You MUST provide a YouTube URL, not"))
+    (unless (eq url nil)
+      (xcheck (cons err url) (xurl-yt? url)))
+    url))
+
 (defun xprompt-aliases ()
   "Prompt for multiple aliases, separated by ';'.
 Don't worry about leading or trailing spaces."

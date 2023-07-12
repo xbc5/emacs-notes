@@ -37,3 +37,13 @@ The return value looks like: `(fn ...rest)`. "
   "A simple yes or no prompt. Returns t
 if YES, nil if NO."
   (nth 0 (smenu prompt smenu--yes-no)))
+
+(defun smenu-confirm-data (data &optional prompt)
+  "Display DATA in the minibuffer along with PROMPT.
+The user can answer yes or no. Typically you'd use
+this to confirm that the data is correct. It accept
+any data that yaml-encode accepts."
+  (smenu-confirm
+   (format "%s\n\n%s (n)"
+           (yaml-encode data)
+           (or prompt "Is this the correct data"))))

@@ -97,6 +97,67 @@
                                            tags))
                    :body (my/vulpea--article-body view-url)))) ;; TODO
 
+(defun my/vulpea--prompt-tv (node)
+  (let* ((auto (xtv-prompt (org-roam-node-title node)))
+         (title (if auto (gethash 'title auto) (org-roam-node-title node)))
+         (state (xtag-pick "state" "Article state"))
+         (genres (if auto (gethash 'genres auto) (xprompt-crm "Movie genres" "tv-genre")))
+         (actors (if auto (gethash 'actors auto) (xprompt-crm "Actors" "tv-actor")))
+         (directors (if auto (gethash 'directors auto) (xprompt-crm "Directors" "tv-director")))
+         (writers (when auto (gethash 'writers auto)))
+         (cat (if auto (gethash 'type auto) (xtag-pick "tv-category" "Category of TV media")))
+         (ctx (xprompt-crm "Contexts" "tv-context"))
+         (tags (my/roam-tag-list))
+         (rating (unless (string= state "todo") (xprompt-rating nil t)))
+         (view-url (xprompt-yt "View URL" t)) ;; i.e. the thing that you'd browse to
+         (info-url  (if auto
+                        (xurl-imdb (gethash 'imdb-id auto))
+                      (xprompt-url "Info page URL" t)))
+         (cover-block (if auto
+                          (ximg-block (gethash 'cover auto) "Cover IMG")
+                        (ximg-block-create :tag "cover" :name title :desc "Cover IMG")))
+         (year (if auto (gethash 'year auto) (xprompt-year nil t)))
+         (period (xvulpea--period year)))
+    (xtag-write "tv-genre" genres)
+    (xtag-write "tv-actor" actors)
+    (xtag-write "tv-director" directors)
+    (xtag-write "tv-writer" writers)
+    (xtag-write "tv-category" cat)
+    (xtag-write "tv-context" ctx)
+    (my/vulpea--capture-tv :title title :state state :genres genres :actors actors :ctx ctx
+                              :tags tags :rating rating :view-url view-url :cover-block cover-block
+                              :year year :period period :directors directors :writers writers
+                              :cat cat)))
+
+(cl-defun my/vulpea--capture-tv (&key title state genres actors ctx tags rating view-url
+                                      cover-block year period directors writers type cat)
+  (vulpea-create title (xroam-new-fpath title "article")
+                 :properties
+                 (my/vulpea-props :type "article"
+                                  :cat cat
+                                  :state state
+                                  :genres genres
+                                  :actors actors
+                                  :contexts ctx
+                                  :rating rating
+                                  :view-url view-url
+                                  :info-url info-url
+                                  :year year
+                                  :period period
+                                  :directors directors
+                                  :writers writers)
+                 :tags (seq-uniq
+                        (append (list cat)
+                                (xvulpea--tagify state)
+                                (xvulpea--tagify genres)
+                                (xvulpea--tagify actors)
+                                (xvulpea--tagify directors)
+                                (xvulpea--tagify writers)
+                                (xvulpea--tagify ctx)
+                                (list period)
+                                tags))
+                 :body (my/vulpea--article-body view-url cover-block)))
+
 (defun my/vulpea--capture-concept (node)
   (let* ((title (org-roam-node-title node))
          (aliases (xprompt-aliases)))
@@ -164,11 +225,11 @@
                    :tags (cons cat tags)
                    :body (my/vulpea--quote-body url))))
 
-;; credit to nobiot
 (defvar my/capture-switch)
 (setq my/capture-switch '((?a "article" my/vulpea--capture-article)
                           (?c "concept" my/vulpea--capture-concept)
                           (?i "idea" my/vulpea--capture-idea)
+                          (?t "tv" my/vulpea--prompt-tv)
                           (?p "person" my/vulpea--capture-person)
                           (?q "quote" my/vulpea--capture-quote)
                           (?s "song" my/vulpea--capture-song)))

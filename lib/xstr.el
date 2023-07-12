@@ -27,3 +27,12 @@ STR."
   (if (length> str max-len)
       (substring str 0 max-len)
     str))
+
+(defun xstr-split (delim str &optional downcase)
+  "Split a string, making each item neat (trimmed
+and excess spaces removed); remove nuls."
+  (seq-filter (lambda (s) (not (string-blank-p s)))
+              (mapcar (lambda (s) (if downcase
+                                      (downcase (xstr-neat s))
+                                    (xstr-neat s)))
+                      (s-split delim str))))

@@ -27,9 +27,9 @@
 
 (defun xtag-write (fname tags)
   "Write TAGS to {xtag-files}/{fname}.
-TAGS can be a string or a list. It will trim, sort,
+TAGS can be a string, list, or nil. It will trim, sort,
 and remove duplicates -- so there's no need to perform
-this yourself.
+this yourself; it will ignore nil.
 
 Returns the modified list of tags saved to file."
   (mkdir xtag--files t)
@@ -41,7 +41,8 @@ Returns the modified list of tags saved to file."
            (setq merged (append curr delta)))
           ((cl-typep tags 'list)
            (setq delta tags)
-           (setq merged (append curr tags)))
-          (t (error (format "Expected string or list for tags, not %s" (type-of tags)))))
-    (f-write (concat (s-join "\n" (xseq-sneat merged)) "\n") 'utf-8 (f-join xtag--files fname))
-    (xseq-sneat delta)))
+           (setq merged (append curr tags))))
+    (when merged
+      (f-write (concat (s-join "\n" (xseq-sneat merged)) "\n") 'utf-8
+               (f-join xtag--files fname))
+      (xseq-sneat delta))))

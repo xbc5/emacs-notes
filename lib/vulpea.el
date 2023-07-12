@@ -42,8 +42,17 @@ and when nil is returned the node will be filtered out."
             (my/vulpea-capture-prompt node))))
     (deactivate-mark))) ; always deactivate
 
+(defun xvulpea--period (year)
+  "Turn a YEAR number|string (e.g. 1919) into a period
+string (e.g. 1910s)."
+  (format "%ds" (xtime-decade
+                 (if (cl-typep year 'integer)
+                     year
+                   (cl-parse-integer year)))))
+
 (cl-defun my/vulpea-props (&key type cat aliases rating state year roamrefs contexts artists
-                                genres license view-url stream-url download-url info-url)
+                                genres license view-url stream-url download-url info-url actors
+                                period directors writers)
   "Return a list of cons cells for use in :properties.
 This allows you to dynamically exclude unused props."
   (let* ((props '()))
@@ -61,8 +70,16 @@ This allows you to dynamically exclude unused props."
       (setf props (cons (cons "YEAR" year) props)))
     (unless (xnil-or-blank roamrefs)
       (setf props (cons (cons "ROAM_REFS" roamrefs) props)))
+    (unless (xnil-or-blank period)
+      (setf props (cons (cons "PERIOD" period) props)))
     (unless (eq nil artists) ; is list
       (setf props (cons (cons "ARTISTS" (xorg-props artists)) props)))
+    (unless (eq nil actors) ; is list
+      (setf props (cons (cons "ACTORS" (xorg-props actors)) props)))
+    (unless (eq nil directors) ; is list
+      (setf props (cons (cons "DIRECTORS" (xorg-props directors)) props)))
+    (unless (eq nil writers) ; is list
+      (setf props (cons (cons "WRITERS" (xorg-props writers)) props)))
     (unless (eq nil genres) ; is list
       (setf props (cons (cons "GENRES" (xorg-props genres)) props)))
     (unless (eq nil contexts) ; is list
