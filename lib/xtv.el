@@ -20,7 +20,7 @@ n/100 (e.g. 55). Returns a number"
     (puthash 'plot (cdr (assoc 'Plot result)) ht)
     (puthash 'cover (cdr (assoc 'Poster result)) ht)
     (puthash 'imdb-id (cdr (assoc 'imdbID result)) ht)
-    (puthash 'type (cdr (assoc 'Type result)) ht)
+    (puthash 'category (cdr (assoc 'Type result)) ht)
     (puthash 'metascore (cdr (assoc 'Metascore result)) ht)
     (puthash 'imdb-rating (xtv--imdb-score-norm (cdr (assoc 'imdbRating result))) ht)
     ht))

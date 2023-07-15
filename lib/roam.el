@@ -6,12 +6,27 @@
   (interactive)
   (org-set-property "BRIEF"
                     (read-string "Set brief: "
-                                 (my/roam-property-values "BRIEF"))))
+                                 (xroam-get-prop "BRIEF"))))
 
-(defun my/roam-property-values (key)
-  (cdr
-   (assoc key (org-roam-node-properties
-               (org-roam-node-at-point)))))
+(defun xroam-add-prop (key values)
+  "Set a property with VALUES (list).
+This will stringify the list; trim; remove
+excess spaces; sort; make values unique."
+  (org-set-property
+   key
+   (xorg-stringify-prop
+    (seq-sort #'string> (seq-uniq (append (xroam-get-prop key) values))))))
+
+(defun xroam-get-prop (key)
+  "Return the prop value for KEY as a list.
+This function removes \"\", so if your value
+has that in it, it's gone."
+  (mapcar (lambda (s) (s-trim (replace-regexp-in-string "\"" "" s)))
+          (s-split
+           "\" +\"" (cdr
+                     (assoc
+                      key (org-roam-node-properties
+                           (org-roam-node-at-point)))))))
 
 (defun xroam-rename-file (from to)
   "Rename an Org-Roam file. This does not namify the
@@ -39,8 +54,8 @@ Use this for capture template names."
 to a slug (file name) that represents their titles."
   (interactive)
   (xname-change-all (xname--fmatch org-roam-directory "\\.org$")
-                #'org-get-title
-                #'xroam-rename-file
-                #'f-exists-p
-                t
-                "/tmp/xname-roam"))
+                    #'org-get-title
+                    #'xroam-rename-file
+                    #'f-exists-p
+                    t
+                    "/tmp/xname-roam"))

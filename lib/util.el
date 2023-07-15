@@ -98,6 +98,13 @@
   "file-exists-p returns t for blank strings, this fixes that."
   (and (not (string-blank-p path)) (file-exists-p path)))
 
+(defun xecho (arg)
+  "Simply echo the one ARG passed in.
+Useful in cases that require a lambda
+to mutate and return something, but you
+do not want to mutate it."
+  arg)
+
 (defun this-or-that (this that)
   "Return the value of the symbol: THIS (if it's
 defined and not nil); otherwise return THAT.

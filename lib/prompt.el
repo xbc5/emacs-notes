@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 ;; BUG: required? does not pass through to required-match,
 ;; this is a bug with completing-read-multiple, and not it's
 ;; not the s-trim advice that you've added.
@@ -15,6 +16,17 @@ Returns string, or nil (if no input)."
     (when required?
       (xcheck "You MUST provide a value" (not (string-blank-p txt))))
     (if (string-blank-p txt) nil txt)))
+
+(defun xprompt-imdb-id (prompt &optional required?)
+  "Prompt for a IMDb ID and validate it. If REQUIRED then
+error on blank string."
+  (let ((id (xprompt prompt required?)))
+    (unless (eq id nil)
+      (xcheck (cons "Invalid IMDb ID" id)
+              (string-match
+               "^\\(tt\\|nm\\|co\\|ev\\|ch\\|ni\\)[0-9]\\{7,8\\}$"
+               (s-trim id))))
+    id))
 
 (defun xprompt-url (prompt &optional required?)
   "Prompt for a URL and validate it. If REQUIRED then
@@ -34,12 +46,23 @@ error on blank string."
       (xcheck (cons err url) (xurl-yt? url)))
     url))
 
-(defun xprompt-aliases ()
-  "Prompt for multiple aliases, separated by ';'.
-Don't worry about leading or trailing spaces."
-  (s-join " " (mapcar (lambda (s)
-                        (format "\"%s\"" (s-trim s)))
-                      (s-split ";" (read-string "Alias: ") t))))
+(defun xprompt-multi (prompt &optional required?)
+  "Prompt for multiple values, separated by ';'.
+This will return a neat list or nil."
+  (let* ((v (xprompt prompt required?)))
+    (if v
+        (seq-filter #'xstr-t (xstr-neat (s-split ";" v)))
+      v)))
+
+(defun xprompt-aliases (&optional required closure)
+  "Prompt for aliases. This is a convenience function,
+and only exists to keep logic clean within capture
+templates (i.e. returning a CLOSURE).
+
+CLOSURE means return a lambda to the prompt instead."
+  (if closure
+      (lambda () (xprompt-multi "Aliases" required))
+    (xprompt-multi "Aliases" required)))
 
 (defun xprompt-rating (&optional msg required?)
   "Prompt the user for a rating between 0-100. Return nil

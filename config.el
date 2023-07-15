@@ -1,4 +1,7 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
+(require 'ht)
+(require 'vulpea)
+
 ;; misc
 (load! "conf/global")
 (load! "secrets/secrets-1")
@@ -18,11 +21,12 @@
 (load! "lib/roam")
 (load! "lib/img")
 (load! "lib/xlicense")
-(load! "lib/vulpea")
+(load! "lib/xvulpea")
 (load! "lib/xquote")
 (load! "lib/xname")
 (load! "lib/xtime")
 (load! "lib/xtv")
+(load! "lib/xht")
 
 ;; pkg
 (load! "conf/plantuml-mode")

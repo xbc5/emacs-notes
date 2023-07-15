@@ -1,10 +1,21 @@
-(defun xstr-neat (str)
-  "Trim and remove excess spaces from STR
-(i.e. one space between words).
+(defun xstr-neat (val)
+  "Trim and remove excess spaces from VAL.
 
-Return `STR.
-"
-  (replace-regexp-in-string " +" " " (s-trim str)))
+If VAL is a string, it applies neat;
+If VAL is a list, it applies neat to all strings;
+If VAL is neither, it's ignored.
+
+This will recurse down nested lists, applying
+neat to all.
+
+It will NOT remove blank strings.
+
+Return `VAL."
+  (cond ((xlist-like-p val)
+         (mapcar #'xstr-neat val))
+        ((cl-typep val 'string)
+         (replace-regexp-in-string " +" " " (s-trim val)))
+        (t val)))
 
 (defun xstr-t (str)
   "Return t if STR is a non-blank (truthy) string."
