@@ -126,14 +126,17 @@ It returns the modified HTABLE (for convenience)."
     result))
 
 (defun xvulpea-tag-save-tv (htable)
-  "Save TV gere, actor, irector, writer, category
-and context tags."
+  "Save TV genre, actor, director, writer, category
+and context tags.
+
+Returns the same HTABLE."
   (xtag-write "tv-genre" (ht-get htable 'genres))
   (xtag-write "tv-actor" (ht-get htable 'actors))
   (xtag-write "tv-director" (ht-get htable 'directors))
   (xtag-write "tv-writer" (ht-get htable 'writers))
   (xtag-write "tv-category" (ht-get htable 'note-category))
-  (xtag-write "tv-context" (ht-get htable 'contexts)))
+  (xtag-write "tv-context" (ht-get htable 'contexts))
+  htable)
 
 (defun xvulpea--default-tv (htable title)
   "Use this functon to set default values to

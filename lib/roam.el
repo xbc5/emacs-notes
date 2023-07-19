@@ -1,7 +1,6 @@
 ;; -*- lexical_binding: t; -*-
 
 ;; TODO: confirm data after fetching by title
-;; TODO: tagify added data;
 ;; TODO: sort field data
 (defun xroam--props-tv-refresh ()
   (org-with-point-at (point-min)
@@ -11,13 +10,14 @@
                    (delete title))))
       (when (and (xnil-or-blank id) (xnil-or-blank title))
         (error "Neither the IMDB_ID or TITLE is set, cannot refresh."))
-      (xvulpea-tag-save-tv
-       (xroam--props-refresh
-        (if id
-            (lambda () (xht-mutate (xtv-get-by-id id) cmds))
-          (lambda () (xht-mutate (xtv-get-by-name title) cmds)))
-        #'xvulpea--tv-meta-defaults
-        (org-roam-node-at-point))))))
+      (xroam--tagify-props
+       (xvulpea-tag-save-tv
+        (xroam--props-refresh
+         (if id
+             (lambda () (xht-mutate (xtv-get-by-id id) cmds))
+           (lambda () (xht-mutate (xtv-get-by-name title) cmds)))
+         #'xvulpea--tv-meta-defaults
+         (org-roam-node-at-point)))))))
 
 (defun xroam-props-refresh ()
   (interactive)
@@ -40,6 +40,22 @@ Returns the string value of NOTE_CATEGORY."
       (unless cat (error "You must set a NOTE_CATEGORY"))
       (xroam--prop-custom-set 'note-category cat node)
       cat)))
+
+(defvar xroam--props-taggable nil
+  "Symbols that should map to property keys,
+which should be extracted, tagified, and inserted
+as Roam tags.")
+
+(defun xroam--tagify-props (htable &optional taggable)
+  (org-roam-tag-add
+   (seq-filter #'stringp ;; remove nils
+               (flatten-list ;; denest lists
+                (mapcar (lambda (key)
+                          (let* ((v (ht-get htable key)))
+                            (cond ((stringp v) (xtag-tagify v))
+                                  ((seqp v) (mapcar #'xtag-tagify v)) ;; will nest lists
+                                  (t v))))
+                        (or taggable xroam--props-taggable))))))
 
 (defvar xroam--prop-types nil
   "These are all of the custom properties that I track.
@@ -282,8 +298,6 @@ PROMPTER is a function: (KEY NEW CURR) => value
 
 
 (defun xroam--props-merge (new curr &optional prompter)
-  (print new)
-  (print curr)
   (let* ((result (ht)))
     (seq-doseq (k (xht-keys new curr))
       (ht-set result k (xroam--props-merge-one k
@@ -309,7 +323,7 @@ Returns a hash table."
                 (xorg--sym2pkey k)
                 (cond ((xroam--prop-type= k 'single)
                        (let* ((val (xstr-neat v)))
-                          (if (string-match " " val) (format "\"%s\"" val) val))) ; quote if has spaces
+                         (if (string-match " " val) (format "\"%s\"" val) val))) ; quote if has spaces
                       ((xroam--prop-type= k 'multi)
                        (print (combine-and-quote-strings (xstr-neat v)))
                        (combine-and-quote-strings (xstr-neat v)))

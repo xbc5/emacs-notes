@@ -29,6 +29,10 @@
                             ('year          'single)
                             ('view-url      'single)))
 
+(setq xroam--props-taggable '(actors developer directors genres license
+                             project-type release-state note-category
+                             period publisher state writers year))
+
 (setq my/roam-templates
       ;; WARN: use Vulpea instead; 1 template max here -- literature notes. Org-ref
       ;; will default to this without asking. We don't need special Vulpea features
