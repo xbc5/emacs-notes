@@ -21,7 +21,7 @@
 
 (defun xtag-get (name)
   "Return the tags from the given tag file as a list."
-  (let ((fpath (f-join xtag--files name)))
+  (let ((fpath (f-join xtag--files (xtag-file name))))
     (mkdir xtag--files t)
     (unless (file-exists-p fpath) (f-touch fpath))
     (split-string
@@ -112,6 +112,8 @@ xtag-file prompt."
                             ("release-state"     "release-state")
                             ("music-context"     "music-context")
                             ("music-contexts"    "music-context")
+                            ("note-category"     "note-category")
+                            ("set-note-category" "note-category")
                             ("person"            "person-type")
                             ("person-type"       "person-type")
                             ("type-of-person"    "person-type")

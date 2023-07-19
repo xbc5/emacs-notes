@@ -52,17 +52,13 @@
 
 (defun xvulpea--capture-tv (node)
   (let* ((ttl (org-roam-node-title node))
-         (meta (xvulpea--tv-meta-defaults (xtv-prompt ttl)))
+         (meta (xvulpea--tv-meta-defaults (xht-mutate (xtv-prompt ttl)
+                                                      '((rename category note-category)))))
          (title (or (xht-pluck meta 'title) ttl))
          (cover-block (if meta
                           (ximg-block (gethash 'cover meta) "Cover IMG")
                         (ximg-block-create :tag "cover" :name title :desc "Cover IMG"))))
-    (xtag-write "tv-genre" (ht-get meta 'genres))
-    (xtag-write "tv-actor" (ht-get meta 'actors))
-    (xtag-write "tv-director" (ht-get meta 'directors))
-    (xtag-write "tv-writer" (ht-get meta 'writers))
-    (xtag-write "tv-category" (ht-get meta 'category))
-    (xtag-write "tv-context" (ht-get meta 'contexts))
+    (xvulpea-tag-save-tv meta)
     (vulpea-create title
                    (xroam-new-fpath title (ht-get meta 'note-type))
                    :properties (xvulpea--make-props meta)

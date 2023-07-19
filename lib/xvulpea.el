@@ -109,8 +109,7 @@ for Roam file properties.
 It returns the modified HTABLE (for convenience)."
   (let* ((result (ht-copy htable)))
     (ht-set result 'note-type "article")
-    (xht-default 'category (xtag-single "TV category" t) result)
-    (xht-derive result 'category 'note-category #'xecho t)
+    (xht-default 'note-category (xtag-single "TV category" t) result)
     (xht-default 'genres (xtag-multi "TV genres" t) result)
     (xht-default 'actors (xtag-multi "TV actors" t) result)
     (xht-default 'writers (xtag-multi "TV writers" t) result)
@@ -126,6 +125,15 @@ It returns the modified HTABLE (for convenience)."
     (xht-default 'contexts (xtag-multi "TV contexts" t) result)
     result))
 
+(defun xvulpea-tag-save-tv (htable)
+  "Save TV gere, actor, irector, writer, category
+and context tags."
+  (xtag-write "tv-genre" (ht-get htable 'genres))
+  (xtag-write "tv-actor" (ht-get htable 'actors))
+  (xtag-write "tv-director" (ht-get htable 'directors))
+  (xtag-write "tv-writer" (ht-get htable 'writers))
+  (xtag-write "tv-category" (ht-get htable 'note-category))
+  (xtag-write "tv-context" (ht-get htable 'contexts)))
 
 (defun xvulpea--default-tv (htable title)
   "Use this functon to set default values to

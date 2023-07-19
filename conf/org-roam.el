@@ -1,3 +1,34 @@
+;; some of these props are required for a refresh*, for example
+;; merging new with existing will ask what type 'category is,
+;; even though it's removed during defaulting.
+(setq xroam--prop-types (ht ('actors        'multi)
+                            ('contexts      'multi)
+                            ('cover         'single)
+                            ('developer     'single)
+                            ('directors     'multi)
+                            ('download-url  'single)
+                            ('genres        'multi)
+                            ('imdb-id       'single)
+                            ('imdb-rating   'single)
+                            ('info-url      'single)
+                            ('license       'single)
+                            ('maturity      'single)
+                            ('metascore     'single)
+                            ('project-type  'single)
+                            ('release-state 'single)
+                            ('note-category 'single)
+                            ('note-type     'single)
+                            ('period        'single)
+                            ('plot          'single)
+                            ('publisher     'single)
+                            ('rating        'single)
+                            ('roam-aliases  'multi)
+                            ('state         'single)
+                            ('stream-url    'single)
+                            ('writers       'multi)
+                            ('year          'single)
+                            ('view-url      'single)))
+
 (setq my/roam-templates
       ;; WARN: use Vulpea instead; 1 template max here -- literature notes. Org-ref
       ;; will default to this without asking. We don't need special Vulpea features

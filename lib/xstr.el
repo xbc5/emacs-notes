@@ -47,3 +47,16 @@ and excess spaces removed); remove nuls."
                                       (downcase (xstr-neat s))
                                     (xstr-neat s)))
                       (s-split delim str))))
+
+(defun xstr (val)
+  "Convert any VAL to string."
+  ;; WIP: I reserve the right to change this. This will do for now.
+  (if (stringp val) val (format "%s" val)))
+
+(defun xstr-all (seq &optional exclude-nils)
+  "Turn all values of a sequence into strings.
+This does not recurse into lists (it's shallow)."
+  (let ((result (mapcar (lambda (v) (cond ((eq nil v) "")
+                                          (t (xstr v))))
+                        seq)))
+    (if exclude-nils (seq-filter #'xstr-t result) result)))
