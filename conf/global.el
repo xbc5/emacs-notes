@@ -9,8 +9,8 @@
       org-directory "~/org"
       org-roam-directory org-directory
       ;; WARN: f-join and other utils won't work here, it's too early in the boot.
-      xtag--files (concat org-roam-directory "/tags")
-      xlicense-dpath xtag--files
+      xtag-files (concat org-roam-directory "/tags")
+      xlicense-dpath xtag-files
       xlicense-fpath (concat xlicense-dpath "/license-types.yaml")
       my/templates-dir (concat doom-user-dir "/templates") ; e.g. org capture templates
       my/org-agenda-dir (concat org-directory "/agenda")

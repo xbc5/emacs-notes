@@ -20,7 +20,7 @@
 (defun xvulpea--capture-article (node)
   (let* ((title (org-roam-node-title node))
          (meta (xvulpea--article-meta-defaults (ht))) ;; plug the API hash table in here
-         (cover-block  (when (xtag-exists-p "needs-cover" (ht-get meta 'note-categoty))
+         (cover-block  (when (xtag-p 'needs-cover (ht-get meta 'note-categoty))
                          (ximg-block-create :tag "cover" :name title :desc "Cover IMG"))))
     (vulpea-create title
                    (xroam-new-fpath title (ht-get meta 'note-type))

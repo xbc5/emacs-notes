@@ -1,11 +1,4 @@
 ;; -*- lexical-binding: t; -*-
-;; BUG: required? does not pass through to required-match,
-;; this is a bug with completing-read-multiple, and not it's
-;; not the s-trim advice that you've added.
-(defun xprompt-crm (prompt tag-fname &optional required?)
-  (xtag-write tag-fname
-              (completing-read-multiple
-               (concat prompt ": ") (xtag-get tag-fname) nil required?)))
 
 (defun xprompt (prompt &optional required?)
   "Prompt with PROMPT. If REQUIRED then error on

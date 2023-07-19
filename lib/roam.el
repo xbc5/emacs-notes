@@ -22,7 +22,7 @@
 (defun xroam-props-refresh ()
   (interactive)
   (let* ((cat (xroam-note-category)))
-    (cond ((xtag-exists-p "tv-category" cat) (xroam--props-tv-refresh))
+    (cond ((xtag-p 'tv-category cat) (xroam--props-tv-refresh))
           (t (error "Unhandled note category: %s" cat)))))
 
 (defun xroam-note-category (&optional node)
@@ -36,7 +36,7 @@ Returns the string value of NOTE_CATEGORY."
   (let* ((cat (xroam--prop-custom-get 'note-category node)))
     (if cat
         cat
-      (setq cat (xtag-single "Set note category"))
+      (setq cat (xtag-single 'note-category "Set note category"))
       (unless cat (error "You must set a NOTE_CATEGORY"))
       (xroam--prop-custom-set 'note-category cat node)
       cat)))
@@ -325,7 +325,6 @@ Returns a hash table."
                        (let* ((val (xstr-neat v)))
                          (if (string-match " " val) (format "\"%s\"" val) val))) ; quote if has spaces
                       ((xroam--prop-type= k 'multi)
-                       (print (combine-and-quote-strings (xstr-neat v)))
                        (combine-and-quote-strings (xstr-neat v)))
                       (t
                        (error "Unknown prop type %s" (xroam--prop-type k))))))
