@@ -1,7 +1,6 @@
 ;; -*- lexical_binding: t; -*-
 
 ;; TODO: confirm data after fetching by title
-;; TODO: remove quotes from single values
 ;; TODO: tagify added data;
 ;; TODO: sort field data
 (defun xroam--props-tv-refresh ()
@@ -309,7 +308,8 @@ Returns a hash table."
                 (org-roam-node-point node)
                 (xorg--sym2pkey k)
                 (cond ((xroam--prop-type= k 'single)
-                       (format "\"%s\"" v))
+                       (let* ((val (xstr-neat v)))
+                          (if (string-match " " val) (format "\"%s\"" val) val))) ; quote if has spaces
                       ((xroam--prop-type= k 'multi)
                        (print (combine-and-quote-strings (xstr-neat v)))
                        (combine-and-quote-strings (xstr-neat v)))
