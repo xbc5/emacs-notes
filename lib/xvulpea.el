@@ -219,6 +219,15 @@ be file properties, into valid Roam tags."
       (xht-default 'info-url (lambda () (xprompt-url "Info page URL")) result))
     result))
 
+(defun xvulpea--definition-meta-defaults (htable)
+  "Use this function to set properties not set on HTABLE."
+  (let* ((result (ht-copy htable)))
+    (ht-set result 'note-type "definition")
+    (xht-default 'note-category (xtag-single 'definition-category "Definition category" t) result)
+    (xht-default 'roam-refs (lambda () (xprompt-url "Source" t)) result)
+    (xht-default 'contexts (xtag-multi 'word-usage-ctx "Usage contexts" t) result)
+    result))
+
 (defun xvulpea--game-meta-defaults (htable)
   "Use this function to set properties not set on HTABLE."
   (let* ((result (ht-copy htable)))

@@ -1,6 +1,7 @@
 (defvar my/capture-switch)
 (setq my/capture-switch '((?a "article" xvulpea--capture-article)
                           (?c "concept" xvulpea--capture-concept)
+                          (?d "definition" xvulpea--capture-definition)
                           (?g "game" xvulpea--capture-game)
                           (?i "idea" xvulpea--capture-idea)
                           (?t "tv" xvulpea--capture-tv)
@@ -27,6 +28,16 @@
                    :properties (xvulpea--make-props meta)
                    :tags (xvulpea--tagify-meta meta (my/roam-tag-list) 'note-category 'state)
                    :body (xvulpea--article-body (ht-get meta 'view-url) cover-block))))
+
+(defun xvulpea--capture-definition (node)
+  (let* ((title (org-roam-node-title node))
+         (meta (xvulpea--definition-meta-defaults (ht)))) ;; plug the API hash table in here
+    (vulpea-create title
+                   (xroam-new-fpath title (ht-get meta 'note-type))
+                   :tags (xvulpea--tagify-meta
+                          meta (my/roam-tag-list) 'note-category 'note-type 'contexts)
+                   :properties (xvulpea--make-props meta)
+                   :body xvulpea--typical-body)))
 
 (defun xvulpea--capture-game (node)
   (let* ((title (org-roam-node-title node))

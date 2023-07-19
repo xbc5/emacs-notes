@@ -46,7 +46,16 @@ Returns the string value of NOTE_CATEGORY."
 which should be extracted, tagified, and inserted
 as Roam tags.")
 
-(defun xroam--tagify-props (htable &optional taggable)
+(defun xroam--tagify-props (htable &optional taggable merge)
+  "For each key in TAGGABLE, extract values from the
+corresponding property HTABLE, and apply them as
+Roam tags.
+
+TAGGABLE: a list of keys that correspond to Org properties.
+If it's nil, then it will use the global xroam--props-taggable.
+
+MERGE: merge TAGGABLE with xroam--props-taggable to allow you
+to tag global keys, and scenario specific keys."
   (org-roam-tag-add
    (seq-filter #'stringp ;; remove nils
                (flatten-list ;; denest lists
@@ -55,7 +64,24 @@ as Roam tags.")
                             (cond ((stringp v) (xtag-tagify v))
                                   ((seqp v) (mapcar #'xtag-tagify v)) ;; will nest lists
                                   (t v))))
-                        (or taggable xroam--props-taggable))))))
+                        (cond ((and taggable merge)
+                               (append xroam--props-taggable taggable))
+                              (taggable taggable)
+                              (t xroam--props-taggable)))))))
+
+(defun xroam--tagify-props-existing (node &optional keys merge)
+  "The same as xroam--tagify-props except it uses the
+vales that exist within the file, instead of a hash table.
+
+NODE is the Roam node.
+
+KEYS is a list of symbols that correspond to Org properties.
+You don't need to provide this; this is for cases where you
+want to exclusively use those keys, or combine them with the
+globally defined set (xroam--props-taggable).
+
+MERGE, if t it will merge KEYS with the global set."
+  (xroam--tagify-props (xroam--props-get-ht node t) keys merge))
 
 (defvar xroam--prop-types nil
   "These are all of the custom properties that I track.
@@ -216,6 +242,9 @@ of strings."
                                            (xroam--prop-type (car prop)))))
        (list key value)))
    (xroam--props-get-custom node))) ;; getting all props will break above prop-type check
+
+(defun xroam--props-get-ht (node &optional symbols)
+  (xht-from-lists (xroam--props-get node symbols)))
 
 (defun xroam--prop-custom-get (key node)
   "Fetch a property value from NODE given its KEY (string|symbol).
