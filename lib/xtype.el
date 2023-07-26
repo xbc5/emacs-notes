@@ -34,3 +34,7 @@ them for strict equality (type and value)."
         ((and (symbolp a) (symbolp b)) (eq a b))
         ((and (numberp a) (numberp b)) (= a b))
         nil))
+
+(defun xsym-extend (fmt sym &optional intern)
+  (let* ((str (format fmt sym)))
+    (if intern (intern str) (make-symbol str))))

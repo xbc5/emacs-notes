@@ -4,6 +4,7 @@
 
 ;; misc
 (load! "conf/global")
+(load! "lib/xht")
 (load! "secrets/secrets-1")
 (load! "lib/shims")
 (load! "lib/xtype")
@@ -26,7 +27,6 @@
 (load! "lib/xname")
 (load! "lib/xtime")
 (load! "lib/xtv")
-(load! "lib/xht")
 
 ;; pkg
 (load! "conf/plantuml-mode")

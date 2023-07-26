@@ -1,10 +1,90 @@
-;; -*- lexical_binding: t; -*-
+;; -*- lexical-binding: t; -*-
+(defvar xroam--props-tracked (xht-from-lists
+                              '((actors        (custom  multi))
+                                (roam-aliases) (builtin multi)
+                                (brief         (custom  single))
+                                (contexts      (custom  multi))
+                                (cover         (custom  single))
+                                (developer     (custom  single))
+                                (directors     (custom  multi))
+                                (download-url  (custom  single))
+                                (genres        (custom  multi))
+                                (imdb-id       (custom  single))
+                                (imdb-rating   (custom  single))
+                                (info-url      (custom  single))
+                                (license       (custom  single))
+                                (maturity      (custom  single))
+                                (meta          (custom  single))
+                                (metascore     (custom  single))
+                                (project-type  (custom  single))
+                                (release-state (custom  single))
+                                (note-category (custom  single))
+                                (note-type     (custom  single))
+                                (period        (custom  single))
+                                (plot          (custom  single))
+                                (publisher     (custom  single))
+                                (rating        (custom  single))
+                                (roam-aliases  (custom  multi))
+                                (state         (custom  single))
+                                (stream-url    (custom  single))
+                                (writers       (custom  multi))
+                                (year          (custom  single))
+                                (view-url      (custom  single))))
+  "These are all of the properties that I track (they have configuration values).
+The CDR is the kind of value that the corresponding Org property holds --
+either single or multi (meaning a single value, or a list of values).")
+
+(defvar xroam--props-taggable '(actors developer directors genres license
+                                project-type release-state note-category
+                                period publisher state writers year)
+  "Symbols that should map to property keys,
+which should be extracted, tagified, and inserted
+as Roam tags.")
+
+;; TODO: use a macro
+(defun xroam-prop-set-aliases-root () (interactive) (xroam--prop-set-text 'roam-aliases t))
+(defun xroam-prop-set-aliases-closest () (interactive) (xroam--prop-set-text 'roam-aliases))
+(defun xroam-prop-set-brief-root () (interactive) (xroam--prop-set-text 'brief t))
+(defun xroam-prop-set-brief-closest () (interactive) (xroam--prop-set-text 'brief))
+(defun xroam-prop-set-meta-root () (interactive) (xroam--prop-set-text 'meta t))
+(defun xroam-prop-set-meta-closest () (interactive) (xroam--prop-set-text 'meta))
+
+(defun xroam--prop-set-text (key &optional root)
+  "Set a plain old text value like ROAM_ALIASES, or META.
+Do NOT set complex props with this: e.g. GENRES."
+  (interactive)
+  (org-with-point-at (if root (point-min) (point))
+    (xroam--prop-set key
+                     (org-roam-node-at-point)
+                     (lambda (curr)
+                       (read-string (format "Set %s: " (xorg--sym2pkey key)) curr)))))
+
+(defun xroam--prop-get-text (key node)
+  "Given a property KEY for NODE, return the property
+value as a string. For 'multi forms return a semi-colon
+delineated string."
+  (let* ((val (xroam--prop-tracked-get key node)))
+    (cond ((eq nil val) nil)
+          ((stringp val) val)
+          ((seqp val) (s-join "; " val))
+          (t (error "Unknown type for prop value (val: %s; type: %s)" val (type-of val))))))
+
+(cl-defun xroam--prop-set (key node cb)
+  "Set the property at KEY for NODE with the value
+returned from CB. CB gets one argument, the current value
+as a string: for 'multi this means a semi-colon delineated
+string. It MUST return a new value."
+  (xroam--prop-tracked-set key
+                           (funcall cb (xroam--prop-get-text key node))
+                           (org-roam-node-at-point)
+                           t))
+
 
 ;; TODO: confirm data after fetching by title
 ;; TODO: sort field data
 (defun xroam--props-tv-refresh ()
   (org-with-point-at (point-min)
-    (let* ((id (xroam--prop-custom-get 'imdb-id (org-roam-node-at-point)))
+    (let* ((id (xroam--prop-tracked-get 'imdb-id (org-roam-node-at-point)))
            (title (org-get-title))
            (cmds '((rename category note-category) ; mutate xtv props into org props
                    (delete title))))
@@ -33,18 +113,13 @@ at point.
 Returns the string value of NOTE_CATEGORY."
   (interactive)
   (unless node (setq node (org-roam-node-at-point)))
-  (let* ((cat (xroam--prop-custom-get 'note-category node)))
+  (let* ((cat (xroam--prop-tracked-get 'note-category node)))
     (if cat
         cat
       (setq cat (xtag-single 'note-category "Set note category"))
       (unless cat (error "You must set a NOTE_CATEGORY"))
-      (xroam--prop-custom-set 'note-category cat node)
+      (xroam--prop-tracked-set 'note-category cat node)
       cat)))
-
-(defvar xroam--props-taggable nil
-  "Symbols that should map to property keys,
-which should be extracted, tagified, and inserted
-as Roam tags.")
 
 (defun xroam--tagify-props (htable &optional taggable merge)
   "For each key in TAGGABLE, extract values from the
@@ -83,29 +158,34 @@ globally defined set (xroam--props-taggable).
 MERGE, if t it will merge KEYS with the global set."
   (xroam--tagify-props (xroam--props-get-ht node t) keys merge))
 
-(defvar xroam--prop-types nil
-  "These are all of the custom properties that I track.
-The CDR is the kind of value that the corresponding Org property holds --
-either single or multi (meaning a single value, or a list of values).")
-
-(defun xroam--prop-custom-p (key)
-  "Check if an ORG prop is custom (self-made by me).
+(defun xroam--prop-tracked-p (key)
+  "Check if an ORG prop is tracked (has configuration values).
 
 KEY can be an uppercase/lowercase string; or a symbol.
 It applies xorg--pkey2sym, so you can use this flexibly
 to check property keys, or their symbol representation.
 
 Returns t if it is; nil otherwise."
-  (ht-contains-p xroam--prop-types (xorg--pkey2sym key)))
+  (ht-contains-p xroam--props-tracked (xorg--pkey2sym key)))
 
-(defun xroam--props-get-custom (node)
-  "Return a list of properties tracks only by me --
-e.g. actors, directors.
+(defun xroam--props-get-tracked (node)
+  "Return a list of properties tracked properties -- properties
+that have configuration values.
 
 Returns an alist '((\"PROP_NAME\" . \"value\") ...)"
   (seq-filter
-   (lambda (item) (xroam--prop-custom-p (car item)))
+   (lambda (item) (xroam--prop-tracked-p (car item)))
    (org-roam-node-properties node)))
+
+(defun xroam--prop-form (prop-key)
+  "Get the property form for the given
+PROP-KEY. PROP-KEY can be a property key
+or a symbol:
+  PROP_KEY
+  prop-key
+
+It returns a symbol: 'single or 'multi"
+  (xroam--prop-conf-get prop-key 1))
 
 (defun xroam--prop-type (prop-key)
   "Get the property type for the given
@@ -114,29 +194,38 @@ or a symbol:
   PROP_KEY
   prop-key
 
-It returns a symbol: 'single or 'multi"
-  (ht-get xroam--prop-types
-          (if (stringp prop-key)
-              (xorg--pkey2sym prop-key)
-            prop-key)))
+It returns a symbol: 'custom or 'builtin"
+  (xroam--prop-conf-get prop-key 0))
+
+(defun xroam--prop-conf-get (prop-key n)
+  "From PROP-KEY in xroam--props-tracked, get Nth
+config value -- e.g. type, form."
+  (nth n
+       (ht-get xroam--props-tracked
+               (if (stringp prop-key)
+                   (xorg--pkey2sym prop-key)
+                 prop-key))))
 
 (defun xroam--prop-type= (prop-key type)
   "Check if PROP-KEY (a symbol or string)
-matches TYPE (a symbol: 'single; 'multi).
+matches TYPE (a symbol: 'custom; 'builtin).
 
-  (xroam--prop-type= \"MY_PROP\" 'single)
-  (xroam--prop-type= 'my-prop 'multi)"
+  (xroam--prop-form= \"MY_PROP\" 'custom)
+  (xroam--prop-form= 'my-prop 'builtin)"
   (eq type (xroam--prop-type prop-key)))
+
+(defun xroam--prop-form= (prop-key form)
+  "Check if PROP-KEY (a symbol or string)
+matches FORM (a symbol: 'single; 'multi).
+
+  (xroam--prop-form= \"MY_PROP\" 'single)
+  (xroam--prop-form= 'my-prop 'multi)"
+  (eq form (xroam--prop-form prop-key)))
 
 (defun my/roam-tag-list ()
   (let ((crm-separator "[ 	]*:[ 	]*"))
     (completing-read-multiple "Roam tags: " (org-roam-tag-completions))))
 
-(defun my/roam-set-brief ()
-  (interactive)
-  (org-set-property "BRIEF"
-                    (read-string "Set brief: "
-                                 (xroam-get-prop "BRIEF"))))
 
 ;; DEPRECATED: unused
 (defun xroam-add-prop (key values)
@@ -214,23 +303,23 @@ to a slug (file name) that represents their titles."
 (defun xroam--split-prop (val)
   (seq-filter #'xstr-t (mapcar #'xstr-neat (split-string-and-unquote val))))
 
-(defun xroam--prop-value-parse (val type)
-  "Parse VAL into a value appropriate for TYPE.
+(defun xroam--prop-value-parse (val form)
+  "Parse VAL into a value appropriate for FORM.
 
-When TYPE is 'single, return a string;
-When TYPE is 'multi, return a list of strings."
-  (cond ((eq 'multi type) (xroam--split-prop val))
-        ((eq 'single type) (xstr-neat (xstr-trim-quotes val)))
-        (t (error "Unhandled prop type: %s" (symbol-value type)))))
+When FORM is 'single, return a string;
+When FORM is 'multi, return a list of strings."
+  (cond ((eq 'multi form) (xroam--split-prop val))
+        ((eq 'single form) (xstr-neat (xstr-trim-quotes val)))
+        (t (error "Unhandled prop form: %s" (symbol-value form)))))
 
 (defun xroam--props-get (&optional node symbols)
   "Get the props from NODE in the form of:
-  '(('key1 \"string\")                   ; TYPE is 'single
-    ('key2 '(\"string1\" \"string2\")))  ; TYPE is 'multi
+  '(('key1 \"string\")                   ; FORM is 'single
+    ('key2 '(\"string1\" \"string2\")))  ; FORM is 'multi
 
 It will split strings on \"quoted words\" into a list for
-'multi TYPE; and strip leading and trailing \"quotes\" for
-'single TYPE. It will also make all strings xstr-neat.
+'multi FORM; and strip leading and trailing \"quotes\" for
+'single FORM. It will also make all strings xstr-neat.
 
 NODE is the target Org-Roam node.
 SYMBOLS means to return the prop keys as 'symbols, instead
@@ -239,33 +328,33 @@ of strings."
    (lambda (prop)
      (let ((key (if symbols (xorg--pkey2sym (car prop)) (car prop)))
            (value (xroam--prop-value-parse (cdr prop) ; cdr is always a single string
-                                           (xroam--prop-type (car prop)))))
+                                           (xroam--prop-form (car prop)))))
        (list key value)))
-   (xroam--props-get-custom node))) ;; getting all props will break above prop-type check
+   (xroam--props-get-tracked node))) ;; getting all props will break above prop-form check
 
 (defun xroam--props-get-ht (node &optional symbols)
   (xht-from-lists (xroam--props-get node symbols)))
 
-(defun xroam--prop-custom-get (key node)
+(defun xroam--prop-tracked-get (key node)
   "Fetch a property value from NODE given its KEY (string|symbol).
 
-Returns a list or a string, depending on the property type."
+Returns a list or a string, depending on the property form."
   (when (symbolp key) (setq key (xorg--sym2pkey key)))
   (let* ((pair (seq-filter
                 (lambda (item) (string= key (car item)))
-                (xroam--props-get-custom node))))
+                (xroam--props-get-tracked node))))
     (cond ((length= pair 0) nil)
           ((length= pair 1)
            (xroam--prop-value-parse
             (cdr (car pair))
-            (xroam--prop-type (car (car pair)))))
+            (xroam--prop-form (car (car pair)))))
           (t (error "More than one property for key: %s" key)))))
 
 (defun xroam--prop-quotify (str)
   "Turn ' foo ; bar   baz  ' => 'foo \"bar baz\"'."
   (combine-and-quote-strings (xstr-neat (s-split "; *" str))))
 
-(defun xroam--prop-custom-set (key value node &optional replace)
+(defun xroam--prop-tracked-set (key value node &optional replace)
   "Replace an existing prop with VALUE, given its KEY and roam NODE.
 For 'multi props, it will quotify (split on ;); for 'single it will
 set the value as-is.
@@ -273,10 +362,10 @@ set the value as-is.
 For 'multi props, if REPLACE is t, it will replace the value,
 otherwise it will append it."
   (when (symbolp key) (setq key (xorg--sym2pkey key)))
-  (let* ((type (xroam--prop-type key))
+  (let* ((form (xroam--prop-form key))
          (pnt (org-roam-node-point node)))
-    (cond ((xeq type 'single) (org-entry-put pnt key value))
-          ((xeq type 'multi)
+    (cond ((xeq form 'single) (org-entry-put pnt key value))
+          ((xeq form 'multi)
            (if replace
                (if (stringp value)
                    (org-entry-put pnt key (xroam--prop-quotify value))
@@ -286,7 +375,7 @@ otherwise it will append it."
                    (org-roam-property-add key (xstr-neat value))
                  (seq-doseq (v value)
                    (org-roam-property-add key (xstr-neat v)))))))
-          (t (error "Unhandled property type (key: %s; type: %s)" key type)))))
+          (t (error "Unhandled property form (key: %s; form: %s)" key form)))))
 
 (setq xroam--prop-msg-conflict "Value conflict for '%s' -- choose one:
 
@@ -311,7 +400,7 @@ otherwise it will append it."
   " NEW|CURR is a list of strings, or a string.
 PROMPTER is a function: (KEY NEW CURR) => value
 (returns the chosen value)"
-  (cond ((xroam--prop-type= key 'single)
+  (cond ((xroam--prop-form= key 'single)
          (unless (or (eq new nil) (stringp new)) (setq new (xstr new)))
          ;; checking for nil nil means we have to prompt for something, but what?
          ;; we will do defaulting after this, so returning nil is okay.
@@ -321,9 +410,9 @@ PROMPTER is a function: (KEY NEW CURR) => value
                (t (if prompter  ; different; not nil
                       (funcall prompter key new curr)
                     (xroam--prompt-prop-conflict key new curr)))))
-        ((xroam--prop-type= key 'multi)
+        ((xroam--prop-form= key 'multi)
          (xlist-insert-alpha curr new))
-        (t (error "Unknown custom prop type (key: %s type: %s)" key (xroam--prop-type key)))))
+        (t (error "Unknown tracked prop form (key: %s form: %s)" key (xroam--prop-form key)))))
 
 
 (defun xroam--props-merge (new curr &optional prompter)
@@ -350,29 +439,12 @@ Returns a hash table."
                (org-entry-put
                 (org-roam-node-point node)
                 (xorg--sym2pkey k)
-                (cond ((xroam--prop-type= k 'single)
+                (cond ((xroam--prop-form= k 'single)
                        (let* ((val (xstr-neat v)))
                          (if (string-match " " val) (format "\"%s\"" val) val))) ; quote if has spaces
-                      ((xroam--prop-type= k 'multi)
+                      ((xroam--prop-form= k 'multi)
                        (combine-and-quote-strings (xstr-neat v)))
                       (t
-                       (error "Unknown prop type %s" (xroam--prop-type k))))))
+                       (error "Unknown prop form %s" (xroam--prop-form k))))))
              (setq result (xroam--props-merge-all new-fn defaults-fn node prompter)))
     result))
-
-(defun xroam--props-apply (props)
-  "Given an alist of PROPS, destructively apply each.
-
-The alist has lots of quotes: quotes that compete with
-their surrounding string quotes; quotes that compete with
-the doc string quotes, so without spending 6 hours trying
-to make it work, just accept this example:
-  e.g. '((KEY 'val1 val2') (KEY2 'val3 val4'))
-
-Each of val1 an val2 must be surrounded like \"val1\" if you
-want them to be separate within the final string.
-
-Conveniently, xvulpea--make-props returns the each format
-that you need, so provide your hash table to that. "
-  (seq-doseq (prop props)
-    (org-set-property (car prop) (nth 1 prop))))
