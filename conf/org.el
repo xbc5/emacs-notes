@@ -2,6 +2,7 @@
 (setq org-agenda-files (list my/org-agenda-dir)) ; set outside of after! as per the manual
 
 (map! "M-M" #'org-capture
+      "M-i" #'ximg-insert-org
       :leader
       :prefix "m"
       :desc "Apply custom agenda filters" "t" 'my/set-agenda-filter)

@@ -1,3 +1,8 @@
+(defun ximg-insert-org ()
+  "Insert an Org-Mode image link at point."
+  (interactive)
+  (insert (ximg-block-create)))
+
 (defvar ximg--smenu-sources nil "The menu choices for 'smenu--img-source. ")
 (setq ximg--smenu-sources
       '((?d "download" "download")
