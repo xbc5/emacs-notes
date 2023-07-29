@@ -1,5 +1,5 @@
 (setq xvulpea--typical-body "
-* meta
+
 * summary
 * details
 %?
@@ -287,7 +287,7 @@ be file properties, into valid Roam tags."
     result))
 
 (setq xvulpea--quote-upper-body-t "
-* meta
+
 * summary
 * details
 #+begin_quote
