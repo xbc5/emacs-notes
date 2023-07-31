@@ -6,6 +6,7 @@
                           (?i "idea" xvulpea--capture-idea)
                           (?t "tv" xvulpea--capture-tv)
                           (?p "person" xvulpea--capture-person)
+                          (?P "project" xvulpea--capture-project)
                           (?q "quote" xvulpea--capture-quote)
                           (?s "song" xvulpea--capture-song)))
 
@@ -15,8 +16,19 @@
   (map! "M-n" #'xvulpea-node-find
         "M-N" #'xvulpea-node-find-split
         "M-I" #'xvulpea-node-insert)
-
   :hook ((org-roam-db-autosync-mode . vulpea-db-autosync-enable)))
+
+(defun xvulpea--capture-project (node)
+  (let* ((title (org-roam-node-title node))
+         (meta (xvulpea--project-meta-defaults (ht))))
+    (unless xvulpea--project-current (error "Current project not set"))
+    (vulpea-create title
+                   (xroam-new-fpath title
+                                    (f-join xvulpea--project-dir-name
+                                            xvulpea--project-current))
+                   :properties (xvulpea--make-props meta)
+                   :tags (xvulpea--tagify-meta meta (my/roam-tag-list) 'note-category)
+                   :body xvulpea--typical-body)))
 
 (defun xvulpea--capture-article (node)
   (let* ((title (org-roam-node-title node))

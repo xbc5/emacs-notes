@@ -97,6 +97,40 @@ Returns a list of tagified strings:
   e.g. (\"foo_bar\" ...)"
   (mapcar #'xtag-tagify (xseq-listify tags)))
 
+(defvar xvulpea--project-current nil "The name of the currently selected project.")
+(defvar xvulpea--project-dir-name "project" "The name of the root project directory.")
+(setq xvulpea--project-dir (f-join org-roam-directory xvulpea--project-dir-name))
+
+(defun xvulpea--project-path (&optional name suffix)
+  (f-join xvulpea--project-dir (or name xvulpea--project-current) (or suffix "")))
+
+(defun xvulpea--project-prompt ()
+  "Prompt the user to pick a project, pre-filling in the
+last one used. It will return the project directory name."
+  (let* ((dir  (xfs-slugify
+                (completing-read "Choose project: "
+                                 (directory-files xvulpea--project-dir nil "^[^.]+$")
+                                 nil
+                                 nil
+                                 xvulpea--project-current)
+                "-"))
+         (path (xvulpea--project-path dir)))
+    (when (xnil-or-blank dir) (error "You chose a blank project name."))
+    (setq xvulpea--project-current dir)
+    (unless (f-directory-p path) (make-directory path t))
+    dir))
+
+(defun xvulpea--project-meta-defaults (htable)
+  "Apply the default properties for project captures."
+  (let* ((result (ht-copy htable))
+         (pname (xvulpea--project-prompt))
+         (path (xvulpea--project-path pname)))
+    (ht-set result 'note-type "project")
+    (if (directory-empty-p path)
+        (ht-set result 'note-category "project")
+      (ht-set result 'note-category "feature"))
+    result))
+
 (defun xvulpea--tv-meta-defaults (htable)
   "Use this function to set file specific properties
 derived from an xtv HTABLE. This function assumes all

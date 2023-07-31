@@ -1,6 +1,7 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 (require 'ht)
 (require 'vulpea)
+(require 'f)
 
 ;; misc
 (load! "conf/global")
