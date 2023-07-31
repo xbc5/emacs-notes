@@ -2,7 +2,7 @@
       ;; WARN: use Vulpea instead; 1 template max here -- literature notes. Org-ref
       ;; will default to this without asking. We don't need special Vulpea features
       ;; for lit notes anyway.
-      '(("l" "literature" plain "\n\n* meta\n* conclusions\n* summary\n* notes\n%?\n* thoughts\n"
+      '(("l" "literature" plain "\n* conclusions\n* summary\n* notes\n%?\n* ideas\n* thoughts\n"
          :unnarrowed t
          :target (file+head "lit/%<%Y%m%d%H%M%S>.org"
                             ":PROPERTIES:\n:ROAM_REFS: cite:${citekey}\n:AUTHORS: ${author}\n:END:\n#+title: ${title}\n"))))
