@@ -33,6 +33,7 @@
               (list "psychology [active]" "+psychology" active)
               (list "Elisp [active]" "+elisp" active)
               (list "privacy [active]" "+privacy" active)
+              (list "personal [active]" "+personal" active)
               (list "software [active]" "+software" active)
               (list "anti-aging [active]" "+antiaging" active)
               (list "biotech [active]" "+biotech" active)
