@@ -1,7 +1,8 @@
 (make-directory org-directory t)
 
 (defun shim/set-org-agenda-files ()
-  (setq org-agenda-files (directory-files my/org-agenda-dir t "\\.org$"))) ; set outside of after! as per the manual
+  (interactive)
+  (setq org-agenda-files (directory-files xorg-agenda-dir t "\\.org$"))) ; set outside of after! as per the manual
 
 (shim/set-org-agenda-files)
 
@@ -48,9 +49,9 @@ autosync the database."
           ("DONE" :foreground "#666666")
           ("DROP" :foreground "#666666"))
         org-capture-templates '(("f" "Fleeting notes" entry (file+olp+datetree "fleeting.org") "* %?")
-                                ("l" "Bookmark" entry (function my/find-agenda-file) (function (lambda () (my/template "bookmark"))))
-                                ("b" "Book" entry (function my/find-agenda-file) (function (lambda () (my/template "book"))))
-                                ("t" "Task" entry (function my/find-agenda-file) (function (lambda () (my/template "task")))))
+                                ("l" "Bookmark" entry (function xorg-agenda-file-find) (function (lambda () (my/template "bookmark"))))
+                                ("b" "Book" entry (function xorg-agenda-file-find) (function (lambda () (my/template "book"))))
+                                ("t" "Task" entry (function xorg-agenda-file-find) (function (lambda () (my/template "task")))))
         org-highest-priority 65
         org-lowest-priority 69
         org-default-priority 68

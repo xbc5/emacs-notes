@@ -24,3 +24,28 @@ on that.
          (xstr vals))
         (t (error (format "Cannot stringify type: '%s'" (type-of vals)))))
   )
+
+(defun xorg--agenda-dir-ls ()
+  "Get a directory listing of agenda files inside the agenda directory."
+  (directory-files xorg-agenda-dir nil org-agenda-file-regexp)) ; NEVER return full path
+
+(defun xorg--agenda-fpath (fname)
+  "Given an agenda file name, return the full, absolute path."
+  (f-join xorg-agenda-dir fname))
+
+(defun xorg--agenda-file-pick ()
+  "Pick an agenda file from a completion list, otherwise create it."
+  ;; DON'T create files in the agenda directory WITH SPACES or WITHOUT
+  ;; the .ORG EXTENSION. To be safe: use this picker when creating files too.
+  (xorg--agenda-fpath
+   (my/fix-org-file-name
+    (completing-read "Choose an agenda file: " (xorg--agenda-dir-ls)) )))
+
+(defun xorg-agenda-file-find ()
+  "Find an existing agenda file, or create one."
+  (interactive)
+  (mkdir xorg-agenda-dir t)
+  (set-buffer
+   (org-capture-target-buffer
+    (xorg--agenda-file-pick)))
+  (goto-char (point-max)))

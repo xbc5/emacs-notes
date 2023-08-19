@@ -13,7 +13,7 @@
       xlicense-dpath xtag-files
       xlicense-fpath (concat xlicense-dpath "/license-types.yaml")
       my/templates-dir (concat doom-user-dir "/templates") ; e.g. org capture templates
-      my/org-agenda-dir (concat org-directory "/agenda")
+      xorg-agenda-dir (concat org-directory "/agenda")
       my/bib (concat org-roam-directory "/bib" )
       my/imgs (concat org-roam-directory "/img")
       my/bib-file-re "\.\\(bib\\|org\\)$" ; match files in bib dir
