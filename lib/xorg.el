@@ -33,13 +33,19 @@ on that.
   "Given an agenda file name, return the full, absolute path."
   (f-join xorg-agenda-dir fname))
 
+(defun xorg-file-name-fix (name)
+  "Ensure that there is an org extension, and replace spaces with underscores."
+  (let* ((tidy (replace-regexp-in-string "\\.org$" ""
+                                         (replace-regexp-in-string " " "_" name))))
+    (concat tidy ".org")))
+
 (defun xorg--agenda-file-pick ()
   "Pick an agenda file from a completion list, otherwise create it."
   ;; DON'T create files in the agenda directory WITH SPACES or WITHOUT
   ;; the .ORG EXTENSION. To be safe: use this picker when creating files too.
   (xorg--agenda-fpath
-   (my/fix-org-file-name
-    (completing-read "Choose an agenda file: " (xorg--agenda-dir-ls)) )))
+   (xorg-file-name-fix
+    (completing-read "Choose an agenda file: " (xorg--agenda-dir-ls)))))
 
 (defun xorg-agenda-file-find ()
   "Find an existing agenda file, or create one."
@@ -49,3 +55,8 @@ on that.
    (org-capture-target-buffer
     (xorg--agenda-file-pick)))
   (goto-char (point-max)))
+
+(defun xorg-agenda-files-set ()
+  "Set the files that qualify as agenda files."
+  (interactive)
+  (setq org-agenda-files (directory-files xorg-agenda-dir t "\\.org$")))

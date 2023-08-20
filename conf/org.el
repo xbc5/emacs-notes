@@ -1,10 +1,7 @@
 (make-directory org-directory t)
 
-(defun shim/set-org-agenda-files ()
-  (interactive)
-  (setq org-agenda-files (directory-files xorg-agenda-dir t "\\.org$"))) ; set outside of after! as per the manual
-
-(shim/set-org-agenda-files)
+;; set outside of after! as per the manual
+(xorg-agenda-files-set)
 
 (map! "M-M" #'org-capture
       "M-i" #'ximg-insert-org
@@ -33,6 +30,7 @@ autosync the database."
   (org-add-link-type "SOQ" 'my/open-stackoverflow-question)
   (org-add-link-type "SOA" 'my/open-stackoverflow-answer)
   (org-add-link-type "twitter" 'my/open-twitter-link)
+  (add-hook 'org-capture-after-finalize-hook #'xorg-agenda-files-set) ; set agenda files after new one added
   (setq org-startup-folded t
         org-image-actual-width 800 ; default img width
         org-agenda-file-regexp "^.*\\.org$"

@@ -4,12 +4,6 @@
                    (mapcar #'(lambda (x) (cdr (assoc "=key=" x)))
                            (bibtex-completion-candidates))))
 
-(defun my/fix-org-file-name (name)
-  "Ensure that there is an org extension, and replace spaces with underscores."
-  (let* ((tidy (replace-regexp-in-string "\\.org$" ""
-                                         (replace-regexp-in-string " " "_" name))))
-    (concat tidy ".org")))
-
 (defun my/template-path (name)
   "Return the full template path for the given file name (without extension)."
   (f-join my/templates-dir (concat name ".org")))
