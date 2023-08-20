@@ -258,6 +258,10 @@ it only keeps the database in sync to prevent
   (org-roam-db-autosync--rename-file-a from to)
   (delete-file from))
 
+(defun xroam-path-definitions ()
+  "Return the path for word definitions."
+  (xroam-path "definition"))
+
 (defun xroam-path (&optional slug)
   "Return the full path to SLUG within
 the org-roam-directory; or return just

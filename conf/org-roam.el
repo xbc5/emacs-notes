@@ -28,12 +28,14 @@
         "M-B" #'xroam-prop-set-brief-root
         "M-I" #'org-roam-node-insert
         :leader
+        :prefix "rf"
+        :desc "do @definition flash cards"      "d" #'xdrill-definitions
         :prefix "rp"
-        :desc "set brief root"    "b" #'xroam-prop-set-brief-root
+        :desc "set brief root"      "b" #'xroam-prop-set-brief-root
         :desc "set brief closest"   "B" #'xroam-prop-set-brief-closest
-        :desc "set meta root"     "m" #'xroam-prop-set-meta-root
+        :desc "set meta root"       "m" #'xroam-prop-set-meta-root
         :desc "set meta closest"    "M" #'xroam-prop-set-meta-closest
-        :desc "set aliases root"  "a" #'xroam-prop-set-aliases-root
+        :desc "set aliases root"    "a" #'xroam-prop-set-aliases-root
         :desc "set aliases closest" "A" #'xroam-prop-set-aliases-closest)
 
   (add-hook 'after-init-hook #'org-roam-mode)

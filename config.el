@@ -28,6 +28,7 @@
 (load! "lib/xname")
 (load! "lib/xtime")
 (load! "lib/xtv")
+(load! "lib/xdrill")
 
 ;; pkg
 (load! "conf/plantuml-mode")

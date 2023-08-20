@@ -6,6 +6,7 @@
 (when (package! org)
   (package! org-fancy-priorities)
   (package! org-ql)
+  (package! org-drill)
   (package! plantuml-mode))
 
 ;; when re-pinning to module, remember to stop using the
