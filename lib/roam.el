@@ -222,10 +222,12 @@ matches FORM (a symbol: 'single; 'multi).
   (xroam--prop-form= 'my-prop 'multi)"
   (eq form (xroam--prop-form prop-key)))
 
-(defun my/roam-tag-list ()
+(defun xroam-tag-list (&optional tags)
+  "Completing-read-multiple for all roam tags + TAGS that
+you wish to statically include."
   (let ((crm-separator "[ 	]*:[ 	]*"))
-    (completing-read-multiple "Roam tags: " (org-roam-tag-completions))))
-
+    (append tags
+            (completing-read-multiple "Roam tags: " (org-roam-tag-completions)))))
 
 ;; DEPRECATED: unused
 (defun xroam-add-prop (key values)

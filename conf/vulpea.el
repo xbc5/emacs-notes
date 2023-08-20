@@ -27,18 +27,18 @@
                                     (f-join xvulpea--project-dir-name
                                             xvulpea--project-current))
                    :properties (xvulpea--make-props meta)
-                   :tags (xvulpea--tagify-meta meta (my/roam-tag-list) 'note-category)
+                   :tags (xvulpea--tagify-meta meta (xroam-tag-list '("todo")) 'note-category)
                    :body xvulpea--typical-body)))
 
 (defun xvulpea--capture-article (node)
   (let* ((title (org-roam-node-title node))
          (meta (xvulpea--article-meta-defaults (ht))) ;; plug the API hash table in here
-         (cover-block  (when (xtag-p 'needs-cover (ht-get meta 'note-categoty))
+         (cover-block  (when (xtag-p 'needs-cover (ht-get meta 'note-category))
                          (ximg-block-create :tag "cover" :name title :desc "Cover IMG"))))
     (vulpea-create title
                    (xroam-new-fpath title (ht-get meta 'note-type))
                    :properties (xvulpea--make-props meta)
-                   :tags (xvulpea--tagify-meta meta (my/roam-tag-list) 'note-category 'state)
+                   :tags (xvulpea--tagify-meta meta (xroam-tag-list '("todo")) 'note-category 'state)
                    :body (xvulpea--article-body (ht-get meta 'view-url) cover-block))))
 
 (defun xvulpea--capture-definition (node)
@@ -47,7 +47,7 @@
     (vulpea-create title
                    (xroam-new-fpath title (ht-get meta 'note-type))
                    :tags (xvulpea--tagify-meta
-                          meta (my/roam-tag-list) 'note-category 'note-type 'contexts)
+                          meta (xroam-tag-list '("todo")) 'note-category 'note-type 'contexts)
                    :properties (xvulpea--make-props meta)
                    :body xvulpea--typical-body)))
 
@@ -65,7 +65,7 @@
 (defun xvulpea--capture-song (node)
   (let* ((title (org-roam-node-title node))
          (meta (xvulpea--song-meta-defaults (ht))) ;; plug the API hash table in here
-         (tags (my/roam-tag-list)))
+         (tags (xroam-tag-list '("todo"))))
     (vulpea-create title
                    (xroam-new-fpath title (ht-get meta 'note-type))
                    :properties (xvulpea--make-props meta)
@@ -85,7 +85,7 @@
     (vulpea-create title
                    (xroam-new-fpath title (ht-get meta 'note-type))
                    :properties (xvulpea--make-props meta)
-                   :tags (xvulpea--tagify-meta meta (my/roam-tag-list) 'note-category
+                   :tags (xvulpea--tagify-meta meta (xroam-tag-list '("todo")) 'note-category
                                                'state 'genres 'actors 'directors 'writers
                                                'contexts 'period)
                    :body (xvulpea--article-body (ht-get meta 'view-url) cover-block))))
@@ -96,7 +96,7 @@
     (vulpea-create title
                    (xroam-new-fpath title (ht-get meta 'note-type))
                    :properties (xvulpea--make-props meta)
-                   :tags (xvulpea--tagify-meta meta (my/roam-tag-list) 'note-category)
+                   :tags (xvulpea--tagify-meta meta (xroam-tag-list '("todo")) 'note-category)
                    :body xvulpea--typical-body)))
 
 (defun xvulpea--capture-idea (node)
@@ -106,7 +106,7 @@
                    (xroam-new-fpath title (ht-get meta 'note-type))
                    :properties (xvulpea--make-props meta)
                    :tags (xvulpea--tagify-meta
-                          meta (my/roam-tag-list) 'note-category 'project-type)
+                          meta (xroam-tag-list '("todo")) 'note-category 'project-type)
                    :body xvulpea--typical-body)))
 
 (defun xvulpea--capture-person (node)
@@ -116,7 +116,7 @@
                    (xroam-new-fpath title (ht-get meta 'note-type))
                    :properties (xvulpea--make-props meta)
                    :tags (xvulpea--tagify-meta
-                          meta (my/roam-tag-list) 'note-category)
+                          meta (xroam-tag-list '("todo")) 'note-category)
                    :body xvulpea--typical-body)))
 
 (defun xvulpea--capture-quote (node)
@@ -126,5 +126,5 @@
                    (xroam-new-fpath title (ht-get meta 'note-type))
                    :properties (xvulpea--make-props meta)
                    :tags (xvulpea--tagify-meta
-                          meta (my/roam-tag-list) 'note-category)
+                          meta (xroam-tag-list '("todo")) 'note-category)
                    :body  (xvulpea--quote-body (ht-get meta 'roam-refs)))))
