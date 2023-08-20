@@ -79,7 +79,6 @@ string. It MUST return a new value."
                            (org-roam-node-at-point)
                            t))
 
-
 ;; TODO: confirm data after fetching by title
 ;; TODO: sort field data
 (defun xroam--props-tv-refresh ()
@@ -454,3 +453,42 @@ Returns a hash table."
                        (error "Unknown prop form %s" (xroam--prop-form k))))))
              (setq result (xroam--props-merge-all new-fn defaults-fn node prompter)))
     result))
+
+(defun xroam--status-tags (node)
+  "Get a list of status tags for NODE."
+  (seq-filter (lambda (el) (xhas '("todo" "in_progress") el))
+              (org-roam-node-tags node)))
+
+(defun xroam-tag-replace (old new &optional node)
+  "Replace OLD tag with NEW for NODE (defaults to root node)."
+  (let* ((pos (if node (org-roam-node-point node) 1)))
+    (org-with-point-at pos
+      (org-roam-tag-remove (list old))
+      (org-roam-tag-add (list new)))))
+
+(defun xroam-tag-add (tags &optional node)
+  "Add TAGS to node -- can be a string or list of strings."
+  (let* ((pos (if node (org-roam-node-point node) 1)))
+    (org-with-point-at pos
+      (org-roam-tag-add (if (stringp tags) (list tags) tags)))))
+
+(defun xroam--status-toggle (&optional node)
+  "Toggle the status for NODE."
+  (let* ((node (org-roam-node-at-point))
+         (tags (xroam--status-tags node)))
+    (cond ((xhas tags "todo")        (xroam-tag-replace "todo" "in_progress" node))
+          ((xhas tags "in_progress") (xroam-tag-replace "in_progress" "done" node))
+          ((xhas tags "done")        (xroam-tag-replace "done" "todo" node))
+          (t (xroam-tag-add "todo" node))))
+  (save-buffer))
+
+(defun xroam-status-toggle-root ()
+  "Toggle status for the root node."
+  (interactive)
+  (org-with-point-at 1
+    (xroam--status-toggle (org-roam-node-at-point))))
+
+(defun xroam-status-toggle-child ()
+  "Toggle status for a nested node."
+  (interactive)
+  (xroam--status-toggle (org-roam-node-at-point)))

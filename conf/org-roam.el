@@ -24,6 +24,8 @@
         "M-N" #'my/roam-node-find-split
         "M-Y" #'xroam-prop-set-aliases-root
         "M-R" #'org-roam-refile
+        "M-s" #'xroam-status-toggle-root
+        "M-S" #'xroam-status-toggle-child
         "M-T" #'org-roam-tag-add
         "M-B" #'xroam-prop-set-brief-root
         "M-I" #'org-roam-node-insert
