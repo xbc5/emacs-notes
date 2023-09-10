@@ -32,7 +32,7 @@ autosync the database."
   (org-add-link-type "twitter" 'my/open-twitter-link)
   (add-hook 'org-capture-after-finalize-hook #'xorg-agenda-files-set) ; set agenda files after new one added
   (setq org-startup-folded t
-        org-image-actual-width 800 ; default img width
+        org-image-actual-width (list 800) ; default img width; use a list to enable ATTR fallbacks
         org-agenda-file-regexp "^.*\\.org$"
         org-cycle-max-level 2
         org-refile-targets '((nil :maxlevel . 3)
