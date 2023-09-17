@@ -36,6 +36,7 @@
 (load! "conf/org")
 (load! "conf/refs") ; slow boot
 (load! "conf/org-roam")
+(load! "conf/org-drill")
 (load! "conf/vulpea")
 (load! "conf/org-ql")
 (load! "conf/org-fancy-priorities")

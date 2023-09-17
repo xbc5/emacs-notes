@@ -22,8 +22,7 @@ on that.
                   vals)))
         ((numberp vals)
          (xstr vals))
-        (t (error (format "Cannot stringify type: '%s'" (type-of vals)))))
-  )
+        (t (error (format "Cannot stringify type: '%s'" (type-of vals))))))
 
 (defun xorg--agenda-dir-ls ()
   "Get a directory listing of agenda files inside the agenda directory."
