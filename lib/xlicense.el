@@ -17,6 +17,8 @@ file then bind it first."
 (defun xlicense--init ()
   "Set up everything needed to function properly."
   (mkdir xlicense-dpath t)
+  (if (not (file-exists-p xlicense-fpath))
+    (write-region "" nil xlicense-fpath))
   (makunbound 'xlicense--hmap)
   (setq xlicense--hmap (xlicense--get)))
 
