@@ -24,7 +24,6 @@
 (load! "lib/img")
 (load! "lib/xlicense")
 (load! "lib/xvulpea")
-(load! "lib/xquote")
 (load! "lib/xname")
 (load! "lib/xtime")
 (load! "lib/xtv")

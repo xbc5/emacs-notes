@@ -4,7 +4,7 @@
 ;; backends
 ;;   - aspell: slow, but focuses on quality of suggestions
 ;;
-;; both flyspell and ispell can use hunspell, aspell, ispell as backens.
+;; both flyspell and ispell can use hunspell, aspell, ispell as backends.
 
 (use-package! flyspell
   :config (setq flyspell-issue-message-flag nil) ; emits a message for each word, causes huge slowdown
