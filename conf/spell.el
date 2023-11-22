@@ -6,10 +6,10 @@
 ;;
 ;; both flyspell and ispell can use hunspell, aspell, ispell as backends.
 
-(use-package! flyspell
-  :config (setq flyspell-issue-message-flag nil) ; emits a message for each word, causes huge slowdown
-  :hook ((text-mode . flyspell-mode) ; normal spell check
-         (prog-mode . flyspell-prog-mode))) ; for source code
+(after! flyspell
+  (setq flyspell-issue-message-flag nil) ; emits a message for each word, causes huge slowdown
+  (add-hook 'text-mode 'flyspell-mode) ; normal spell check
+  (add-hook 'prog-mode  flyspell-prog-mode)) ; for source code
 
 ; builtin
 (setq ispell-dictionary "british"

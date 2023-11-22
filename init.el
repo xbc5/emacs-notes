@@ -90,7 +90,7 @@
 
        :checkers
        syntax              ; tasing you for every semicolon you forget
-       (spell +flyspell) ; tasing you for misspelling mispelling
+       (spell +aspell) ; note that flyspell causes the weird roam capture bug
        grammar           ; tasing grammar mistake every you make
 
        :tools
