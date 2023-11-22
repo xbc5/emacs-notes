@@ -1,24 +1,34 @@
+; third-party
+(setq org-directory "~/org"
+      org-roam-directory org-directory)
+
+; x paths
+(setq my/bib (concat org-roam-directory "/bib" )
+      my/imgs (concat org-roam-directory "/img")
+      my/lit-notes (concat org-roam-directory "/lit")
+      my/bib-file-re "\.\\(bib\\|org\\)$" ; match files in bib dir
+      my/templates-dir (concat doom-user-dir "/templates") ; e.g. org capture templates
+      xorg-agenda-dir (concat org-directory "/agenda")
+      xtag-files (concat org-roam-directory "/tags")
+      xlicense-dpath xtag-files
+      xlicense-fpath (concat xlicense-dpath "/license-types.yaml"))
+
+; neccessary for other parts to work
+(make-directory org-directory t) ; for next line
+(make-directory my/bib t) ; for my/bib-files
+
+(setq my/bib-files (directory-files my/bib t my/bib-file-re)) ; bib/*.{org,bib}
+
+; x props
+(setq xname-max-len 130) ; remember rsync max len is 136
+
 (setq doom-font (font-spec :family "monospace" :size 15 :weight 'semi-light)
       doom-variable-pitch-font (font-spec :family "sans" :size 13)
       doom-theme 'doom-one
-      xname-max-len 130 ; remember rsync max len is 136
       confirm-kill-processes nil ; roam-server etc
       confirm-kill-emacs nil ; will still confirm for unsaved buffers
       use-package-verbose t ; show package config in details in messages
-      display-line-numbers-type t
-      org-directory "~/org"
-      org-roam-directory org-directory
-      ;; WARN: f-join and other utils won't work here, it's too early in the boot.
-      xtag-files (concat org-roam-directory "/tags")
-      xlicense-dpath xtag-files
-      xlicense-fpath (concat xlicense-dpath "/license-types.yaml")
-      my/templates-dir (concat doom-user-dir "/templates") ; e.g. org capture templates
-      xorg-agenda-dir (concat org-directory "/agenda")
-      my/bib (concat org-roam-directory "/bib" )
-      my/imgs (concat org-roam-directory "/img")
-      my/bib-file-re "\.\\(bib\\|org\\)$" ; match files in bib dir
-      my/bib-files (directory-files my/bib t my/bib-file-re) ; bib/*.{org,bib}
-      my/lit-notes (concat org-roam-directory "/lit"))
+      display-line-numbers-type t)
 
 (let* ((active "-TODO=\"DONE\"-TODO=\"DROP\"")
        (books "+SOURCE_TYPE=\"book\"|+book|+books")
