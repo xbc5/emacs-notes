@@ -1,4 +1,5 @@
 (make-directory org-directory t)
+(make-directory xorg-agenda-dir t)
 
 ;; set outside of after! as per the manual
 (xorg-agenda-files-set)
