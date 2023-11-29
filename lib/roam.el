@@ -491,3 +491,18 @@ Returns a hash table."
   "Toggle status for a nested node."
   (interactive)
   (xroam--status-toggle (org-roam-node-at-point)))
+
+; yoink: https://github.com/Konubinix/Devel/blob/30d0184db0a61f46ca35e102302d707fef964a8c/elfiles/config/after-loads/KONIX_AL-org-roam.el#L770-L787
+; Copyright (C) 2021 konubinix
+; GPL3: https://github.com/Konubinix/Devel/blob/30d0184db0a61f46ca35e102302d707fef964a8c/elfiles/config/after-loads/KONIX_AL-org-roam.el#L770C1-L787C101yy
+(defvar xroam-completions/cache nil "Memory cache of the list of nodes")
+(defvar xroam-completions/cache-time nil "The time when the cache was last taken")
+(defun xroam-completions/cache (orig-fun &rest args)
+  (when (or (not xroam-completions/cache)
+            (not xroam-completions/cache-time)
+            (time-less-p
+              xroam-completions/cache-time
+              (file-attribute-modification-time (file-attributes org-roam-db-location))))
+    (setq xroam-completions/cache-time (current-time))
+    (setq xroam-completions/cache (apply orig-fun args)))
+  xroam-completions/cache)

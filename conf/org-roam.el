@@ -7,11 +7,13 @@
          :target (file+head "lit/%<%Y%m%d%H%M%S>.org"
                             ":PROPERTIES:\n:ROAM_REFS: cite:${citekey}\n:AUTHORS: ${author}\n:END:\n#+title: ${title}\n"))))
 
+; make completions load faster
+(advice-add #'org-roam-node-read--completions :around #'xroam-completions/cache)
+
 (defun my/roam-node-find-split ()
   "Perform a Roam node find, but open the buffer in a split."
   (interactive)
   (org-roam-node-find t))
-
 
 (make-directory org-roam-directory t)
 
