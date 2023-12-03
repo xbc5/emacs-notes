@@ -492,17 +492,85 @@ Returns a hash table."
   (interactive)
   (xroam--status-toggle (org-roam-node-at-point)))
 
-; yoink: https://github.com/Konubinix/Devel/blob/30d0184db0a61f46ca35e102302d707fef964a8c/elfiles/config/after-loads/KONIX_AL-org-roam.el#L770-L787
-; Copyright (C) 2021 konubinix
-; GPL3: https://github.com/Konubinix/Devel/blob/30d0184db0a61f46ca35e102302d707fef964a8c/elfiles/config/after-loads/KONIX_AL-org-roam.el#L770C1-L787C101yy
-(defvar xroam-completions/cache nil "Memory cache of the list of nodes")
-(defvar xroam-completions/cache-time nil "The time when the cache was last taken")
-(defun xroam-completions/cache (orig-fun &rest args)
-  (when (or (not xroam-completions/cache)
-            (not xroam-completions/cache-time)
-            (time-less-p
-              xroam-completions/cache-time
-              (file-attribute-modification-time (file-attributes org-roam-db-location))))
-    (setq xroam-completions/cache-time (current-time))
-    (setq xroam-completions/cache (apply orig-fun args)))
-  xroam-completions/cache)
+(defun xroam-cache-refresh ()
+  "Refresh the completions cache"
+  (interactive)
+  (setq xroam--cache nil)
+  (org-roam-node-read--completions))
+
+(defvar xroam--cache nil "A memory cache for node find completions")
+(advice-add #'org-roam-node-read--completions
+            :around
+            (lambda (fn &rest args)
+              (when (not xroam--cache)
+                (setq xroam--cache (apply fn args)))
+              xroam--cache))
+
+(defun xroam-node= (a b)
+  "Test that two Roam nodes are equal via their ID."
+  (string= (org-roam-node-id a) (org-roam-node-id b)))
+
+(defun xroam--completion= (node comp)
+  "Test that a completion entry COMP matches a NODE.
+  COMP is (title . node) returned used in `org-roam-node-read--completions`."
+  (xroam-node= node (cdr comp)))
+
+(defun xroam--comp-has-path (path comp)
+  "Test that a node within a completion COMP matches a PATH,
+  where a completion is (title . node)."
+  (string= path (org-roam-node-file (cdr comp))))
+
+;; Note the smartest clone, but `copy-org-roam-node` doesn't exist anywhere.
+(defun xroam--node-clone (node title)
+  "A brittle clone of a Roam node. Do not rely on this to save
+  for data integrity -- the properties may not be correct. This is
+  used to create duplications in completions -- i.e. the same node
+  with different aliases. This isn't data critical, and as it stands
+  now, it's okay if this structure goes out of sync with upstream."
+  (org-roam-node-create :id (org-roam-node-id node)
+                        :file (org-roam-node-file node)
+                        :file-title title
+                        :file-atime (org-roam-node-file-atime node)
+                        :file-mtime (org-roam-node-file-mtime node)
+                        :level (org-roam-node-level node)
+                        :point (org-roam-node-point node)
+                        :todo (org-roam-node-todo node)
+                        :priority (org-roam-node-priority node)
+                        :scheduled (org-roam-node-scheduled node)
+                        :deadline (org-roam-node-deadline node)
+                        :title  title
+                        :aliases (org-roam-node-aliases node)
+                        :properties (org-roam-node-properties node)
+                        :olp (org-roam-node-olp node)
+                        :tags (org-roam-node-tags node)
+                        :refs (org-roam-node-refs node)))
+
+(defun xroam--cache-add (node)
+  "Add a node to the memory cache."
+  (org-roam-node-read--completions)
+  (setq xroam--cache (cl-remove node xroam--cache :test #'xroam--completion=))
+  (let* ((template (org-roam-node--process-display-format
+                    org-roam-node-display-template)))
+    (dolist (alias (org-roam-node-aliases node))
+      (let* ((new (xroam--node-clone node alias))
+             (candidate (org-roam-node-read--to-candidate new template)))
+        (push candidate xroam--cache)))
+    (push (org-roam-node-read--to-candidate node template) xroam--cache)))
+
+(defun xroam--cache-remove (path)
+  "Remove all nodes with the PATH from the memory cache."
+  (org-roam-node-read--completions)
+  (setq xroam--cache (cl-remove path xroam--cache :test #'xroam--comp-has-path)))
+
+;; add files to memory cache when created, modified, or renamed.
+(advice-add 'org-roam-db-insert-file-node
+            :after
+            (lambda (&rest args)
+              (org-with-point-at 1 (xroam--cache-add (org-roam-node-at-point)))))
+
+;; remove files from memory cache when deleted.
+(advice-add 'org-roam-db-autosync--delete-file-a
+            :after
+            (lambda (file &optional trash)
+              (when (org-roam-file-p file)
+                (xroam--cache-remove file))))

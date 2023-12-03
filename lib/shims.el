@@ -9,13 +9,13 @@
       (list 'function-put (list 'quote f)
             ''speed (list 'quote val))))
 
-(after! org-roam
-  ;; batch all SQL operations as a single transaction (fixes slow file saves).
-  (advice-add 'org-roam-db-update-file
-              :around
-              (defun +org-roam-db-update-file (fn &rest args)
-                (emacsql-with-transaction (org-roam-db)
-                  (apply fn args)))))
+;; (after! org-roam
+;;   ;; batch all SQL operations as a single transaction (fixes slow file saves).
+;;   (advice-add 'org-roam-db-update-file
+;;               :around
+;;               (defun +org-roam-db-update-file (fn &rest args)
+;;                 (emacsql-with-transaction (org-roam-db)
+;;                   (apply fn args)))))
 
 ;; When saving, Roam will resolve roam:links. When there's a conflict,
 ;;  this will prompt with a fuzzy finder to resolve each one.
