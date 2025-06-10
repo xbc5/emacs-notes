@@ -11,7 +11,7 @@
 (defun xlist-like-p (val)
   "Return t if VAL is a list like sequence, and
 not a string."
-  (and (cl-typep val 'seq) (not (cl-typep val 'string))))
+  (and (sequencep val) (not (stringp val))))
 
 (defun xlist-insert-alpha (lst strs)
   "Insert a STRS into a LST of strings, alphabetically

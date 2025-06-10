@@ -210,7 +210,7 @@ be file properties, into valid Roam tags."
          (item nil))
     (dolist (key keys)
       (setq item (ht-get htable key))
-      (if (and (cl-typep item 'seq ) (not (cl-typep item 'string))) ; str is seq too
+      (if (and (sequencep item) (not (stringp item))) ; str is seq too
           (setq result (append result item)) ; seq
         (setq result (add-to-list 'result item)))) ; other
     (seq-uniq (sort (xvulpea--tagify result) #'string<))))
