@@ -2,6 +2,21 @@
 (setq org-directory "~/org"
       org-roam-directory org-directory)
 
+;; The number of CPU cores that native compile uses. 
+(setq native-comp-async-jobs-number (num-processors))
+
+;; How many optimizations native-comp should employ.
+;;   -1 = no native-compilation at all
+;;    0 = no optimizations at all
+;;    1 = light optimizations
+;;    2 = all (but only safe) optimizations  (the default)
+;;    3 = all (including unsafe) optimizations
+(setq native-comp-speed 2)
+
+;; Or tell native-comp to ignore certain, problematic files
+;; by regular expression.
+;;(add-to-list 'native-comp-jit-compilation-deny-list "/some-file\\.el\\'")
+
 ; x paths
 (setq my/bib (concat org-roam-directory "/bib" )
       my/imgs (concat org-roam-directory "/img")
