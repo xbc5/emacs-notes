@@ -1,16 +1,12 @@
 ;; -*- lexical-binding: t; -*-
 (make-directory org-directory t)
 (make-directory xorg-agenda-dir t)
-g
 
 (map! "M-M" #'org-capture
-      "M-i" #'ximg-insert-org
-      :leader
-      :prefix "m"
-      :desc "Apply custom agenda filters" "t" 'my/set-agenda-filter)
+      "M-i" #'ximg-insert-org)
 
 (defun xorg--rename-org-files ()
-  "Rename the current ORG file no save: use the ORG
+  "Rename the current ORG file on save: use the ORG
 title. This will work for Roam too, because xname-change
 will use rename-file, which in turn has Roam advice to
 autosync the database."
