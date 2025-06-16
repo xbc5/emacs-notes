@@ -6,7 +6,8 @@
 ;; - PATHS -
 (setq gtd-dir (f-join org-roam-directory "gtd")
       gtd-active-dir (f-join gtd-dir "active")
-      gtd-inactive-dir (f-join gtd-dir "inactive"))
+      gtd-inactive-dir (f-join gtd-dir "inactive")
+      gtd-inbox-fpath (f-join gtd-active-dir "inbox.org"))
 
 
 ;; UTILS -------------------------------------------------------------
@@ -67,7 +68,6 @@ This func sets 'org-agenda-files' to all org files in the gtd/active directory."
 
   ;; - CAPTURE TEMPLATES -
   (setq org-capture-templates
-        (append org-capture-templates ;; Don't overwrite.
-                '(("i" "Inbox Item (GTD)" entry
-                   (file "inbox.org")
-                   "* %?")))))
+        '(("i" "Inbox Item (GTD)" entry
+           (file gtd-inbox-fpath)
+           "* %?"))))
