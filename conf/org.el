@@ -18,14 +18,9 @@ autosync the database."
 (after! org
   (add-hook 'org-mode-hook #'xorg--rename-org-files)
   (add-to-list 'org-modules 'ol-info) ;; for 'info:' links
-  (org-add-link-type "RFC" 'my/open-rfc-link)
-  (org-add-link-type "CMC" 'my/open-coinmarketcap-link)
-  (org-add-link-type "caniuse" 'my/open-caniuse-link)
-  (org-add-link-type "reddit" 'my/open-reddit-link)
-  (org-add-link-type "HN" 'my/open-hn-link)
-  (org-add-link-type "SOQ" 'my/open-stackoverflow-question)
-  (org-add-link-type "SOA" 'my/open-stackoverflow-answer)
-  (org-add-link-type "twitter" 'my/open-twitter-link)
+  (org-add-link-type "RFC" (function
+                            (browse-url
+                             (format "https://tools.ietf.org/html/rfc%s" path))))
   (setq org-startup-folded t
         org-image-actual-width (list 800) ; default img width; use a list to enable ATTR fallbacks
         org-cycle-max-level 2
