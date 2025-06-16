@@ -53,16 +53,6 @@
   "Given an alist, return a list of its keys."
   (mapcar (lambda (el) (car el)) lst))
 
-(defun my/pick-agenda-filter ()
-  "Prompt the user to pick a premade filter defined in my/agenda-filters."
-  (my/get-agenda-filter
-   (completing-read "Tag: " (my/get-alist-keys my/agenda-filters))))
-
-(defun my/set-agenda-filter ()
-  "Prompt the user to pick and apply a premade filter defined in my/agenda-filters."
-  (interactive)
-  (org-tags-view t (my/pick-agenda-filter)))
-
 (defun my/file-exists-p (path)
   "file-exists-p returns t for blank strings, this fixes that."
   (and (not (string-blank-p path)) (file-exists-p path)))

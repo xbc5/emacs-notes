@@ -1,4 +1,4 @@
-; third-party
+                                        ; third-party
 (setq org-directory "~/org"
       org-roam-directory org-directory)
 
@@ -17,24 +17,23 @@
 ;; by regular expression.
 ;;(add-to-list 'native-comp-jit-compilation-deny-list "/some-file\\.el\\'")
 
-; x paths
+                                        ; x paths
 (setq my/bib (concat org-roam-directory "/bib" )
       my/imgs (concat org-roam-directory "/img")
       my/lit-notes (concat org-roam-directory "/lit")
       my/bib-file-re "\.\\(bib\\|org\\)$" ; match files in bib dir
       my/templates-dir (concat doom-user-dir "/templates") ; e.g. org capture templates
-      xorg-agenda-dir (concat org-directory "/agenda")
       xtag-files (concat org-roam-directory "/tags")
       xlicense-dpath xtag-files
       xlicense-fpath (concat xlicense-dpath "/license-types.yaml"))
 
-; neccessary for other parts to work
+                                        ; neccessary for other parts to work
 (make-directory org-directory t) ; for next line
 (make-directory my/bib t) ; for my/bib-files
 
 (setq my/bib-files (directory-files my/bib t my/bib-file-re)) ; bib/*.{org,bib}
 
-; x props
+                                        ; x props
 (setq xname-max-len 130) ; remember rsync max len is 136
 
 (setq doom-font (font-spec :family "monospace" :size 15 :weight 'semi-light)
@@ -48,24 +47,7 @@
 (let* ((active "-TODO=\"DONE\"-TODO=\"DROP\"")
        (books "+SOURCE_TYPE=\"book\"|+book|+books")
        (immediate "+PRIORITY=\"A\""))
-  (setq my/agenda-filters
-        (list (list "AI [active]" "+AI" active)
-              (list "study [active]" "+study" active)
-              (list "Org-Roam [active]" "+orgroam" active)
-              (list "Org-Mode [active]" "+orgmode" active)
-              (list "futurology [active]" "+futurology" active)
-              (list "dark traits [active]" "+darktraits" active)
-              (list "psychology [active]" "+psychology" active)
-              (list "Elisp [active]" "+elisp" active)
-              (list "privacy [active]" "+privacy" active)
-              (list "personal [active]" "+personal" active)
-              (list "software [active]" "+software" active)
-              (list "anti-aging [active]" "+antiaging" active)
-              (list "biotech [active]" "+biotech" active)
-              (list "immediate [active,all]" immediate active)
-              (list "UAP [active]" "+UAP" active)
-              (list "books [active]" books active)
-              (list "Emacs [active]" "+Emacs|+orgroam|+orgmode|+elisp" active))))
+  )
 
 (map! :desc "completion-at-point" "<M-SPC>" #'completion-at-point)
 
