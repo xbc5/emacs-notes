@@ -2,14 +2,14 @@
 (require 'f)
 
 
-;; CONFIG VARS--------------------------------------------------------
+;; CONFIG VARS -------------------------------------------------------
 ;; - PATHS -
 (setq gtd-dir (f-join org-roam-directory "gtd")
       gtd-active-dir (f-join gtd-dir "active")
       gtd-inactive-dir (f-join gtd-dir "inactive"))
 
 
-;; UTILS--------------------------------------------------------------
+;; UTILS -------------------------------------------------------------
 (defun gtd-active-files-set ()
   "Active files contain tasks that should be visible in the agenda view.
 
@@ -17,7 +17,7 @@ This func sets 'org-agenda-files' to all org files in the gtd/active directory."
   (setq org-agenda-files (directory-files gtd-active-dir t "\\.org$")))
 
 
-;; PRE-INITIALISATION-------------------------------------------------
+;; PRE-INITIALISATION ------------------------------------------------
 ;; - DIRECTORY CREATION -
 (make-directory gtd-active-dir t)
 (make-directory gtd-inactive-dir t)
@@ -28,7 +28,7 @@ This func sets 'org-agenda-files' to all org files in the gtd/active directory."
       :prefix "m"
       :desc "Apply GTD context" "t" 'my/set-agenda-filter)
 
-;; INITIALISE ORG-----------------------------------------------------
+;; INITIALISE ORG ----------------------------------------------------
 (after! org
   ;; - MISC -
   org-agenda-file-regexp "^.*\\.org$"
