@@ -37,6 +37,7 @@
 (load! "conf/plantuml-mode")
 (load! "conf/spell")
 (load! "conf/org")
+(load! "conf/gtd") ; It's better to load after conf/org.el, but it's not necessary.
 (load! "conf/refs") ; slow boot
 (load! "conf/org-roam")
 (load! "conf/org-drill")
