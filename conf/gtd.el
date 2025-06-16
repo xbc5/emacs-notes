@@ -57,7 +57,7 @@ This func sets 'org-agenda-files' to all org files in the gtd/active directory."
                              (69 :foreground "#2a7286" :weight bold)))
 
   ;; - TASK STATES -
-  (setq org-todo-keywords '((sequence "TODO(t)" "STRT(i)" "WAIT(w)" "|" "DONE(d)" "DROP(c)"))
+  (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "WAIT(w)" "|" "DONE(d)" "DROP(c)"))
         org-todo-keyword-faces
         '(("TODO" :foreground "#16cafa")
           ("NEXT" :foreground "magenta")
