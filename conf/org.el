@@ -1,6 +1,5 @@
 ;; -*- lexical-binding: t; -*-
 (make-directory org-directory t)
-(make-directory xorg-agenda-dir t)
 
 (map! "M-M" #'org-capture
       "M-i" #'ximg-insert-org)
