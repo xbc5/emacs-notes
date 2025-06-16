@@ -520,6 +520,18 @@ Returns a hash table."
   where a completion is (title . node)."
   (string= path (org-roam-node-file (cdr comp))))
 
+(defun xroam-node-create-at-path (path title)
+  "Create an org-roam node at PATH with TITLE.
+
+PATH should be relative to the 'org-roam' directory, e.g., foo/bar."
+  (let ((fpath (expand-file-name path org-roam-directory)))
+    (make-directory (file-name-directory fpath) t)
+    (with-temp-file fpath
+      (insert (format ":PROPERTIES:\n:ID: %s\n:END:\n#+title: %s\n\n" (org-id-uuid) title)))
+    (org-id-update-id-locations '(fpath))
+    (org-roam-db-update-file fpath)
+    fpath))
+
 ;; Note the smartest clone, but `copy-org-roam-node` doesn't exist anywhere.
 (defun xroam--node-clone (node title)
   "A brittle clone of a Roam node. Do not rely on this to save
