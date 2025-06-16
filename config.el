@@ -3,7 +3,7 @@
 (require 'vulpea)
 (require 'f)
 
-;; util
+;; UTIL --------------------------------------------------------------
 (load! "conf/global")
 (load! "lib/xht")
 (load! "lib/fs")
@@ -13,9 +13,10 @@
 (load! "lib/xseq")
 (load! "lib/xnum")
 
-; ;; misc
+;; MISC --------------------------------------------------------------
 (load! "secrets/secrets-1")
 
+;; LIB ---------------------------------------------------------------
 (load! "lib/shims")
 (load! "lib/xtag")
 (load! "lib/smenu")
@@ -32,7 +33,7 @@
 (load! "lib/xtv")
 (load! "lib/xdrill")
 
-;; pkg
+;; CONFIG ------------------------------------------------------------
 (load! "conf/plantuml-mode")
 (load! "conf/spell")
 (load! "conf/org")
@@ -43,8 +44,8 @@
 (load! "conf/org-ql")
 (load! "conf/org-fancy-priorities")
 (load! "conf/nursery")
-; (load! "conf/org-roam-server")
+;; (load! "conf/org-roam-server")
 
-; WARN: slows down boot by ~6s
-; (require 'org-roam)
-; (org-roam-mode)
+;; WARN: slows down boot by ~6s
+;; (require 'org-roam)
+;; (org-roam-mode)
