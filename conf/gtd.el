@@ -23,11 +23,16 @@ This func sets 'org-agenda-files' to all org files in the gtd/active directory."
 (make-directory gtd-active-dir t)
 (make-directory gtd-inactive-dir t)
 
-(gtd-active-files-set) ;; Set outside of after! as per the manual.
+;; - DEFAULT BUCKETS CREATION -
+(after! org-roam
+  ;; These rely on roam functions to register IDs.
+  (xroam-node-create-at-path gtd-inbox-fpath "GTD inbox"))
 
 (map! :leader
       :prefix "m"
       :desc "Apply GTD context" "t" 'my/set-agenda-filter)
+
+(gtd-active-files-set) ;; Set outside of after! as per the Org manual.
 
 ;; INITIALISE ORG ----------------------------------------------------
 (after! org
