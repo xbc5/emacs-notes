@@ -6,6 +6,7 @@
 ;; - PATHS -
 (setq gtd-dir (f-join org-roam-directory "gtd")
       gtd-active-dir (f-join gtd-dir "active")
+      gtd-projects-dir (f-join gtd-active-dir "projects")
       gtd-inactive-dir (f-join gtd-dir "inactive")
       gtd-inbox-fpath (f-join gtd-active-dir "inbox.org"))
 
@@ -16,6 +17,15 @@
 
 This func sets 'org-agenda-files' to all org files in the gtd/active directory."
   (setq org-agenda-files (directory-files gtd-active-dir t "\\.org$")))
+
+(defun gtd-project-create (title)
+  "Create a GTD project.
+
+This creates a new org-roam node under the GTD projects directory."
+  (interactive "MEnter a project title: ")
+  (xroam-node-create-at-path (f-join gtd-projects-dir
+                                     (concat (xfs-slugify title) ".org")) ; fname: e.g., foo_bar.org
+                             title))
 
 
 ;; PRE-INITIALISATION ------------------------------------------------
