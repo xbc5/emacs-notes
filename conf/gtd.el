@@ -46,7 +46,7 @@ This func sets 'org-agenda-files' to all org files in the gtd/active directory."
           ("@laptop" . ?l)
           ("@dev" . ?d)))
 
-  ;; - PRIORITIES -
+  ;; - TASK PRIORITIES -
   (setq org-highest-priority 65
         org-lowest-priority 69
         org-default-priority 68
@@ -55,6 +55,15 @@ This func sets 'org-agenda-files' to all org files in the gtd/active directory."
                              (67 :foreground "yellow" :weight bold)
                              (68 :foreground "green" :weight bold)
                              (69 :foreground "#2a7286" :weight bold)))
+
+  ;; - TASK STATES -
+  (setq org-todo-keywords '((sequence "TODO(t)" "STRT(i)" "WAIT(w)" "|" "DONE(d)" "DROP(c)"))
+        org-todo-keyword-faces
+        '(("TODO" :foreground "#16cafa")
+          ("NEXT" :foreground "magenta")
+          ("WAIT" :foreground "brown")
+          ("DONE" :foreground "#666666")
+          ("DROP" :foreground "#666666")))
 
   ;; - CAPTURE TEMPLATES -
   (setq org-capture-templates
