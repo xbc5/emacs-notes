@@ -55,7 +55,7 @@ on that.
     (xorg--agenda-file-pick)))
   (goto-char (point-max)))
 
-(defun xorg-agenda-files-set ()
+(defun xorg-set-agenda-files ()
   "Set the files that qualify as agenda files."
   (interactive)
   (setq org-agenda-files (directory-files xorg-agenda-dir t "\\.org$")))

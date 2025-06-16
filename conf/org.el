@@ -1,8 +1,9 @@
+;; -*- lexical-binding: t; -*-
 (make-directory org-directory t)
 (make-directory xorg-agenda-dir t)
 
 ;; set outside of after! as per the manual
-(xorg-agenda-files-set)
+(xorg-set-agenda-files)
 
 (map! "M-M" #'org-capture
       "M-i" #'ximg-insert-org
@@ -31,7 +32,7 @@ autosync the database."
   (org-add-link-type "SOQ" 'my/open-stackoverflow-question)
   (org-add-link-type "SOA" 'my/open-stackoverflow-answer)
   (org-add-link-type "twitter" 'my/open-twitter-link)
-  (add-hook 'org-capture-after-finalize-hook #'xorg-agenda-files-set) ; set agenda files after new one added
+  (add-hook 'org-capture-after-finalize-hook #'xorg-set-agenda-files) ; set agenda files after new one added
   (setq org-startup-folded t
         org-image-actual-width (list 800) ; default img width; use a list to enable ATTR fallbacks
         org-agenda-file-regexp "^.*\\.org$"
@@ -47,10 +48,8 @@ autosync the database."
           ("WAIT" :foreground "brown")
           ("DONE" :foreground "#666666")
           ("DROP" :foreground "#666666"))
-        org-capture-templates '(("f" "Fleeting notes" entry (file+olp+datetree "fleeting.org") "* %?")
-                                ("l" "Bookmark" entry (function xorg-agenda-file-find) (function (lambda () (my/template "bookmark"))))
-                                ("b" "Book" entry (function xorg-agenda-file-find) (function (lambda () (my/template "book"))))
-                                ("t" "Task" entry (function xorg-agenda-file-find) (function (lambda () (my/template "task")))))
+        (append org-capture-templates
+                '(("f" "Fleeting Note" entry (file+olp+datetree "fleeting.org") "* %?")))
         org-highest-priority 65
         org-lowest-priority 69
         org-default-priority 68
