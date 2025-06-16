@@ -24,5 +24,5 @@ autosync the database."
                              (("*.org") :maxlevel . 3)) ; refile to other files
         org-outline-path-complete-in-steps nil ; refile in a single go
         org-refile-use-outline-path t ; show file path for refiling
-        (append org-capture-templates
-                '(("f" "Fleeting Note" entry (file+olp+datetree "fleeting.org") "* %?")))))
+        org-capture-templates (append org-capture-templates
+                                      '(("f" "Fleeting Note" entry (file+olp+datetree "fleeting.org") "* %?")))))
