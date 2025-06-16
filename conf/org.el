@@ -1,9 +1,7 @@
 ;; -*- lexical-binding: t; -*-
 (make-directory org-directory t)
 (make-directory xorg-agenda-dir t)
-
-;; set outside of after! as per the manual
-(xorg-set-agenda-files)
+g
 
 (map! "M-M" #'org-capture
       "M-i" #'ximg-insert-org
@@ -32,10 +30,8 @@ autosync the database."
   (org-add-link-type "SOQ" 'my/open-stackoverflow-question)
   (org-add-link-type "SOA" 'my/open-stackoverflow-answer)
   (org-add-link-type "twitter" 'my/open-twitter-link)
-  (add-hook 'org-capture-after-finalize-hook #'xorg-set-agenda-files) ; set agenda files after new one added
   (setq org-startup-folded t
         org-image-actual-width (list 800) ; default img width; use a list to enable ATTR fallbacks
-        org-agenda-file-regexp "^.*\\.org$"
         org-cycle-max-level 2
         org-refile-targets '((nil :maxlevel . 3)
                              (("*.org") :maxlevel . 3)) ; refile to other files
@@ -50,11 +46,4 @@ autosync the database."
           ("DROP" :foreground "#666666"))
         (append org-capture-templates
                 '(("f" "Fleeting Note" entry (file+olp+datetree "fleeting.org") "* %?")))
-        org-highest-priority 65
-        org-lowest-priority 69
-        org-default-priority 68
-        org-priority-faces '((65 :foreground "red" :weight bold)
-                             (66 :foreground "orange" :weight bold)
-                             (67 :foreground "yellow" :weight bold)
-                             (68 :foreground "green" :weight bold)
-                             (69 :foreground "#2a7286" :weight bold))))
+        ))

@@ -33,6 +33,9 @@ This func sets 'org-agenda-files' to all org files in the gtd/active directory."
   ;; - MISC -
   org-agenda-file-regexp "^.*\\.org$"
 
+  ;; Reset the agenda files var after creating a new agenda file, e.g., a new project.
+  (add-hook 'org-capture-after-finalize-hook #'gtd-active-files-set)
+
   ;; - TAGS -
   ;; These are selectable via (org-set-tags-command) or (counsel-org-tag).
   (setq org-tag-alist
