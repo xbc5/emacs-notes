@@ -5,7 +5,7 @@
                            (bibtex-completion-candidates))))
 
 (defun my/template-path (name)
-  "Return the full template path for the given file name (without extension)."
+  "Return the full template path for the given file name."
   (f-join my/templates-dir (concat name ".org")))
 
 (defun my/template (name)

@@ -43,7 +43,7 @@ autosync the database."
         org-todo-keywords '((sequence "TODO(t)" "STRT(i)" "WAIT(w)" "|" "DONE(d)" "DROP(c)"))
         org-todo-keyword-faces
         '(("TODO" :foreground "#16cafa")
-          ("STRT" :foreground "magenta")
+          ("NEXT" :foreground "magenta")
           ("WAIT" :foreground "brown")
           ("DONE" :foreground "#666666")
           ("DROP" :foreground "#666666"))
