@@ -26,6 +26,7 @@
 ;; - BUCKET PATHS -
 (setq gtd-dir (f-join org-roam-directory "gtd")
       gtd-active-dir (f-join gtd-dir "active")
+      gtd-dormant-dir (f-join gtd-dir "dormant")
       gtd-inactive-dir (f-join gtd-dir "inactive")
       gtd-projects-dir (f-join gtd-active-dir "projects")
       gtd-inbox-fpath (f-join gtd-active-dir "inbox.org")
@@ -37,9 +38,13 @@
 
 
 ;; UTILS -------------------------------------------------------------
-(defun gtd-set-active-files ()
-  "Active files contain tasks that should be visible in the agenda view.
-\nThis func sets 'org-agenda-files' to all org files in the gtd/active directory."
+(defun gtd-set-active-candidates ()
+  "Set the 'org-agenda-files' actionable, or semi-actionable task files.
+Essentially, determine active and dormant file paths, then set 'org-agenda-files'.\n
+Active files:   Contains actionable tasks that should be displayed,
+                 e.g., tasks, and projects.
+Dormant files:  Contains tasks that become active at a set time,
+                 e.g., items in the tickler file."
   (setq org-agenda-files (directory-files gtd-active-dir t "\\.org$")))
 
 (defun gtd-set-refile-targets ()
@@ -84,8 +89,10 @@
 
   ;; - FILE PATHS -
   ;; Reset the agenda files (e.g., after creating a new project.)
-  (add-hook 'org-capture-after-finalize-hook #'gtd-set-active-files)
-  (gtd-set-active-files) ; Init agenda files.
+  (add-hook 'org-capture-after-finalize-hook #'gtd-set-active-candidates)
+  (gtd-set-active-candidates) ; Init agenda files.
+  (add-hook 'org-capture-after-finalize-hook #'gtd-set-dormant-files)
+  (gtd-set-active-candidates) ; Init agenda files.
   ;; Reset the refile targets (e.g., after creating a new project.)
   (add-hook 'org-capture-after-finalize-hook #'gtd-set-refile-targets)
   (gtd-set-refile-targets) ; Init refile targets.
