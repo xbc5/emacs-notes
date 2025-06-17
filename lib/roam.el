@@ -521,16 +521,18 @@ Returns a hash table."
   (string= path (org-roam-node-file (cdr comp))))
 
 (defun xroam-node-create-at-path (path title)
-  "Create an org-roam node at PATH with TITLE.
-PATH should be relative to the 'org-roam' directory, e.g., foo/bar."
+  "Create an org-roam node at PATH with TITLE, only if it doesn't exist.
+PATH should be relative to the 'org-roam' directory, e.g., foo/bar.
+\nReturns the path if created, otherwise nil."
   (let ((fpath (expand-file-name path org-roam-directory)))
-    (make-directory (file-name-directory fpath) t)
-    (with-temp-file fpath
-      (insert (format ":PROPERTIES:\n:ID: %s\n:END:\n#+title: %s\n\n" (org-id-uuid) title)))
-    (org-id-update-id-locations '(fpath))
-    (org-roam-db-update-file fpath)
-    (run-hooks 'org-roam-capture-new-node-hook) ; We want to inform consumers.
-    fpath))
+    (unless (file-regular-p fpath)
+      (make-directory (file-name-directory fpath) t)
+      (with-temp-file fpath
+        (insert (format ":PROPERTIES:\n:ID: %s\n:END:\n#+title: %s\n\n" (org-id-uuid) title)))
+      (org-id-update-id-locations '(fpath))
+      (org-roam-db-update-file fpath)
+      (run-hooks 'org-roam-capture-new-node-hook) ; We want to inform consumers.
+      fpath)))
 
 ;; Note the smartest clone, but `copy-org-roam-node` doesn't exist anywhere.
 (defun xroam--node-clone (node title)
