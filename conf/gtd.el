@@ -1,9 +1,29 @@
 ;; -*- lexical-binding: t; -*-
+;;
+;; The Getting Things Done method, implemented via Org Agenda.
+;;
+;; The bucket paths are split into 'active' and 'inactive.' The 'active' paths
+;; are visible via Org agenda; the 'inactive' files are not.
+;;
+;; Buckets:
+;; - Inbox: A dumping ground for unclarified items.
+;; - Projects: A set of named files, each containing a set of project tasks.
+;; - Ticker: A single file with a set of date headers. A reminder is set when they're due.
+;; - Trash: Where everything eventually goes.
+;; - Someday/Maybe: Things that I want to do, but don't know what or when.
+;; - Read Later: Like Someday/Maybe, except for books and articles.
+;; - Tasks: If none of the above, it goes here. Most items end up here, and they should be actionable.
+;;
+
+;; For "Next Action" and "Waiting For" states, use the Org task states: NEXT or WAIT.
+;;
+;; For priorities, use Org priorities.
+;;
 (require 'f)
 
 
 ;; CONFIG VARS -------------------------------------------------------
-;; - PATHS -
+;; - BUCKET PATHS -
 (setq gtd-dir (f-join org-roam-directory "gtd")
       gtd-active-dir (f-join gtd-dir "active")
       gtd-inactive-dir (f-join gtd-dir "inactive")
