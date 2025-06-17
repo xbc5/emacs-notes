@@ -25,16 +25,18 @@
 ;; CONFIG VARS -------------------------------------------------------
 ;; - BUCKET PATHS -
 (setq gtd-dir (f-join org-roam-directory "gtd")
+      ;; - DIRS -
       gtd-active-dir (f-join gtd-dir "active")
       gtd-dormant-dir (f-join gtd-dir "dormant")
       gtd-inactive-dir (f-join gtd-dir "inactive")
       gtd-projects-dir (f-join gtd-active-dir "projects")
-      gtd-inbox-fpath (f-join gtd-active-dir "inbox.org")
-      gtd-tasks-fpath (f-join gtd-active-dir "tasks.org")
-      gtd-tickler-fpath (f-join gtd-inactive-dir "tickler.org")
-      gtd-trash-fpath (f-join gtd-inactive-dir "trash.org")
-      gtd-read-later-fpath (f-join gtd-inactive-dir "read_later.org")
-      gtd-someday-or-maybe-fpath (f-join gtd-inactive-dir "someday_or_maybe.org"))
+      ;; - FPATHS -
+      gtd-tasks-fpath (f-join gtd-active-dir "tasks.org") ; Visible.
+      gtd-tickler-fpath (f-join gtd-dormant-dir "tickler.org") ; Semi-visible.
+      gtd-inbox-fpath (f-join gtd-inactive-dir "inbox.org") ; Invisible
+      gtd-read-later-fpath (f-join gtd-inactive-dir "read_later.org") ; Invisible
+      gtd-someday-or-maybe-fpath (f-join gtd-inactive-dir "someday_or_maybe.org") ; Invisible
+      gtd-trash-fpath (f-join gtd-inactive-dir "trash.org")) ; Invisible
 
 
 ;; UTILS -------------------------------------------------------------
@@ -45,7 +47,10 @@ Active files:   Contains actionable tasks that should be displayed,
                  e.g., tasks, and projects.
 Dormant files:  Contains tasks that become active at a set time,
                  e.g., items in the tickler file."
-  (setq org-agenda-files (directory-files gtd-active-dir t "\\.org$")))
+  ;; Emacs Regex is stupid, hard to read, and it doesn't work, so do two recursive searches instead.
+  (setq org-agenda-files (append
+                          (directory-files-recursively gtd-active-dir "\\.org$")
+                          (directory-files-recursively gtd-dormant-dir "\\.org$"))))
 
 (defun gtd-set-refile-targets ()
   "Set the 'org-refile-targets' to all org files under the GTD directory.
@@ -65,10 +70,21 @@ Dormant files:  Contains tasks that become active at a set time,
 ;; PRE-INITIALISATION ------------------------------------------------
 ;; - DIRECTORY CREATION -
 (make-directory gtd-active-dir t)
+(make-directory gtd-dormant-dir t)
 (make-directory gtd-inactive-dir t)
+
+;; - ORG AGENDA FILES -
+;; Do this outside of after!, because it works here, but not there.
+(gtd-set-active-candidates)
+(gtd-set-refile-targets)
 
 ;; - DEFAULT BUCKETS CREATION -
 (after! org-roam
+  ;; Because we create Roam (not Org) nodes we need to hook Roam.
+  ;; See 'gtd-project-create' for example, it uses 'xroam-node-create-at-path'.
+  (add-hook 'org-roam-capture-new-node-hook #'gtd-set-active-candidates) ; Update Org agenda files.
+  (add-hook 'org-roam-capture-new-node-hook #'gtd-set-refile-targets) ; We may want to refile to the new files.
+
   ;; These rely on roam functions to register IDs.
   (xroam-node-create-at-path gtd-inbox-fpath "inbox for GTD")
   (xroam-node-create-at-path gtd-tasks-fpath "tasks for GTD")
@@ -86,16 +102,6 @@ Dormant files:  Contains tasks that become active at a set time,
 (after! org
   ;; - MISC -
   org-agenda-file-regexp "^.*\\.org$"
-
-  ;; - FILE PATHS -
-  ;; Reset the agenda files (e.g., after creating a new project.)
-  (add-hook 'org-capture-after-finalize-hook #'gtd-set-active-candidates)
-  (gtd-set-active-candidates) ; Init agenda files.
-  (add-hook 'org-capture-after-finalize-hook #'gtd-set-dormant-files)
-  (gtd-set-active-candidates) ; Init agenda files.
-  ;; Reset the refile targets (e.g., after creating a new project.)
-  (add-hook 'org-capture-after-finalize-hook #'gtd-set-refile-targets)
-  (gtd-set-refile-targets) ; Init refile targets.
 
   ;; - TAGS -
   ;; These are selectable via (org-set-tags-command) or (counsel-org-tag).

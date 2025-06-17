@@ -522,7 +522,6 @@ Returns a hash table."
 
 (defun xroam-node-create-at-path (path title)
   "Create an org-roam node at PATH with TITLE.
-
 PATH should be relative to the 'org-roam' directory, e.g., foo/bar."
   (let ((fpath (expand-file-name path org-roam-directory)))
     (make-directory (file-name-directory fpath) t)
@@ -530,6 +529,7 @@ PATH should be relative to the 'org-roam' directory, e.g., foo/bar."
       (insert (format ":PROPERTIES:\n:ID: %s\n:END:\n#+title: %s\n\n" (org-id-uuid) title)))
     (org-id-update-id-locations '(fpath))
     (org-roam-db-update-file fpath)
+    (run-hooks 'org-roam-capture-new-node-hook) ; We want to inform consumers.
     fpath))
 
 ;; Note the smartest clone, but `copy-org-roam-node` doesn't exist anywhere.
