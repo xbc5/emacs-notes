@@ -8,7 +8,8 @@
       gtd-active-dir (f-join gtd-dir "active")
       gtd-inactive-dir (f-join gtd-dir "inactive")
       gtd-projects-dir (f-join gtd-active-dir "projects")
-      gtd-inbox-fpath (f-join gtd-active-dir "inbox.org"))
+      gtd-inbox-fpath (f-join gtd-active-dir "inbox.org")
+      gtd-tickler-fpath (f-join gtd-inactive-dir "tickler.org"))
 
 
 ;; UTILS -------------------------------------------------------------
@@ -40,7 +41,8 @@
 ;; - DEFAULT BUCKETS CREATION -
 (after! org-roam
   ;; These rely on roam functions to register IDs.
-  (xroam-node-create-at-path gtd-inbox-fpath "GTD inbox"))
+  (xroam-node-create-at-path gtd-inbox-fpath "inbox for GTD")
+  (xroam-node-create-at-path gtd-tickler-fpath "tickler for GTD"))
 
 (map! :leader
       :prefix "m"
