@@ -9,8 +9,10 @@
       gtd-inactive-dir (f-join gtd-dir "inactive")
       gtd-projects-dir (f-join gtd-active-dir "projects")
       gtd-inbox-fpath (f-join gtd-active-dir "inbox.org")
+      gtd-tasks-fpath (f-join gtd-active-dir "tasks.org")
       gtd-tickler-fpath (f-join gtd-inactive-dir "tickler.org")
       gtd-trash-fpath (f-join gtd-inactive-dir "trash.org")
+      gtd-read-later-fpath (f-join gtd-inactive-dir "read_later.org")
       gtd-someday-or-maybe-fpath (f-join gtd-inactive-dir "someday_or_maybe.org"))
 
 
@@ -44,8 +46,10 @@
 (after! org-roam
   ;; These rely on roam functions to register IDs.
   (xroam-node-create-at-path gtd-inbox-fpath "inbox for GTD")
+  (xroam-node-create-at-path gtd-tasks-fpath "tasks for GTD")
   (xroam-node-create-at-path gtd-someday-or-maybe-fpath "someday or maybe for GTD")
   (xroam-node-create-at-path gtd-trash-fpath "trash for GTD")
+  (xroam-node-create-at-path gtd-read-later-fpath "read later for GTD")
   (xroam-node-create-at-path gtd-tickler-fpath "tickler for GTD"))
 
 (map! :leader
