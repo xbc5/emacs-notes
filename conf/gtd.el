@@ -6,22 +6,26 @@
 ;; - PATHS -
 (setq gtd-dir (f-join org-roam-directory "gtd")
       gtd-active-dir (f-join gtd-dir "active")
-      gtd-projects-dir (f-join gtd-active-dir "projects")
       gtd-inactive-dir (f-join gtd-dir "inactive")
+      gtd-projects-dir (f-join gtd-active-dir "projects")
       gtd-inbox-fpath (f-join gtd-active-dir "inbox.org"))
 
 
 ;; UTILS -------------------------------------------------------------
-(defun gtd-active-files-set ()
+(defun gtd-set-active-files ()
   "Active files contain tasks that should be visible in the agenda view.
-
-This func sets 'org-agenda-files' to all org files in the gtd/active directory."
+\nThis func sets 'org-agenda-files' to all org files in the gtd/active directory."
   (setq org-agenda-files (directory-files gtd-active-dir t "\\.org$")))
+
+(defun gtd-set-refile-targets ()
+  "Set the 'org-refile-targets' to all org files under the GTD directory.
+\nUse this upon init, and after creating files in the GTD /active/ directory (e.g., via a hook.)"
+  ;; Set it to the 'gtd-dir', because we want to refile to both inactive and active.
+  (setq org-refile-targets (directory-files-recursively gtd-dir "\\.org$")))
 
 (defun gtd-project-create (title)
   "Create a GTD project.
-
-This creates a new org-roam node under the GTD projects directory."
+\nThis creates a new org-roam node under the GTD projects directory."
   (interactive "MEnter a project title: ")
   (xroam-node-create-at-path (f-join gtd-projects-dir
                                      (concat (xfs-slugify title) ".org")) ; fname: e.g., foo_bar.org
@@ -42,15 +46,19 @@ This creates a new org-roam node under the GTD projects directory."
       :prefix "m"
       :desc "Apply GTD context" "t" 'my/set-agenda-filter)
 
-(gtd-active-files-set) ;; Set outside of after! as per the Org manual.
 
 ;; INITIALISE ORG ----------------------------------------------------
 (after! org
   ;; - MISC -
   org-agenda-file-regexp "^.*\\.org$"
 
-  ;; Reset the agenda files var after creating a new agenda file, e.g., a new project.
-  (add-hook 'org-capture-after-finalize-hook #'gtd-active-files-set)
+  ;; - FILE PATHS -
+  ;; Reset the agenda files (e.g., after creating a new project.)
+  (add-hook 'org-capture-after-finalize-hook #'gtd-set-active-files)
+  (gtd-set-active-files) ; Init agenda files.
+  ;; Reset the refile targets (e.g., after creating a new project.)
+  (add-hook 'org-capture-after-finalize-hook #'gtd-set-refile-targets)
+  (gtd-set-refile-targets) ; Init refile targets.
 
   ;; - TAGS -
   ;; These are selectable via (org-set-tags-command) or (counsel-org-tag).
