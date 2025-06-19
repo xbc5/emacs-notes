@@ -41,7 +41,6 @@
       gtd-someday-or-maybe-fpath (f-join gtd-inactive-dir "someday_or_maybe.org") ; Invisible
       gtd-trash-fpath (f-join gtd-inactive-dir "trash.org")) ; Invisible
 
-
 ;; UTILS -------------------------------------------------------------
 (defun gtd-set-active-candidates ()
   "Set the 'org-agenda-files' actionable, or semi-actionable task files.
@@ -69,16 +68,18 @@ Dormant files:  Contains tasks that become active at a set time,
                                      (concat (xfs-slugify title) ".org")) ; fname: e.g., foo_bar.org
                              title))
 
-(defun my/org-find-headline-position (file headline)
+(defun my/org-find-headline-position (headline)
   "Return the position of HEADLINE in FILE."
-  (with-current-buffer (find-file-noselect file)
-    (marker-position
-     (org-find-exact-headline-in-buffer headline))))
+  (marker-position
+   (org-find-exact-headline-in-buffer headline)))
 
-(defun my/org-refile-to (file headline)
-  "Refile to an exact FILE and HEADLINE."
-  (org-refile nil nil
-              (list headline file nil (my/org-find-headline-position file headline))))
+;; - REFILERS -
+;; These refile to the root node in target paths.
+(defun gtd-refile-to-tasks () (org-refile nil nil (list nil gtd-tasks-fpath)))
+(defun gtd-refile-to-tickler () (org-refile nil nil (list nil gtd-tickler-fpath)))
+(defun gtd-refile-to-read-later () (org-refile nil nil (list nil gtd-read-later-fpath)))
+(defun gtd-refile-to-someday-or-maybe () (org-refile nil nil (list nil gtd-someday-or-maybe-fpath)))
+(defun gtd-refile-to-trash () (org-refile nil nil (list nil gtd-tasks-trash)))
 
 
 ;; PRE-INITIALISATION ------------------------------------------------
@@ -120,6 +121,17 @@ Dormant files:  Contains tasks that become active at a set time,
 
   ;; - MISC -
   org-agenda-file-regexp "^.*\\.org$"
+
+  ;; This option makes refile targets paths when picking
+  ;; them using ido, or other fuzzy selector.
+  ;; Source: https://stackoverflow.com/a/21335010
+  (setq org-refile-use-outline-path 'file)
+
+  ;; Use fuzzy like completions (where applicable). t means choose it in steps (annoying).
+  (setq org-outline-path-complete-in-steps nil)
+
+  ;; Refile to the top of the target file.
+  (setq org-reverse-note-order t)
 
   ;; - TAGS -
   ;; These are selectable via (org-set-tags-command) or (counsel-org-tag).
