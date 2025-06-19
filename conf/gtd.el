@@ -73,10 +73,15 @@ Dormant files:  Contains tasks that become active at a set time,
   (marker-position
    (org-find-exact-headline-in-buffer headline)))
 
-(defun my/org-ensure-todo-state (&rest _args)
+(defun my/org-ensure-todo-state ()
   "Ensure that the current org node has a TODO state set."
   (unless (org-get-todo-state)
     (org-todo "TODO")))
+
+(defun my/org-ensure-priority ()
+  "Ensure that the current org node has a TODO state set."
+  (unless (> (org-get-priority (org-get-heading)) 0)
+    (org-priority org-default-priority)))
 
 ;; - REFILERS -
 ;; These refile to the root node in target paths.
@@ -127,6 +132,8 @@ Dormant files:  Contains tasks that become active at a set time,
 ;; INITIALISE ORG ----------------------------------------------------
 (after! org
   ;; - MODS -
+  ;; We want Org nodes to have a priority of 3 by default.
+  (advice-add 'org-refile :before (lambda (&rest _) (my/org-ensure-priority)))
   ;; We want Org nodes to at least have a TODO state before refiling.
   (advice-add 'org-refile :before (lambda (&rest _) (my/org-ensure-todo-state)))
   ;; We don't want unsaved buffers after refiling.
@@ -157,14 +164,12 @@ Dormant files:  Contains tasks that become active at a set time,
           ("@dev" . ?d)))
 
   ;; - TASK PRIORITIES -
-  (setq org-highest-priority 65
-        org-lowest-priority 69
-        org-default-priority 68
-        org-priority-faces '((65 :foreground "red" :weight bold)
-                             (66 :foreground "orange" :weight bold)
-                             (67 :foreground "yellow" :weight bold)
-                             (68 :foreground "green" :weight bold)
-                             (69 :foreground "#2a7286" :weight bold)))
+  (setq org-highest-priority ?A
+        org-lowest-priority ?C
+        org-default-priority ?C
+        org-priority-faces '((?A :foreground "red" :weight bold)
+                             (?B :foreground "yellow" :weight bold)
+                             (?C :foreground "green" :weight bold)))
 
   ;; - TASK STATES -
   (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "WAIT(w)" "|" "DONE(d)" "DROP(c)"))
