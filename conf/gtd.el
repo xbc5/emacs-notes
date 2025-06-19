@@ -73,6 +73,11 @@ Dormant files:  Contains tasks that become active at a set time,
   (marker-position
    (org-find-exact-headline-in-buffer headline)))
 
+(defun my/org-ensure-todo-state (&rest _args)
+  "Ensure that the current org node has a TODO state set."
+  (unless (org-get-todo-state)
+    (org-todo "TODO")))
+
 ;; - REFILERS -
 ;; These refile to the root node in target paths.
 (defun gtd-refile-to-tasks () (interactive) (org-refile nil nil (list nil gtd-tasks-fpath)))
@@ -122,6 +127,8 @@ Dormant files:  Contains tasks that become active at a set time,
 ;; INITIALISE ORG ----------------------------------------------------
 (after! org
   ;; - MODS -
+  ;; We want Org nodes to at least have a TODO state before refiling.
+  (advice-add 'org-refile :before (lambda (&rest _) (my/org-ensure-todo-state)))
   ;; We don't want unsaved buffers after refiling.
   (advice-add 'org-refile :after (lambda (&rest _) (org-save-all-org-buffers)))
 
