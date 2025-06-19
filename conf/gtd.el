@@ -21,6 +21,9 @@
 ;;
 (require 'f)
 
+;; TODO:
+;; - Shortcuts to open each file directly.
+;; - Refile to a specific file
 
 ;; CONFIG VARS -------------------------------------------------------
 ;; - BUCKET PATHS -
@@ -66,6 +69,17 @@ Dormant files:  Contains tasks that become active at a set time,
                                      (concat (xfs-slugify title) ".org")) ; fname: e.g., foo_bar.org
                              title))
 
+(defun my/org-find-headline-position (file headline)
+  "Return the position of HEADLINE in FILE."
+  (with-current-buffer (find-file-noselect file)
+    (marker-position
+     (org-find-exact-headline-in-buffer headline))))
+
+(defun my/org-refile-to (file headline)
+  "Refile to an exact FILE and HEADLINE."
+  (org-refile nil nil
+              (list headline file nil (my/org-find-headline-position file headline))))
+
 
 ;; PRE-INITIALISATION ------------------------------------------------
 ;; - DIRECTORY CREATION -
@@ -100,6 +114,10 @@ Dormant files:  Contains tasks that become active at a set time,
 
 ;; INITIALISE ORG ----------------------------------------------------
 (after! org
+  ;; - MODS -
+  ;; We don't want unsaved buffers after refiling.
+  (advice-add 'org-refile :after (lambda (&rest _) (org-save-all-org-buffers)))
+
   ;; - MISC -
   org-agenda-file-regexp "^.*\\.org$"
 
