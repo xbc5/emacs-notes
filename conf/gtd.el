@@ -75,11 +75,11 @@ Dormant files:  Contains tasks that become active at a set time,
 
 ;; - REFILERS -
 ;; These refile to the root node in target paths.
-(defun gtd-refile-to-tasks () (org-refile nil nil (list nil gtd-tasks-fpath)))
-(defun gtd-refile-to-tickler () (org-refile nil nil (list nil gtd-tickler-fpath)))
-(defun gtd-refile-to-read-later () (org-refile nil nil (list nil gtd-read-later-fpath)))
-(defun gtd-refile-to-someday-or-maybe () (org-refile nil nil (list nil gtd-someday-or-maybe-fpath)))
-(defun gtd-refile-to-trash () (org-refile nil nil (list nil gtd-tasks-trash)))
+(defun gtd-refile-to-tasks () (interactive) (org-refile nil nil (list nil gtd-tasks-fpath)))
+(defun gtd-refile-to-tickler () (interactive) (org-refile nil nil (list nil gtd-tickler-fpath)))
+(defun gtd-refile-to-read-later () (interactive) (org-refile nil nil (list nil gtd-read-later-fpath)))
+(defun gtd-refile-to-someday-or-maybe () (interactive) (org-refile nil nil (list nil gtd-someday-or-maybe-fpath)))
+(defun gtd-refile-to-trash () (interactive) (org-refile nil nil (list nil gtd-trash-fpath)))
 
 
 ;; PRE-INITIALISATION ------------------------------------------------
@@ -108,9 +108,15 @@ Dormant files:  Contains tasks that become active at a set time,
   (xroam-node-create-at-path gtd-read-later-fpath "read later for GTD")
   (xroam-node-create-at-path gtd-tickler-fpath "tickler for GTD"))
 
+;; - KEYMAPS -
 (map! :leader
-      :prefix "m"
-      :desc "Apply GTD context" "t" 'my/set-agenda-filter)
+      (:prefix "m"
+               (:prefix "r"
+                :n "r" #'gtd-refile-to-read-later
+                :n "s" #'gtd-refile-to-someday-or-maybe
+                :n "t" #'gtd-refile-to-tasks
+                :n "k" #'gtd-refile-to-tickler
+                :n "x" #'gtd-refile-to-trash)))
 
 
 ;; INITIALISE ORG ----------------------------------------------------
