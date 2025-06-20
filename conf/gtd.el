@@ -27,7 +27,7 @@
 
 ;; CONFIG VARS -------------------------------------------------------
 ;; - BUCKET PATHS -
-(setq gtd-dir (f-join org-roam-directory "gtd")
+(setq gtd-dir (f-join (file-truename org-roam-directory) "gtd")
       ;; - DIRS -
       gtd-active-dir (f-join gtd-dir "active")
       gtd-dormant-dir (f-join gtd-dir "dormant")
@@ -67,6 +67,13 @@ Dormant files:  Contains tasks that become active at a set time,
   (xroam-node-create-at-path (f-join gtd-projects-dir
                                      (downcase (concat (xfs-slugify title) ".org"))) ; fname: e.g., foo_bar.org
                              title))
+
+(defun gtd-project-pick ()
+  "Pick a project file using completing-read, and return its full path."
+  (interactive)
+  (let* ((files (directory-files gtd-projects-dir nil "^[^.].*"))  ;; Exclude dotfiles.
+         (choice (completing-read "Pick a project: " files nil t)))
+    (f-join gtd-projects-dir choice)))
 
 (defun my/org-find-headline-position (headline)
   "Return the position of HEADLINE in FILE."
