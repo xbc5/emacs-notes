@@ -120,13 +120,12 @@ Dormant files:  Contains tasks that become active at a set time,
 
 ;; - KEYMAPS -
 (map! :leader
-      (:prefix "m"
-               (:prefix "r"
-                :n "r" #'gtd-refile-to-read-later
-                :n "s" #'gtd-refile-to-someday-or-maybe
-                :n "t" #'gtd-refile-to-tasks
-                :n "k" #'gtd-refile-to-tickler
-                :n "x" #'gtd-refile-to-trash)))
+      (:prefix "j"
+       :n "r" #'gtd-refile-to-read-later
+       :n "s" #'gtd-refile-to-someday-or-maybe
+       :n "t" #'gtd-refile-to-tasks
+       :n "k" #'gtd-refile-to-tickler
+       :n "x" #'gtd-refile-to-trash))
 
 
 ;; INITIALISE ORG ----------------------------------------------------
