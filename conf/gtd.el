@@ -65,7 +65,7 @@ Dormant files:  Contains tasks that become active at a set time,
 \nThis creates a new org-roam node under the GTD projects directory."
   (interactive "MEnter a project title: ")
   (xroam-node-create-at-path (f-join gtd-projects-dir
-                                     (concat (xfs-slugify title) ".org")) ; fname: e.g., foo_bar.org
+                                     (downcase (concat (xfs-slugify title) ".org"))) ; fname: e.g., foo_bar.org
                              title))
 
 (defun my/org-find-headline-position (headline)
@@ -122,6 +122,7 @@ Dormant files:  Contains tasks that become active at a set time,
 (map! :leader
       (:prefix "j"
        :n "r" #'gtd-refile-to-read-later
+       :n "P" #'gtd-project-create
        :n "s" #'gtd-refile-to-someday-or-maybe
        :n "t" #'gtd-refile-to-tasks
        :n "k" #'gtd-refile-to-tickler
