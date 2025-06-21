@@ -87,9 +87,13 @@ with slugified names. File names that do, or do not exist, are both slugified."
   (string-prefix-p gtd-projects-dir
                    (org-roam-node-file (cdr comp-candidate)))) ; Must get the cdr of the completion candidate first.
 
-(defun gtd-find-project-buckets ()
+(defun gtd-find-project-bucket (&optional require-match)
+  "Pick a project bucket, and return a roam node.
+REQUIRE-MATCH: if nil, the return result may contain a nil node--a node whose fields are nil.
+For example, '(org-roam-node-file node)' (the file path) will be nil. Setting this option to
+nil is useful in scenarios where you want to create the node, if it doesn't exist."
   (interactive)
-  (org-roam-node-find nil nil #'gtd--filter-project-buckets))
+  (org-roam-node-read nil #'gtd--filter-project-buckets nil require-match "Pick a project: "))
 
 (defun gtd--node-create (title)
   "Create a GTD project.
