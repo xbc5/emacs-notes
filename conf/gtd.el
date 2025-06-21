@@ -79,13 +79,14 @@ Dormant files:  Contains tasks that become active at a set time,
   (string-prefix-p gtd-projects-dir
                    (org-roam-node-file (cdr comp-candidate)))) ; Must get the cdr of the completion candidate first.
 
-(defun gtd--find-project-bucket (&optional require-match)
+(defun gtd--find-project-bucket (&optional initial-input require-match)
   "Pick a project bucket, and return a roam node.
-REQUIRE-MATCH: if nil, the return result may contain a nil node--a node whose fields are nil.
+INITIAL-INPUT: Like roam-find, this is the value entered into the input section upon opening the window.
+\nREQUIRE-MATCH: if nil, the return result may contain a nil node--a node whose fields are nil.
 For example, '(org-roam-node-file node)' (the file path) will be nil. Setting this option to
 nil is useful in scenarios where you want to create the node, if it doesn't exist."
   (interactive)
-  (org-roam-node-read nil #'gtd--filter-project-buckets nil require-match "Pick a project: "))
+  (org-roam-node-read initial-input #'gtd--filter-project-buckets nil require-match "Pick a project: "))
 
 (defun gtd-open-project ()
   "Find and open a project file. Create one if it doesn't exist."
@@ -105,10 +106,11 @@ This creates a new org-roam project under the GTD projects directory.
 RETURN: It may return nil in cases where cancellation occurs,
 otherwise it returns the full path to the selected node."
   (interactive)
-  (let* ((roam-node (gtd--find-project-bucket))
+  (let* ((roam-node (gtd--find-project-bucket gtd--last-picked-project))
          (node-path (org-roam-node-file roam-node)) ; Will be nil if node doesn't exist.
          (node-title (org-roam-node-title roam-node)) ; Node may not exist, but we provided a title upon creation.
          (node-path (if node-path node-path (gtd--project-create node-title)))) ; Prompt to create a file if we don't have one.
+    (setq gtd--last-picked-project node-title)
     (when node-path ; Something may go wrong (cancellation etc.), so must be non-nil.
       (org-refile nil nil (list nil node-path)))
     node-path)) ; May return nil.
