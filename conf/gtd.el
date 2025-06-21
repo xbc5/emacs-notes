@@ -184,6 +184,21 @@ Why? Because we don't modify the agenda list directly."
                  (gtd--reset-tag-candidates)) "Accept" :exit t)
   ("q" (progn (gtd--reset-tag-candidates) nil) "Quit" :exit t))
 
+;; - TAG LOADER -
+;; TODO: CONTINUE here. Instead of doing this in a one-shot, break it up, load it into
+;; a list of cons. Process that list for the org tags alist, and my hydra menu. Also
+;; create a function to save the list of cons; add to it, and/or save it to file. Essentially,
+;; work from the list, loading once, and saving upon changes. The list is the source of truth.
+(defun gtd--load-org-tags-alist ()
+  (with-temp-buffer
+    (insert-file-contents gtd-tag-file)
+    (mapcar (lambda (line)
+              (let* ((parts (split-string line ":"))
+                     (tag (car parts))
+                     (key (string-to-char (cadr parts)))) ; Return the second element, as a char.
+                (cons tag key)))
+            (split-string (buffer-string) "\n" t))))
+
 ;; - REFILERS -
 ;; These refile to the root node in target paths.
 (defun gtd-refile-to-tasks () (interactive) (org-refile nil nil (list nil gtd-tasks-fpath)))
@@ -198,6 +213,9 @@ Why? Because we don't modify the agenda list directly."
 (make-directory gtd-active-dir t)
 (make-directory gtd-dormant-dir t)
 (make-directory gtd-inactive-dir t)
+
+;; - FILE CREATION -
+(write-region "" nil gtd-tag-file)
 
 ;; - ORG AGENDA FILES -
 ;; Do this outside of after!, because it works here, but not there.
@@ -257,13 +275,7 @@ Why? Because we don't modify the agenda list directly."
 
   ;; - TAGS -
   ;; These are selectable via (org-set-tags-command) or (counsel-org-tag).
-  (setq org-tag-alist
-        '((:startgroup)
-          ;; Put mutually exclusive tags here.
-          (:endgroup)
-          ("@errand" . ?e)
-          ("@laptop" . ?l)
-          ("@dev" . ?d)))
+  (setq org-tag-alist (gtd--load-org-tags-alist))
 
   ;; - TASK PRIORITIES -
   (setq org-highest-priority ?A
