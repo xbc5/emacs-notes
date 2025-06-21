@@ -87,7 +87,7 @@ with slugified names. File names that do, or do not exist, are both slugified."
   (string-prefix-p gtd-projects-dir
                    (org-roam-node-file (cdr comp-candidate)))) ; Must get the cdr of the completion candidate first.
 
-(defun gtd-find-project-bucket (&optional require-match)
+(defun gtd--find-project-bucket (&optional require-match)
   "Pick a project bucket, and return a roam node.
 REQUIRE-MATCH: if nil, the return result may contain a nil node--a node whose fields are nil.
 For example, '(org-roam-node-file node)' (the file path) will be nil. Setting this option to
@@ -95,21 +95,26 @@ nil is useful in scenarios where you want to create the node, if it doesn't exis
   (interactive)
   (org-roam-node-read nil #'gtd--filter-project-buckets nil require-match "Pick a project: "))
 
-(defun gtd--node-create (title)
+(defun gtd-open-project ()
+  "Find and open a project file. Create one if it doesn't exist."
+  (interactive)
+  (org-roam-node-find nil nil #'gtd--filter-project-buckets))
+
+(defun gtd--project-create (title)
   "Create a GTD project.
-This creates a new org-roam node under the GTD projects directory.
+This creates a new org-roam project under the GTD projects directory.
 \nReturns the full path."
   (interactive "MEnter a project title: ")
-  (xroam-node-create-at-path (gtd-org-fpath gtd-projects-dir title) title))
+  (xroam-node-create-at-path (f-join gtd-projects-dir (gtd--org-fname title)) title))
 
-(defun gtd--org-titles-from-paths (paths)
-  "Given a list of paths, retrieve a list of '((path . title) ...)."
-  (mapcar (lambda (path)
-            (cons path
-                  (with-current-buffer
-                      (find-file-noselect p)
-                    (org-get-title))))
-          paths))
+(defun gtd-refile-to-project ()
+  (interactive)
+  (let* ((roam-node (gtd--find-project-bucket))
+         (node-path (org-roam-node-file roam-node)) ; Will be nil if node doesn't exist.
+         (node-title (org-roam-node-title roam-node))) ; Node may not exist, but we provided a title upon creation.
+    (if node-path
+        (org-refile nil nil (list nil node-path)) ; Refile.
+      (org-refile nil nil (list nil (gtd--project-create node-title)))))) ; Create then refile.
 
 (defun gtd-project-pick ()
   "Pick a project file using completing-read, and return its full path."
@@ -119,7 +124,7 @@ This creates a new org-roam node under the GTD projects directory.
     (setq gtd--last-picked-project fname) ; Cache the last used for later.
     (if (file-regular-p fpath) ; If exists, don't create.
         fpath
-      (gtd--node-create fpath))))
+      (gtd--project-create fpath))))
 
 (defun my/org-find-headline-position (headline)
   "Return the position of HEADLINE in FILE."
