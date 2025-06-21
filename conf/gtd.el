@@ -175,6 +175,7 @@ otherwise it returns the full path to the selected node."
 (map! :leader
       (:prefix "j"
        :n "r" #'gtd-refile-to-read-later
+       :n "p" #'gtd-refile-to-project
        :n "P" #'gtd-project-create
        :n "s" #'gtd-refile-to-someday-or-maybe
        :n "t" #'gtd-refile-to-tasks
