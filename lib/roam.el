@@ -502,9 +502,43 @@ Returns a hash table."
 (advice-add #'org-roam-node-read--completions
             :around
             (lambda (fn &rest args)
-              (when (not xroam--cache)
+              ;; - SET CACHE -
+              (when (not xroam--cache) ; Idempotent.
                 (setq xroam--cache (apply fn args)))
-              xroam--cache))
+
+              (let* ((filter-fn (car args))
+                     (sort-fn (nth 1 args))
+                     (nodes xroam--cache)
+
+                     ;; - FILTER -
+                     ;; Apply it if we have one.
+                     (nodes (if filter-fn
+                                (cl-remove-if-not
+                                 (lambda (n) (funcall filter-fn n))
+                                 nodes)
+                              nodes))
+
+                     ;; - BUILD TEMPLATES -
+                     ;; Templates control how the completion window looks.
+                     ;; These are horribly slow, so I've left them out.
+                     ;; To apply templates, use 'xroam-cache-reload' manually;
+                     ;; required when resizing the window.
+
+                     ;; - SORT -
+                     ;; Apply it if we have one.
+                     (sort-fn (or sort-fn
+                                  (when org-roam-node-default-sort
+                                    (intern (concat "org-roam-node-read-sort-by-"
+                                                    (symbol-name org-roam-node-default-sort))))))
+                     (nodes (if sort-fn (seq-sort sort-fn nodes) nodes)))
+                nodes)))
+
+(defun gtd--filter-project-buckets (n)
+  (string-prefix-p gtd-projects-dir (org-roam-node-file (cdr n))))
+
+(defun gtd-find-project-buckets ()
+  (interactive)
+  (org-roam-node-find nil nil #'gtd--filter-roam-buckets))
 
 (defun xroam-node= (a b)
   "Test that two Roam nodes are equal via their ID."

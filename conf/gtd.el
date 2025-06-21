@@ -82,6 +82,15 @@ with slugified names. File names that do, or do not exist, are both slugified."
   (gtd--org-fname
    (completing-read "Pick a project: " (gtd-project-files) nil nil gtd--last-picked-project)))
 
+(defun gtd--filter-project-buckets (comp-candidate)
+  "Filter for project nodes."
+  (string-prefix-p gtd-projects-dir
+                   (org-roam-node-file (cdr comp-candidate)))) ; Must get the cdr of the completion candidate first.
+
+(defun gtd-find-project-buckets ()
+  (interactive)
+  (org-roam-node-find nil nil #'gtd--filter-project-buckets))
+
 (defun gtd--node-create (title)
   "Create a GTD project.
 This creates a new org-roam node under the GTD projects directory.
