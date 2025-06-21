@@ -39,7 +39,9 @@
       gtd-inbox-fpath (f-join gtd-inactive-dir "inbox.org") ; Invisible
       gtd-read-later-fpath (f-join gtd-inactive-dir "read_later.org") ; Invisible
       gtd-someday-or-maybe-fpath (f-join gtd-inactive-dir "someday_or_maybe.org") ; Invisible
-      gtd-trash-fpath (f-join gtd-inactive-dir "trash.org")) ; Invisible
+      gtd-trash-fpath (f-join gtd-inactive-dir "trash.org") ; Invisible
+      ;; - SETTINGS -
+      gtd-tag-file (f-join gtd-dir "agenda_tags.txt"))
 
 ;; UTILS -------------------------------------------------------------
 (defun gtd-set-active-candidates ()
@@ -136,8 +138,11 @@ otherwise it returns the full path to the selected node."
                      (lambda (n)
                        (string-match-p path (org-roam-node-file n)))))
 
-;; - TAGS -
+;; TAG UTILS ---------------------------------------------------------
+;; - TAG CACHE -
 (defvar gtd--tag-filter-candidates nil "A stash for tags that may become ")
+
+;; - TAG TOGGLER -
 (defun gtd--toggle-tag (tag)
   "Toggle tags on and off, for the tag filter."
   (let* ((pattern (format "^[+-]%s$" tag)))
@@ -158,6 +163,7 @@ otherwise it returns the full path to the selected node."
     (message (mapconcat 'identity gtd--tag-filter-candidates "")) ; See the tags as we modify them.
     gtd--tag-filter-candidates))
 
+;; - GLOBAL TAG STATE MANAGERS -
 (defun gtd--reset-tag-candidates ()
   "Reset 'gtd--tag-filter-candidates'"
   (setq gtd--tag-filter-candidates nil))
@@ -167,6 +173,7 @@ otherwise it returns the full path to the selected node."
 Why? Because we don't modify the agenda list directly."
   (setq org-agenda-tag-filter-preset gtd--tag-filter-candidates))
 
+;; - TAG MENU -
 (defhydra gtd-toggle-tags (:on-enter
                            (setq gtd--tag-filter-candidates ; Work upon a copy of applied tags.
                                  org-agenda-tag-filter-preset))
