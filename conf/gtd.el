@@ -74,14 +74,6 @@ Dormant files:  Contains tasks that become active at a set time,
   "Return a list of GTD project files."
   (directory-files gtd-projects-dir nil "^[^.].*")) ; Exclude dotfiles.
 
-(defvar gtd--last-picked-project nil "This tracks the last project selected via 'gtd-project-pick'. It's used to repopulate initial input between usages.")
-(defun gtd--project-name-pick()
-  "Pick a project by name, and return it.
-Always use this to pick a project by name, because it ensures consistency
-with slugified names. File names that do, or do not exist, are both slugified."
-  (gtd--org-fname
-   (completing-read "Pick a project: " (gtd-project-files) nil nil gtd--last-picked-project)))
-
 (defun gtd--filter-project-buckets (comp-candidate)
   "Filter for project nodes."
   (string-prefix-p gtd-projects-dir
@@ -107,24 +99,19 @@ This creates a new org-roam project under the GTD projects directory.
   (interactive "MEnter a project title: ")
   (xroam-node-create-at-path (f-join gtd-projects-dir (gtd--org-fname title)) title))
 
+(defvar gtd--last-picked-project nil "This tracks the last project selected via 'gtd-refile-to-project'. It's used to repopulate initial input between usages.")
 (defun gtd-refile-to-project ()
+  "Pick a project to refile to; create one if it doesn't exist.
+RETURN: It may return nil in cases where cancellation occurs,
+otherwise it returns the full path to the selected node."
   (interactive)
   (let* ((roam-node (gtd--find-project-bucket))
          (node-path (org-roam-node-file roam-node)) ; Will be nil if node doesn't exist.
-         (node-title (org-roam-node-title roam-node))) ; Node may not exist, but we provided a title upon creation.
-    (if node-path
-        (org-refile nil nil (list nil node-path)) ; Refile.
-      (org-refile nil nil (list nil (gtd--project-create node-title)))))) ; Create then refile.
-
-(defun gtd-project-pick ()
-  "Pick a project file using completing-read, and return its full path."
-  (interactive)
-  (let* ((fname (gtd--project-name-pick))
-         (fpath (f-join gtd-projects-dir fname)))
-    (setq gtd--last-picked-project fname) ; Cache the last used for later.
-    (if (file-regular-p fpath) ; If exists, don't create.
-        fpath
-      (gtd--project-create fpath))))
+         (node-title (org-roam-node-title roam-node)) ; Node may not exist, but we provided a title upon creation.
+         (node-path (if node-path node-path (gtd--project-create node-title)))) ; Prompt to create a file if we don't have one.
+    (when node-path ; Something may go wrong (cancellation etc.), so must be non-nil.
+      (org-refile nil nil (list nil node-path)))
+    node-path)) ; May return nil.
 
 (defun my/org-find-headline-position (headline)
   "Return the position of HEADLINE in FILE."
