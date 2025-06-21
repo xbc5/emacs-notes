@@ -60,20 +60,53 @@ Dormant files:  Contains tasks that become active at a set time,
   ;; Set it to the 'gtd-dir', because we want to refile to both inactive and active.
   (setq org-refile-targets (directory-files-recursively gtd-dir "\\.org$")))
 
-(defun gtd-project-create (title)
+(defun gtd--slugify (fname)
+  "xfs-slugify, but with downcase."
+  (downcase (xfs-slugify fname)))
+
+(defun gtd--org-fname (fname)
+  "Create a slugified FNAME with a .org suffix."
+  (if (string= (file-name-extension fname) "org")
+      (gtd--slugify fname)
+    (concat (gtd--slugify fname) ".org")))
+
+(defun gtd-project-files()
+  "Return a list of GTD project files."
+  (directory-files gtd-projects-dir nil "^[^.].*")) ; Exclude dotfiles.
+
+(defvar gtd--last-picked-project nil "This tracks the last project selected via 'gtd-project-pick'. It's used to repopulate initial input between usages.")
+(defun gtd--project-name-pick()
+  "Pick a project by name, and return it.
+Always use this to pick a project by name, because it ensures consistency
+with slugified names. File names that do, or do not exist, are both slugified."
+  (gtd--org-fname
+   (completing-read "Pick a project: " (gtd-project-files) nil nil gtd--last-picked-project)))
+
+(defun gtd--node-create (title)
   "Create a GTD project.
-\nThis creates a new org-roam node under the GTD projects directory."
+This creates a new org-roam node under the GTD projects directory.
+\nReturns the full path."
   (interactive "MEnter a project title: ")
-  (xroam-node-create-at-path (f-join gtd-projects-dir
-                                     (downcase (concat (xfs-slugify title) ".org"))) ; fname: e.g., foo_bar.org
-                             title))
+  (xroam-node-create-at-path (gtd-org-fpath gtd-projects-dir title) title))
+
+(defun gtd--org-titles-from-paths (paths)
+  "Given a list of paths, retrieve a list of '((path . title) ...)."
+  (mapcar (lambda (path)
+            (cons path
+                  (with-current-buffer
+                      (find-file-noselect p)
+                    (org-get-title))))
+          paths))
 
 (defun gtd-project-pick ()
   "Pick a project file using completing-read, and return its full path."
   (interactive)
-  (let* ((files (directory-files gtd-projects-dir nil "^[^.].*"))  ;; Exclude dotfiles.
-         (choice (completing-read "Pick a project: " files nil t)))
-    (f-join gtd-projects-dir choice)))
+  (let* ((fname (gtd--project-name-pick))
+         (fpath (f-join gtd-projects-dir fname)))
+    (setq gtd--last-picked-project fname) ; Cache the last used for later.
+    (if (file-regular-p fpath) ; If exists, don't create.
+        fpath
+      (gtd--node-create fpath))))
 
 (defun my/org-find-headline-position (headline)
   "Return the position of HEADLINE in FILE."
@@ -89,6 +122,12 @@ Dormant files:  Contains tasks that become active at a set time,
   "Ensure that the current org node has a TODO state set."
   (unless (> (org-get-priority (org-get-heading)) 0)
     (org-priority org-default-priority)))
+
+(defun gtd--find-by-path (path)
+  (interactive)
+  (xvulpea-node-find nil nil
+                     (lambda (n)
+                       (string-match-p path (org-roam-node-file n)))))
 
 ;; - REFILERS -
 ;; These refile to the root node in target paths.
