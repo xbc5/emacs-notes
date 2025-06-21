@@ -136,6 +136,47 @@ otherwise it returns the full path to the selected node."
                      (lambda (n)
                        (string-match-p path (org-roam-node-file n)))))
 
+;; - TAGS -
+(defvar gtd--tag-filter-candidates nil "A stash for tags that may become ")
+(defun gtd--toggle-tag (tag)
+  "Toggle tags on and off, for the tag filter."
+  (let* ((pattern (format "^[+-]%s$" tag)))
+    ;; If it's set, remove it.
+    (if
+        ;; Check for tag.
+        (cl-some (lambda (tg) (string-match-p pattern tg))
+                 gtd--tag-filter-candidates)
+        ;; Remove tag if found.
+        (setq gtd--tag-filter-candidates
+              (cl-remove-if
+               (lambda (tg) (string-match-p pattern tg))
+               gtd--tag-filter-candidates))
+
+      ;; Else, add the tag.
+      (push (concat "+" tag) gtd--tag-filter-candidates))
+    (sort gtd--tag-filter-candidates #'string<)
+    (message (mapconcat 'identity gtd--tag-filter-candidates "")) ; See the tags as we modify them.
+    gtd--tag-filter-candidates))
+
+(defun gtd--reset-tag-candidates ()
+  "Reset 'gtd--tag-filter-candidates'"
+  (setq gtd--tag-filter-candidates nil))
+
+(defun gtd--use-tag-candidates ()
+  "Set 'org-agenda-tag-filter-preset' with 'gtd--tag-filter-candidates'
+Why? Because we don't modify the agenda list directly."
+  (setq org-agenda-tag-filter-preset gtd--tag-filter-candidates))
+
+(defhydra gtd-toggle-tags (:on-enter
+                           (setq gtd--tag-filter-candidates ; Work upon a copy of applied tags.
+                                 org-agenda-tag-filter-preset))
+  "Display a tag selection menu to apply tag filters."
+  ("f" (gtd--toggle-tag "@foo") "@foo")
+  ("b"  (gtd--toggle-tag "@bar") "@bar")
+  ("RET"  (progn (gtd--use-tag-candidates)
+                 (gtd--reset-tag-candidates)) "Accept" :exit t)
+  ("q" (progn (gtd--reset-tag-candidates) nil) "Quit" :exit t))
+
 ;; - REFILERS -
 ;; These refile to the root node in target paths.
 (defun gtd-refile-to-tasks () (interactive) (org-refile nil nil (list nil gtd-tasks-fpath)))
