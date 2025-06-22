@@ -45,6 +45,13 @@
       gtd-context-tags-fpath (f-join gtd-dir "context_tags.txt"))
 
 ;; UTILS -------------------------------------------------------------
+(defun gtd-file-tasks-open () (interactive) (find-file gtd-tasks-fpath))
+(defun gtd-file-tickler-open () (interactive) (find-file gtd-tickler-fpath))
+(defun gtd-file-inbox-open () (interactive) (find-file gtd-inbox-fpath))
+(defun gtd-file-read-later-open () (interactive) (find-file gtd-read-later-fpath))
+(defun gtd-file-someday-or-maybe-open () (interactive) (find-file gtd-someday-or-maybe-fpath))
+(defun gtd-file-trash-open () (interactive) (find-file gtd-trash-fpath))
+
 (defun gtd-set-active-candidates ()
   "Set the 'org-agenda-files' actionable, or semi-actionable task files.
 Essentially, determine active and dormant file paths, then set 'org-agenda-files'.\n
@@ -91,7 +98,7 @@ nil is useful in scenarios where you want to create the node, if it doesn't exis
   (interactive)
   (org-roam-node-read initial-input #'gtd--filter-project-buckets nil require-match "Pick a project: "))
 
-(defun gtd-open-project ()
+(defun gtd-file-project-open ()
   "Find and open a project file. Create one if it doesn't exist."
   (interactive)
   (org-roam-node-find nil nil #'gtd--filter-project-buckets))
@@ -315,18 +322,34 @@ processes that and turns it into a list suitable for use with org.
 ;; Then bind M-t to your command globally
 (map! :n "M-t" #'your-command)
 
-;; - KEYMAPS -
+;; KEYMAPS -----------------------------------------------------------
+;; - NORMAL KEYMAPS -
 (map! :n "M-t" #'gtd-toggle-tags/body
       :leader
       (:prefix "j"
-       :n "r" #'gtd-refile-to-read-later
-       :n "p" #'gtd-refile-to-project
        :n "P" #'gtd-project-create
-       :n "s" #'gtd-refile-to-someday-or-maybe
-       :n "t" #'gtd-refile-to-tasks
        :n "T" #'gtd-tag-file-edit
-       :n "k" #'gtd-refile-to-tickler
-       :n "x" #'gtd-refile-to-trash))
+       (:prefix "r"
+        :n "c" #'gtd-refile-to-read-later
+        :n "k" #'gtd-refile-to-tickler
+        :n "p" #'gtd-refile-to-project
+        :n "s" #'gtd-refile-to-someday-or-maybe
+        :n "t" #'gtd-refile-to-tasks
+        :n "x" #'gtd-refile-to-trash)
+       (:prefix "o"
+        :n "c" #'gtd-file-read-later-open
+        :n "i" #'gtd-file-inbox-open
+        :n "k" #'gtd-file-tickler-open
+        :n "p" #'gtd-file-project-open
+        :n "s" #'gtd-file-someday-or-maybe-open
+        :n "t" #'gtd-file-tasks-open
+        :n "x" #'gtd-file-trash-open)))
+
+;; - ORG AGENDA KEYMAPS -
+(after! evil-org-agenda
+  (map! :map org-agenda-mode-map
+        "M-t" #'gtd-toggle-tags/body))
+
 
 
 ;; INITIALISE ORG ----------------------------------------------------
@@ -364,6 +387,11 @@ processes that and turns it into a list suitable for use with org.
         org-priority-faces '((?A :foreground "red" :weight bold)
                              (?B :foreground "yellow" :weight bold)
                              (?C :foreground "green" :weight bold)))
+
+  (setq org-agenda-custom-commands
+        '(("n" "Next Actions" todo "NEXT")
+          ("i" "Inbox" tags "+LEVEL>0"
+           ((org-agenda-files  (list gtd-inbox-fpath))))))
 
   ;; - TASK STATES -
   (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "WAIT(w)" "|" "DONE(d)" "DROP(c)"))
