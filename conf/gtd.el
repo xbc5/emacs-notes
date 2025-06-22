@@ -139,9 +139,23 @@ otherwise it returns the full path to the selected node."
                      (lambda (n)
                        (string-match-p path (org-roam-node-file n)))))
 
+;; - REFILERS -
+;; These refile to the root node in target paths.
+(defun gtd-refile-to-tasks () (interactive) (org-refile nil nil (list nil gtd-tasks-fpath)))
+(defun gtd-refile-to-tickler () (interactive) (org-refile nil nil (list nil gtd-tickler-fpath)))
+(defun gtd-refile-to-read-later () (interactive) (org-refile nil nil (list nil gtd-read-later-fpath)))
+(defun gtd-refile-to-someday-or-maybe () (interactive) (org-refile nil nil (list nil gtd-someday-or-maybe-fpath)))
+(defun gtd-refile-to-trash () (interactive) (org-refile nil nil (list nil gtd-trash-fpath)))
+
+
 ;; TAG UTILS ---------------------------------------------------------
 ;; - TAG CACHE -
 (defvar gtd--tag-filter-candidates nil "A stash for tags that may become ")
+
+(defun gtd-tag-file-edit ()
+  "Edit the tag file in a popup buffer."
+  (interactive)
+  (my/doom-popup-buffer gtd-context-tags-fpath))
 
 ;; - TAG TOGGLER -
 (defun gtd--toggle-tag (tag)
@@ -199,10 +213,10 @@ it defaults to 'gtd--context-tags-alist' (the global)."
               (setq gtd--tag-filter-candidates ; Work upon a copy of applied tags.
                     org-agenda-tag-filter-preset)) "Tags" ,@heads))))
 
+;; - OBSERVERS -
 (defun gtd--refresh-tag-watcher (symbol newval operation where)
   "The handler that watches 'gtd--context-tags-alist' and refreshes the tag menu."
   (when (eq operation 'set)
-    (message "called")
     (gtd--refresh-tag-menu newval)))
 
 (defun gtd--agenda-tag-preset-watcher (symbol newval operation where)
@@ -245,14 +259,6 @@ processes that and turns it into a list suitable for use with org.
   "Set all of the tag variables. Run this after the tag file changes."
   (gtd--load-context-tags)
   (setq org-tag-alist (gtd--generate-org-tag-alist)))
-
-;; - REFILERS -
-;; These refile to the root node in target paths.
-(defun gtd-refile-to-tasks () (interactive) (org-refile nil nil (list nil gtd-tasks-fpath)))
-(defun gtd-refile-to-tickler () (interactive) (org-refile nil nil (list nil gtd-tickler-fpath)))
-(defun gtd-refile-to-read-later () (interactive) (org-refile nil nil (list nil gtd-read-later-fpath)))
-(defun gtd-refile-to-someday-or-maybe () (interactive) (org-refile nil nil (list nil gtd-someday-or-maybe-fpath)))
-(defun gtd-refile-to-trash () (interactive) (org-refile nil nil (list nil gtd-trash-fpath)))
 
 
 ;; PRE-INITIALISATION ------------------------------------------------
@@ -303,14 +309,22 @@ processes that and turns it into a list suitable for use with org.
   (xroam-node-create-at-path gtd-read-later-fpath "read later for GTD")
   (xroam-node-create-at-path gtd-tickler-fpath "tickler for GTD"))
 
+;; Unbind M-t globally first (optional but sometimes needed)
+(global-unset-key (kbd "M-t"))
+
+;; Then bind M-t to your command globally
+(map! :n "M-t" #'your-command)
+
 ;; - KEYMAPS -
-(map! :leader
+(map! :n "M-t" #'gtd-toggle-tags/body
+      :leader
       (:prefix "j"
        :n "r" #'gtd-refile-to-read-later
        :n "p" #'gtd-refile-to-project
        :n "P" #'gtd-project-create
        :n "s" #'gtd-refile-to-someday-or-maybe
        :n "t" #'gtd-refile-to-tasks
+       :n "T" #'gtd-tag-file-edit
        :n "k" #'gtd-refile-to-tickler
        :n "x" #'gtd-refile-to-trash))
 
