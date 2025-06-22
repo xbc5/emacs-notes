@@ -174,16 +174,35 @@ Why? Because we don't modify the agenda list directly."
   (setq org-agenda-tag-filter-preset gtd--tag-filter-candidates))
 
 ;; - TAG MENU -
-(defhydra gtd-toggle-tags (:foreign-keys run ; Prevent Hydra from closing when non-hydra key pressed.
-                           :on-enter
-                           (setq gtd--tag-filter-candidates ; Work upon a copy of applied tags.
-                                 org-agenda-tag-filter-preset))
-  "Choose tags"
-  ("f" (gtd--toggle-tag "@foo") "@foo")
-  ("b"  (gtd--toggle-tag "@bar") "@bar")
-  ("q"  (progn (gtd--use-tag-candidates)
-               (gtd--reset-tag-candidates)) "Quit" :exit t)
-  ("M-c" (progn (gtd--reset-tag-candidates) nil) "Cancel" :exit t))
+(defun gtd--refresh-tag-menu (&optional context-tags)
+  "Build a hydra menu from the contents of 'gtd--context-tags-menu'.
+This is the menu you use to filter tags in the agenda view.
+\nCONTEXT-TAGS is an alist of (tag . key) pairs. If you do not provide this,
+it defaults to 'gtd--context-tags-alist' (the global)."
+  (let ((heads (append
+                ;; - STATIC HEADS -
+                '(("q"  (progn (gtd--use-tag-candidates)
+                               (gtd--reset-tag-candidates)) "Quit" :exit t)
+                  ("M-c" (progn (gtd--reset-tag-candidates) nil) "Cancel" :exit t))
+                ;; - DYNAMIC HEADS -
+                (mapcar (lambda (tag-key)
+                          (let ((tag (car tag-key))
+                                (key (cdr tag-key)))
+                            (list key `(gtd--toggle-tag ,tag) tag)))
+                        (or nil gtd--context-tags-alist)))))
+    ;; - APPLY THE HEADS -
+    (eval `(defhydra
+             gtd-toggle-tags
+             (:foreign-keys run ; Prevent Hydra from closing when non-hydra key pressed.
+              :on-enter
+              (setq gtd--tag-filter-candidates ; Work upon a copy of applied tags.
+                    org-agenda-tag-filter-preset)) "Tags" ,@heads))))
+
+(defun gtd--refresh-tag-watcher (symbol newval operation where)
+  "The handler that watches 'gtd--context-tags-alist' and refreshes the tag menu."
+  (when (eq operation 'set)
+    (message "called")
+    (gtd--refresh-tag-menu newval)))
 
 (defun gtd--agenda-tag-preset-watcher (symbol newval operation where)
   "Handle the 'add-variable-watcher' for 'org-agenda-tag-filter-preset'.
@@ -195,6 +214,7 @@ Refresh the agenda view when new tags are applied."
 
 (add-variable-watcher 'org-agenda-tag-filter-preset #'gtd--agenda-tag-preset-watcher)
 
+;; - TAG LOADER -
 (defvar gtd--context-tags-alist nil "A list of (\"@<tag>\" . \"<key>\") pairs.")
 (defun gtd--load-context-tags ()
   (with-temp-buffer
@@ -208,8 +228,6 @@ Refresh the agenda view when new tags are applied."
                        (cons tag key)))
                    (split-string (buffer-string) "\n" t))))))
 
-
-;; - TAG LOADER -
 (defun gtd--generate-org-tag-alist ()
   "Generate 'org-tag-alist' from 'gtd--context-tags-alist'
 The GTD list is is a generic alist without character key codes. This function
@@ -244,8 +262,12 @@ processes that and turns it into a list suitable for use with org.
 
 ;; - FILE CREATION -
 (xtouch-new gtd-context-tags-fpath) ; We want a tag file to exist.
+
+;; - TAG LOADING -
+;; Load the tags from file into a global.
 (gtd--load-context-tags)
-;; Watch the tags file. Update tag variables upon change.
+
+;; Watch the tags file. Update the global upon change.
 (when (version<= "24.4" emacs-version)
   (file-notify-add-watch
    gtd-context-tags-fpath
@@ -253,6 +275,12 @@ processes that and turns it into a list suitable for use with org.
    (lambda (event)
      (when (eq (cadr event) 'changed)
        (gtd--set-tag-variables)))))
+
+;; Built a tag menu from the global.
+(gtd--refresh-tag-menu)
+;; Watch the tags global for changes and refresh the menu.
+(add-variable-watcher 'gtd--context-tags-alist #'gtd--refresh-tag-watcher)
+
 
 ;; - ORG AGENDA FILES -
 ;; Do this outside of after!, because it works here, but not there.
