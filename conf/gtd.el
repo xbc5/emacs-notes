@@ -316,17 +316,12 @@ processes that and turns it into a list suitable for use with org.
   (xroam-node-create-at-path gtd-read-later-fpath "read later for GTD")
   (xroam-node-create-at-path gtd-tickler-fpath "tickler for GTD"))
 
-;; Unbind M-t globally first (optional but sometimes needed)
-(global-unset-key (kbd "M-t"))
-
-;; Then bind M-t to your command globally
-(map! :n "M-t" #'your-command)
-
 
 ;; KEYMAPS -----------------------------------------------------------
+(global-unset-key (kbd "M-t"))
+
 ;; - NORMAL KEYMAPS -
-(map! :n "M-t" #'gtd-toggle-tags/body
-      :leader
+(map! :leader
       (:prefix "j"
        :n "P" #'gtd-project-create
        :n "T" #'gtd-tag-file-edit
@@ -350,6 +345,19 @@ processes that and turns it into a list suitable for use with org.
 (after! evil-org-agenda
   (map! :map org-agenda-mode-map
         "M-t" #'gtd-toggle-tags/body))
+
+;; - ORG KEYMAPS -
+;; Doom swaps 'org-set-tags-command' with 'counsel-org-tag'[0]:
+;; > [remap org-set-tags-command]     #'counsel-org-tag
+;; We want to undo that.
+;; [0] https://github.com/doomemacs/doomemacs/blob/e6c755305358412a71a990fc2cf592c629edde1e/modules/completion/ivy/config.el#L178
+(after! (:and counsel org)
+  ;; Prevent counsel-mode from overriding 'org-set-tags-command'.
+  (define-key counsel-mode-map [remap org-set-tags-command] nil)
+  ;; Set 'org-set-tags-command' back to itself.
+  (define-key org-mode-map [remap org-set-tags-command] #'org-set-tags-command)
+  ;; Now map M-t.
+  (map! :map org-mode-map "M-t" #'org-set-tags-command))
 
 
 ;; INITIALISE ORG ----------------------------------------------------
