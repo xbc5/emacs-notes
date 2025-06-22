@@ -174,15 +174,16 @@ Why? Because we don't modify the agenda list directly."
   (setq org-agenda-tag-filter-preset gtd--tag-filter-candidates))
 
 ;; - TAG MENU -
-(defhydra gtd-toggle-tags (:on-enter
+(defhydra gtd-toggle-tags (:foreign-keys run ; Prevent Hydra from closing when non-hydra key pressed.
+                           :on-enter
                            (setq gtd--tag-filter-candidates ; Work upon a copy of applied tags.
                                  org-agenda-tag-filter-preset))
-  "Display a tag selection menu to apply tag filters."
+  "Choose tags"
   ("f" (gtd--toggle-tag "@foo") "@foo")
   ("b"  (gtd--toggle-tag "@bar") "@bar")
-  ("RET"  (progn (gtd--use-tag-candidates)
-                 (gtd--reset-tag-candidates)) "Accept" :exit t)
-  ("q" (progn (gtd--reset-tag-candidates) nil) "Quit" :exit t))
+  ("q"  (progn (gtd--use-tag-candidates)
+               (gtd--reset-tag-candidates)) "Quit" :exit t)
+  ("M-c" (progn (gtd--reset-tag-candidates) nil) "Cancel" :exit t))
 
 ;; - TAG LOADER -
 ;; TODO: CONTINUE here. Instead of doing this in a one-shot, break it up, load it into
