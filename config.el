@@ -8,6 +8,7 @@
 (load! "lib/xht")
 (load! "lib/fs")
 (load! "lib/util")
+(load! "lib/xui")
 (load! "lib/xtype")
 (load! "lib/xstr")
 (load! "lib/xseq")
