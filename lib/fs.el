@@ -47,6 +47,10 @@ spaces with SEP. It defaults to '-'."
              (setq do nil))))
     (f-short fpath)))
 
+(defun xtouch-new (path)
+  "If a file doesn't exist at PATH, touch, and create it."
+  (unless (file-regular-p path) (f-touch path)))
+
 (defun f-fname-p (path)
   "Returns t if PATH is only a file name,
 and not part of a full path."

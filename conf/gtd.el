@@ -41,7 +41,7 @@
       gtd-someday-or-maybe-fpath (f-join gtd-inactive-dir "someday_or_maybe.org") ; Invisible
       gtd-trash-fpath (f-join gtd-inactive-dir "trash.org") ; Invisible
       ;; - SETTINGS -
-      gtd-tag-file (f-join gtd-dir "agenda_tags.txt"))
+      gtd-context-tags-fpath (f-join gtd-dir "context_tags.txt"))
 
 ;; UTILS -------------------------------------------------------------
 (defun gtd-set-active-candidates ()
@@ -195,21 +195,32 @@ Refresh the agenda view when new tags are applied."
 
 (add-variable-watcher 'org-agenda-tag-filter-preset #'gtd--agenda-tag-preset-watcher)
 
+(defvar gtd--context-tags-alist nil "A list of (\"@<tag>\" . \"<key>\") pairs.")
+(defun gtd--load-context-tags ()
+  (with-temp-buffer
+    (insert-file-contents gtd-context-tags-fpath)
+    (setq gtd--context-tags-alist
+          (sort
+           (mapcar (lambda (line)
+                     (let* ((parts (split-string line ":"))
+                            (tag (car parts))
+                            (key (cadr parts)))
+                       (cons tag key)))
+                   (split-string (buffer-string) "\n" t))))))
+
 
 ;; - TAG LOADER -
-;; TODO: CONTINUE here. Instead of doing this in a one-shot, break it up, load it into
-;; a list of cons. Process that list for the org tags alist, and my hydra menu. Also
-;; create a function to save the list of cons; add to it, and/or save it to file. Essentially,
-;; work from the list, loading once, and saving upon changes. The list is the source of truth.
-(defun gtd--load-org-tags-alist ()
-  (with-temp-buffer
-    (insert-file-contents gtd-tag-file)
-    (mapcar (lambda (line)
-              (let* ((parts (split-string line ":"))
-                     (tag (car parts))
-                     (key (string-to-char (cadr parts)))) ; Return the second element, as a char.
-                (cons tag key)))
-            (split-string (buffer-string) "\n" t))))
+(defun gtd--generate-org-tag-alist ()
+  "Generate 'org-tag-alist' from 'gtd--context-tags-alist'
+The GTD list is is a generic alist without character key codes. This function
+processes that and turns it into a list suitable for use with org.
+\nRETURN: An alist, suitable to set to 'org-tag-alist'."
+  (mapcar
+   (lambda (con)
+     (let* ((tag (car con))
+            (key (string-to-char (cdr con)))) ; We need a keycode for the key.
+       (cons tag key)))
+   gtd--context-tags-alist))
 
 ;; - REFILERS -
 ;; These refile to the root node in target paths.
@@ -227,7 +238,8 @@ Refresh the agenda view when new tags are applied."
 (make-directory gtd-inactive-dir t)
 
 ;; - FILE CREATION -
-(write-region "" nil gtd-tag-file)
+(xtouch-new gtd-context-tags-fpath) ; We want a tag file to exist.
+(gtd--load-context-tags)
 
 ;; - ORG AGENDA FILES -
 ;; Do this outside of after!, because it works here, but not there.
@@ -287,7 +299,7 @@ Refresh the agenda view when new tags are applied."
 
   ;; - TAGS -
   ;; These are selectable via (org-set-tags-command) or (counsel-org-tag).
-  (setq org-tag-alist (gtd--load-org-tags-alist))
+  (setq org-tag-alist (gtd--generate-org-tag-alist))
 
   ;; - TASK PRIORITIES -
   (setq org-highest-priority ?A
