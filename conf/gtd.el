@@ -222,6 +222,11 @@ processes that and turns it into a list suitable for use with org.
        (cons tag key)))
    gtd--context-tags-alist))
 
+(defun gtd--set-tag-variables ()
+  "Set all of the tag variables. Run this after the tag file changes."
+  (gtd--load-context-tags)
+  (setq org-tag-alist (gtd--generate-org-tag-alist)))
+
 ;; - REFILERS -
 ;; These refile to the root node in target paths.
 (defun gtd-refile-to-tasks () (interactive) (org-refile nil nil (list nil gtd-tasks-fpath)))
@@ -240,6 +245,14 @@ processes that and turns it into a list suitable for use with org.
 ;; - FILE CREATION -
 (xtouch-new gtd-context-tags-fpath) ; We want a tag file to exist.
 (gtd--load-context-tags)
+;; Watch the tags file. Update tag variables upon change.
+(when (version<= "24.4" emacs-version)
+  (file-notify-add-watch
+   gtd-context-tags-fpath
+   '(change)
+   (lambda (event)
+     (when (eq (cadr event) 'changed)
+       (gtd--set-tag-variables)))))
 
 ;; - ORG AGENDA FILES -
 ;; Do this outside of after!, because it works here, but not there.
