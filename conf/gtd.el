@@ -20,6 +20,7 @@
 ;; For priorities, use Org priorities.
 ;;
 (require 'f)
+(require 'filenotify) ; Required for 'file-notify-add-watch'.
 
 ;; TODO:
 ;; - Shortcuts to open each file directly.
@@ -269,7 +270,7 @@ processes that and turns it into a list suitable for use with org.
 
 ;; Watch the tags file. Update the global upon change.
 (when (version<= "24.4" emacs-version)
-  (file-notify-add-watch
+  (file-notify-add-watch ; Must (require 'filenotify)
    gtd-context-tags-fpath
    '(change)
    (lambda (event)
@@ -278,7 +279,7 @@ processes that and turns it into a list suitable for use with org.
 
 ;; Built a tag menu from the global.
 (gtd--refresh-tag-menu)
-;; Watch the tags global for changes and refresh the menu.
+;; Watch the tags global for changes then refresh the menu.
 (add-variable-watcher 'gtd--context-tags-alist #'gtd--refresh-tag-watcher)
 
 
