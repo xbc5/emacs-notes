@@ -185,6 +185,17 @@ Why? Because we don't modify the agenda list directly."
                (gtd--reset-tag-candidates)) "Quit" :exit t)
   ("M-c" (progn (gtd--reset-tag-candidates) nil) "Cancel" :exit t))
 
+(defun gtd--agenda-tag-preset-watcher (symbol newval operation where)
+  "Handle the 'add-variable-watcher' for 'org-agenda-tag-filter-preset'.
+Refresh the agenda view when new tags are applied."
+  (when (and (eq operation 'set) (get-buffer "*Org Agenda*"))
+    (with-current-buffer "*Org Agenda*"
+      (run-at-time "0.01 sec" nil ; It's a little racy; we need to delay.
+                   (lambda () (org-agenda-redo))))))
+
+(add-variable-watcher 'org-agenda-tag-filter-preset #'gtd--agenda-tag-preset-watcher)
+
+
 ;; - TAG LOADER -
 ;; TODO: CONTINUE here. Instead of doing this in a one-shot, break it up, load it into
 ;; a list of cons. Process that list for the org tags alist, and my hydra menu. Also
