@@ -322,6 +322,7 @@ processes that and turns it into a list suitable for use with org.
 ;; Then bind M-t to your command globally
 (map! :n "M-t" #'your-command)
 
+
 ;; KEYMAPS -----------------------------------------------------------
 ;; - NORMAL KEYMAPS -
 (map! :n "M-t" #'gtd-toggle-tags/body
@@ -330,26 +331,25 @@ processes that and turns it into a list suitable for use with org.
        :n "P" #'gtd-project-create
        :n "T" #'gtd-tag-file-edit
        (:prefix "r"
-        :n "c" #'gtd-refile-to-read-later
-        :n "k" #'gtd-refile-to-tickler
-        :n "p" #'gtd-refile-to-project
-        :n "s" #'gtd-refile-to-someday-or-maybe
-        :n "t" #'gtd-refile-to-tasks
-        :n "x" #'gtd-refile-to-trash)
+        :desc "Consume Later" :n "c" #'gtd-refile-to-read-later
+        :desc "Project" :n "p" #'gtd-refile-to-project
+        :desc "Someday or Maybe" :n "s" #'gtd-refile-to-someday-or-maybe
+        :desc "Tasks" :n "t" #'gtd-refile-to-tasks
+        :desc "Tickler" :n "k" #'gtd-refile-to-tickler
+        :desc "Trash" :n "x" #'gtd-refile-to-trash)
        (:prefix "o"
-        :n "c" #'gtd-file-read-later-open
-        :n "i" #'gtd-file-inbox-open
-        :n "k" #'gtd-file-tickler-open
-        :n "p" #'gtd-file-project-open
-        :n "s" #'gtd-file-someday-or-maybe-open
-        :n "t" #'gtd-file-tasks-open
-        :n "x" #'gtd-file-trash-open)))
+        :desc "Consume Later" :n "c" #'gtd-file-read-later-open
+        :desc "Inbox" :n "i" #'gtd-file-inbox-open
+        :desc "Project" :n "p" #'gtd-file-project-open
+        :desc "Someday or Maybe" :n "s" #'gtd-file-someday-or-maybe-open
+        :desc "Tasks" :n "t" #'gtd-file-tasks-open
+        :desc "Tickler" :n "k" #'gtd-file-tickler-open
+        :desc "Trash" :n "x" #'gtd-file-trash-open)))
 
 ;; - ORG AGENDA KEYMAPS -
 (after! evil-org-agenda
   (map! :map org-agenda-mode-map
         "M-t" #'gtd-toggle-tags/body))
-
 
 
 ;; INITIALISE ORG ----------------------------------------------------
