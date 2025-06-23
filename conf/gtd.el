@@ -159,10 +159,26 @@ otherwise it returns the full path to the selected node."
 ;; - TAG CACHE -
 (defvar gtd--tag-filter-candidates nil "A stash for tags that may become ")
 
+(defun gtd--tag-buf-valid-p (buf)
+  "Validate that the tag buffer/file is valid.
+It tests that each line is in the form @tag:k"
+  (with-current-buffer buf
+    (cl-every
+     (lambda (line)
+       (let ((tag (car line))
+             (key (cdr line)))
+         (and (stringp tag)
+              (length> tag 1) ; Tag mst be at least '@x'
+              (string-prefix-p "@" tag)
+              (stringp key)
+              (length= key 1) ; Key is a, b, x, y, ...
+              (string-match-p "^[[:graph:]]$" key)))) ; Is any printable char, except space.
+     (gtd--tags-string-to-alist (buffer-string)))))
+
 (defun gtd-tag-file-edit ()
   "Edit the tag file in a popup buffer."
   (interactive)
-  (my/doom-popup-buffer gtd-context-tags-fpath))
+  (my/doom-popup-buffer gtd-context-tags-fpath nil #'gtd--tag-buf-valid-p))
 
 ;; - TAG TOGGLER -
 (defun gtd--toggle-tag (tag)
@@ -211,7 +227,7 @@ it defaults to 'gtd--context-tags-alist' (the global)."
                           (let ((tag (car tag-key))
                                 (key (cdr tag-key)))
                             (list key `(gtd--toggle-tag ,tag) tag)))
-                        (or nil gtd--context-tags-alist)))))
+                        (or context-tags gtd--context-tags-alist)))))
     ;; - APPLY THE HEADS -
     (eval `(defhydra
              gtd-toggle-tags
@@ -236,19 +252,26 @@ Refresh the agenda view when new tags are applied."
 
 (add-variable-watcher 'org-agenda-tag-filter-preset #'gtd--agenda-tag-preset-watcher)
 
+(defun gtd--tags-string-to-alist (tags-str)
+  "Take a multi-line string of tag:key, and return an alist.
+The tag buffer contains such file contents, and this maps the
+buffer into an alist."
+  (sort
+   (mapcar (lambda (line)
+             (let* ((parts (split-string line ":"))
+                    (tag (car parts))
+                    (key (cadr parts)))
+               (cons tag key)))
+           (split-string tags-str "\n" t))))
+
 ;; - TAG LOADER -
 (defvar gtd--context-tags-alist nil "A list of (\"@<tag>\" . \"<key>\") pairs.")
 (defun gtd--load-context-tags ()
+  "Load the contents of the tag file into the context tag alist."
   (with-temp-buffer
     (insert-file-contents gtd-context-tags-fpath)
     (setq gtd--context-tags-alist
-          (sort
-           (mapcar (lambda (line)
-                     (let* ((parts (split-string line ":"))
-                            (tag (car parts))
-                            (key (cadr parts)))
-                       (cons tag key)))
-                   (split-string (buffer-string) "\n" t))))))
+          (gtd--tags-string-to-alist (buffer-string)))))
 
 (defun gtd--generate-org-tag-alist ()
   "Generate 'org-tag-alist' from 'gtd--context-tags-alist'
