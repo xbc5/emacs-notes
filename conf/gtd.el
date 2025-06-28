@@ -306,8 +306,8 @@ it defaults to 'gtd--context-tags-alist' (the global)."
 (defun gtd--refresh-tag-watcher (symbol newval operation where)
   "The handler that watches 'gtd--context-tags-alist' and refreshes the tag menu."
   (when (eq operation 'set)
-    (gtd--refresh-tag-menu newval)
     (setq org-tag-alist (gtd--generate-org-tag-alist newval))
+    (gtd--refresh-tag-menu newval)
     (org-reload)))
 
 (defun gtd--agenda-tag-preset-watcher (symbol newval operation where)
@@ -338,7 +338,7 @@ buffer into an alist."
   "Load the contents of the tag file into the context tag alist."
   (with-temp-buffer
     (insert-file-contents gtd-context-tags-fpath)
-    (setq gtD--context-tags-alist
+    (setq gtd--context-tags-alist
           (gtd--tags-string-to-alist (buffer-string)))))
 
 (defun gtd--generate-org-tag-alist (&optional tags-alist)
