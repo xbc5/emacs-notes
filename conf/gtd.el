@@ -52,6 +52,17 @@
 (defun gtd-file-someday-or-maybe-open () (interactive) (find-file gtd-someday-or-maybe-fpath))
 (defun gtd-file-trash-open () (interactive) (find-file gtd-trash-fpath))
 
+(defun gtd--buckets-active-get ()
+  "Get all active buckets."
+  ;; Emacs Regex is stupid, hard to read, and it doesn't work, so do two recursive searches instead.
+  (append
+   (directory-files-recursively gtd-active-dir "\\.org$")
+   (directory-files-recursively gtd-dormant-dir "\\.org$")))
+
+(defun gtd--buckets-inactive-get ()
+  "Get all inactive buckets."
+  (directory-files-recursively gtd-inactive-dir "\\.org$"))
+
 (defun gtd-set-active-candidates ()
   "Set the 'org-agenda-files' actionable, or semi-actionable task files.
 Essentially, determine active and dormant file paths, then set 'org-agenda-files'.\n
@@ -60,15 +71,19 @@ Active files:   Contains actionable tasks that should be displayed,
 Dormant files:  Contains tasks that become active at a set time,
                  e.g., items in the tickler file."
   ;; Emacs Regex is stupid, hard to read, and it doesn't work, so do two recursive searches instead.
-  (setq org-agenda-files (append
-                          (directory-files-recursively gtd-active-dir "\\.org$")
-                          (directory-files-recursively gtd-dormant-dir "\\.org$"))))
+  (setq org-agenda-files (gtd--buckets-active-get)))
 
-(defun gtd-set-refile-targets ()
-  "Set the 'org-refile-targets' to all org files under the GTD directory.
+(defun gtd--refile-targets-get ()
+  "Get all GTD refile targets. This is every org file suitable for targeting."
+  ;; Set it to the 'gtd-dir', because we want to refile to both inactive and active.
+  '((gtd--buckets-active-get :maxlevel 10)
+    (gtd--buckets-inactive-get :maxlevel 10)))
+
+(defun gtd--refile-targets-set ()
+  "Set the 'org-refile-targets' to all org files under the GTD active, dormant, and inactive directories.
 \nUse this upon init, and after creating files in the GTD /active/ directory (e.g., via a hook.)"
   ;; Set it to the 'gtd-dir', because we want to refile to both inactive and active.
-  (setq org-refile-targets (directory-files-recursively gtd-dir "\\.org$")))
+  (setq org-refile-targets (gtd--refile-targets-get)))
 
 (defun gtd--slugify (fname)
   "xfs-slugify, but with downcase."
@@ -240,7 +255,9 @@ it defaults to 'gtd--context-tags-alist' (the global)."
 (defun gtd--refresh-tag-watcher (symbol newval operation where)
   "The handler that watches 'gtd--context-tags-alist' and refreshes the tag menu."
   (when (eq operation 'set)
-    (gtd--refresh-tag-menu newval)))
+    (gtd--refresh-tag-menu newval)
+    (setq org-tag-alist (gtd--generate-org-tag-alist newval))
+    (org-reload)))
 
 (defun gtd--agenda-tag-preset-watcher (symbol newval operation where)
   "Handle the 'add-variable-watcher' for 'org-agenda-tag-filter-preset'.
@@ -270,20 +287,21 @@ buffer into an alist."
   "Load the contents of the tag file into the context tag alist."
   (with-temp-buffer
     (insert-file-contents gtd-context-tags-fpath)
-    (setq gtd--context-tags-alist
+    (setq gtD--context-tags-alist
           (gtd--tags-string-to-alist (buffer-string)))))
 
-(defun gtd--generate-org-tag-alist ()
+(defun gtd--generate-org-tag-alist (&optional tags-alist)
   "Generate 'org-tag-alist' from 'gtd--context-tags-alist'
 The GTD list is is a generic alist without character key codes. This function
 processes that and turns it into a list suitable for use with org.
+\nTAGS-ALIST: A value in the same shap of 'gtd--context-tags-alist'.
 \nRETURN: An alist, suitable to set to 'org-tag-alist'."
   (mapcar
    (lambda (con)
      (let* ((tag (car con))
             (key (string-to-char (cdr con)))) ; We need a keycode for the key.
        (cons tag key)))
-   gtd--context-tags-alist))
+   (or tags-alist gtd--context-tags-alist)))
 
 (defun gtd--set-tag-variables ()
   "Set all of the tag variables. Run this after the tag file changes."
@@ -322,14 +340,14 @@ processes that and turns it into a list suitable for use with org.
 ;; - ORG AGENDA FILES -
 ;; Do this outside of after!, because it works here, but not there.
 (gtd-set-active-candidates)
-(gtd-set-refile-targets)
+(gtd--refile-targets-set)
 
 ;; - DEFAULT BUCKETS CREATION -
 (after! org-roam
   ;; Because we create Roam (not Org) nodes we need to hook Roam.
   ;; See 'gtd-project-create' for example, it uses 'xroam-node-create-at-path'.
   (add-hook 'org-roam-capture-new-node-hook #'gtd-set-active-candidates) ; Update Org agenda files.
-  (add-hook 'org-roam-capture-new-node-hook #'gtd-set-refile-targets) ; We may want to refile to the new files.
+  (add-hook 'org-roam-capture-new-node-hook #'gtd--refile-targets-set) ; We may want to refile to the new files.
 
   ;; These rely on roam functions to register IDs.
   (xroam-node-create-at-path gtd-inbox-fpath "inbox for GTD")
@@ -403,6 +421,8 @@ processes that and turns it into a list suitable for use with org.
 
   ;; Use fuzzy like completions (where applicable). t means choose it in steps (annoying).
   (setq org-outline-path-complete-in-steps nil)
+
+  (setq org-refile-allow-creating-parent-nodes t)
 
   ;; Refile to the top of the target file.
   (setq org-reverse-note-order t)
