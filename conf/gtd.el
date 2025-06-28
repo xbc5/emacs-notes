@@ -125,19 +125,15 @@ This creates a new org-roam project under the GTD projects directory.
   (interactive "MEnter a project title: ")
   (xroam-node-create-at-path (f-join gtd-projects-dir (gtd--org-fname title)) title))
 
-(defvar gtd--project-picked-last nil "This tracks the last project selected via 'gtd-refile-to-project'. It's used to repopulate initial input between usages.")
+(defun gtd--refile (filter-fn prompt &optional initial-input)
+  "Refile the current node to any target node defined by FILTER-FN."
+  (org-roam-refile
+   (org-roam-node-read initial-input filter-fn nil t prompt)))
+
 (defun gtd-refile-to-project ()
-  "Pick a project to refile to; create one if it doesn't exist.
-RETURN: It may return nil in cases where cancellation occurs,
-otherwise it returns the full path to the selected node."
+  "Pick an existing project to refile to."
   (interactive)
-  (let* ((roam-node (gtd--bucket-project-find gtd--project-picked-last))
-         ;; (node-path (org-roam-node-file roam-node)) ; Will be nil if node doesn't exist.
-         (node-title (org-roam-node-title roam-node)) ; Node may not exist, but we provided a title upon creation.
-         ;; (node-path (if node-path node-path (gtd--project-create node-title)))
-         ) ; Prompt to create a file if we don't have one.
-    (setq gtd--project-picked-last node-title)
-    (org-roam-refile roam-node)))
+  (gtd--refile #'gtd--filter-project-buckets "Refile to project: "))
 
 (defun my/org-find-headline-position (headline)
   "Return the position of HEADLINE in FILE."
