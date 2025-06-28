@@ -104,7 +104,7 @@ Dormant files:  Contains tasks that become active at a set time,
   (string-prefix-p gtd-projects-dir
                    (org-roam-node-file (cdr comp-candidate)))) ; Must get the cdr of the completion candidate first.
 
-(defun gtd--find-project-bucket (&optional initial-input require-match)
+(defun gtd--bucket-project-find (&optional initial-input require-match)
   "Pick a project bucket, and return a roam node.
 INITIAL-INPUT: Like roam-find, this is the value entered into the input section upon opening the window.
 \nREQUIRE-MATCH: if nil, the return result may contain a nil node--a node whose fields are nil.
@@ -125,20 +125,19 @@ This creates a new org-roam project under the GTD projects directory.
   (interactive "MEnter a project title: ")
   (xroam-node-create-at-path (f-join gtd-projects-dir (gtd--org-fname title)) title))
 
-(defvar gtd--last-picked-project nil "This tracks the last project selected via 'gtd-refile-to-project'. It's used to repopulate initial input between usages.")
+(defvar gtd--project-picked-last nil "This tracks the last project selected via 'gtd-refile-to-project'. It's used to repopulate initial input between usages.")
 (defun gtd-refile-to-project ()
   "Pick a project to refile to; create one if it doesn't exist.
 RETURN: It may return nil in cases where cancellation occurs,
 otherwise it returns the full path to the selected node."
   (interactive)
-  (let* ((roam-node (gtd--find-project-bucket gtd--last-picked-project))
-         (node-path (org-roam-node-file roam-node)) ; Will be nil if node doesn't exist.
+  (let* ((roam-node (gtd--bucket-project-find gtd--project-picked-last))
+         ;; (node-path (org-roam-node-file roam-node)) ; Will be nil if node doesn't exist.
          (node-title (org-roam-node-title roam-node)) ; Node may not exist, but we provided a title upon creation.
-         (node-path (if node-path node-path (gtd--project-create node-title)))) ; Prompt to create a file if we don't have one.
-    (setq gtd--last-picked-project node-title)
-    (when node-path ; Something may go wrong (cancellation etc.), so must be non-nil.
-      (org-refile nil nil (list nil node-path)))
-    node-path)) ; May return nil.
+         ;; (node-path (if node-path node-path (gtd--project-create node-title)))
+         ) ; Prompt to create a file if we don't have one.
+    (setq gtd--project-picked-last node-title)
+    (org-roam-refile roam-node)))
 
 (defun my/org-find-headline-position (headline)
   "Return the position of HEADLINE in FILE."
