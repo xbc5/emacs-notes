@@ -167,7 +167,11 @@ This creates a new org-roam project under the GTD projects directory.
     (unless (> (org-get-priority (org-get-heading)) 0)
       (org-priority org-default-priority))
 
-    ;; Refile.
+    ;; Since we hover over nodes to refile, this will create a Roam node
+    ;; if it's not already a Roam node; it does nothing otherwise.
+    (org-id-get-create)
+
+    ;; Refile,
     (org-roam-refile roam-node)
     (org-save-all-org-buffers)))
 
