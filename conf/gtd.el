@@ -157,9 +157,19 @@ This creates a new org-roam project under the GTD projects directory.
 ;; This does the actual refiling for the below functions.
 (defun gtd--refile (filter-fn prompt &optional initial-input)
   "Refile the current node to any target node defined by FILTER-FN."
-  (org-roam-refile
-   (org-roam-node-read initial-input filter-fn nil t prompt))
-  (org-save-all-org-buffers))
+  ;; Pick the node first, so that it doesn't apply TODO and priority while we're picking.
+  (let* ((roam-node (org-roam-node-read initial-input filter-fn nil t prompt)))
+    ;; Apply TODO, if not alread set.
+    (unless (org-get-todo-state)
+      (org-todo "TODO"))
+
+    ;; Apply priority 3, if not already set.
+    (unless (> (org-get-priority (org-get-heading)) 0)
+      (org-priority org-default-priority))
+
+    ;; Refile.
+    (org-roam-refile roam-node)
+    (org-save-all-org-buffers)))
 
 ;; - PROJECT REFILER -
 ;; List all projects, and sub-projects, pick one, and refile to it.
@@ -199,16 +209,6 @@ This creates a new org-roam project under the GTD projects directory.
   "Return the position of HEADLINE in FILE."
   (marker-position
    (org-find-exact-headline-in-buffer headline)))
-
-(defun my/org-ensure-todo-state ()
-  "Ensure that the current org node has a TODO state set."
-  (unless (org-get-todo-state)
-    (org-todo "TODO")))
-
-(defun my/org-ensure-priority ()
-  "Ensure that the current org node has a TODO state set."
-  (unless (> (org-get-priority (org-get-heading)) 0)
-    (org-priority org-default-priority)))
 
 (defun gtd--find-by-path (path)
   (interactive)
@@ -450,12 +450,6 @@ processes that and turns it into a list suitable for use with org.
 
 ;; INITIALISE ORG ----------------------------------------------------
 (after! org
-  ;; - MODS -
-  ;; We want Org nodes to have a priority of 3 by default.
-  (advice-add 'org-refile :before (lambda (&rest _) (my/org-ensure-priority)))
-  ;; We want Org nodes to at least have a TODO state before refiling.
-  (advice-add 'org-refile :before (lambda (&rest _) (my/org-ensure-todo-state)))
-
   ;; - MISC -
   org-agenda-file-regexp "^.*\\.org$"
 
