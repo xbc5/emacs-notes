@@ -99,11 +99,37 @@ Dormant files:  Contains tasks that become active at a set time,
   "Return a list of GTD project files."
   (directory-files gtd-projects-dir nil "^[^.].*")) ; Exclude dotfiles.
 
-(defun gtd--bucket-project-filter (comp-candidate)
-  "Filter for project nodes."
+
+;; FILTERS -----------------------------------------------------------
+;; These filter Org-Roam completion menu. Often we want to target a set of specific
+;; buckets, for example, sub-nodes of the tasks file, or sub-projects. These filter
+;; by file path.
+;;
+;; - PROJECT FILTER -
+(defun gtd--bucket-filter-project (comp-candidate)
+  "Filter completion candidates for project nodes."
   (string-prefix-p gtd-projects-dir
                    (org-roam-node-file (cdr comp-candidate)))) ; Must get the cdr of the completion candidate first.
 
+;; - SOMEDAY OR MAYBE FILTER -
+(defun gtd--bucket-filter-someday-or-maybe (comp-candidate)
+  "Filter completion candidates for someday or maybe nodes."
+  (string= gtd-someday-or-maybe-fpath (org-roam-node-file (cdr comp-candidate))))
+
+;; - TASKS FILTER -
+(defun gtd--bucket-filter-tasks (comp-candidate)
+  "Filter completion candidates for task nodes."
+  (string= gtd-tasks-fpath (org-roam-node-file (cdr comp-candidate))))
+
+;; - TICKLER FILTER -
+;; This is a WIP. I have not yet determined what the nodes in a tickler file will look like.
+;; Perhaps they will be a date tree, and perhaps these will be Roam nodes--I don't know.
+(defun gtd--bucket-filter-tickler (comp-candidate)
+  "Filter completion candidates for tickler nodes."
+  (string= gtd-tickler-fpath (org-roam-node-file (cdr comp-candidate))))
+
+
+;; -------------------------------------------------------------------
 (defun gtd--bucket-project-find (&optional initial-input require-match)
   "Pick a project bucket, and return a roam node.
 INITIAL-INPUT: Like roam-find, this is the value entered into the input section upon opening the window.
@@ -111,12 +137,12 @@ INITIAL-INPUT: Like roam-find, this is the value entered into the input section 
 For example, '(org-roam-node-file node)' (the file path) will be nil. Setting this option to
 nil is useful in scenarios where you want to create the node, if it doesn't exist."
   (interactive)
-  (org-roam-node-read initial-input #'gtd--bucket-project-filter nil require-match "Pick a project: "))
+  (org-roam-node-read initial-input #'gtd--bucket-filter-project nil require-match "Pick a project: "))
 
 (defun gtd-file-project-open ()
   "Find and open a project file. Create one if it doesn't exist."
   (interactive)
-  (org-roam-node-find nil nil #'gtd--bucket-project-filter))
+  (org-roam-node-find nil nil #'gtd--bucket-filter-project))
 
 (defun gtd--project-create (title)
   "Create a GTD project.
@@ -125,16 +151,49 @@ This creates a new org-roam project under the GTD projects directory.
   (interactive "MEnter a project title: ")
   (xroam-node-create-at-path (f-join gtd-projects-dir (gtd--org-fname title)) title))
 
+
+;; REFILERS ----------------------------------------------------------
+;; - GENERIC REFILER -
+;; This does the actual refiling for the below functions.
 (defun gtd--refile (filter-fn prompt &optional initial-input)
   "Refile the current node to any target node defined by FILTER-FN."
   (org-roam-refile
    (org-roam-node-read initial-input filter-fn nil t prompt)))
 
+;; - PROJECT REFILER -
+;; List all projects, and sub-projects, pick one, and refile to it.
 (defun gtd-refile-to-project ()
   "Pick an existing project to refile to."
   (interactive)
-  (gtd--refile #'gtd--bucket-project-filter "Refile to project: "))
+  (gtd--refile #'gtd--bucket-filter-project "Refile to project: "))
 
+;; - TASKS REFILER -
+;; Tasks may also have subgroupings, just for organisational purposes.
+(defun gtd-refile-to-tasks ()
+  "Refile to the tasks file."
+  (interactive)
+  (gtd--refile #'gtd--bucket-filter-tasks "Refile to tasks: "))
+
+;; - SOMEDAY OR MAYBE REFILER -
+;; The Someday or maybe file will also have organisational subgroups.
+(defun gtd-refile-to-someday-or-maybe ()
+  "Refile to the someday or maybe file."
+  (interactive)
+  (gtd--refile #'gtd--bucket-filter-someday-or-maybe "Refile to someday or maybe: "))
+
+;; - TICKLER REFILER -
+;; I may want to refile to an existing date node, for example.
+(defun gtd-refile-to-tickler ()
+  "Refile to the tickler file."
+  (interactive)
+  (gtd--refile #'gtd--bucket-filter-tickler "Refile to someday or maybe: "))
+
+;; - TRASH REFILER -
+;; The trash is flat.
+(defun gtd-refile-to-trash () (interactive) (org-refile nil nil (list nil gtd-trash-fpath)))
+
+
+;; -------------------------------------------------------------------
 (defun my/org-find-headline-position (headline)
   "Return the position of HEADLINE in FILE."
   (marker-position
@@ -155,14 +214,6 @@ This creates a new org-roam project under the GTD projects directory.
   (xvulpea-node-find nil nil
                      (lambda (n)
                        (string-match-p path (org-roam-node-file n)))))
-
-;; - REFILERS -
-;; These refile to the root node in target paths.
-(defun gtd-refile-to-tasks () (interactive) (org-refile nil nil (list nil gtd-tasks-fpath)))
-(defun gtd-refile-to-tickler () (interactive) (org-refile nil nil (list nil gtd-tickler-fpath)))
-(defun gtd-refile-to-read-later () (interactive) (org-refile nil nil (list nil gtd-read-later-fpath)))
-(defun gtd-refile-to-someday-or-maybe () (interactive) (org-refile nil nil (list nil gtd-someday-or-maybe-fpath)))
-(defun gtd-refile-to-trash () (interactive) (org-refile nil nil (list nil gtd-trash-fpath)))
 
 
 ;; TAG UTILS ---------------------------------------------------------
@@ -363,10 +414,10 @@ processes that and turns it into a list suitable for use with org.
        :n "T" #'gtd-tag-file-edit
        (:prefix "r"
         :desc "Consume Later" :n "c" #'gtd-refile-to-read-later
-        :desc "Project" :n "p" #'gtd-refile-to-project
-        :desc "Someday or Maybe" :n "s" #'gtd-refile-to-someday-or-maybe
-        :desc "Tasks" :n "t" #'gtd-refile-to-tasks
-        :desc "Tickler" :n "k" #'gtd-refile-to-tickler
+        :desc "Project" :n "p" #'gtd-refile-to-project ;
+        :desc "Someday or Maybe" :n "s" #'gtd-refile-to-someday-or-maybe ;
+        :desc "Tasks" :n "t" #'gtd-refile-to-tasks ;
+        :desc "Tickler" :n "k" #'gtd-refile-to-tickler ;
         :desc "Trash" :n "x" #'gtd-refile-to-trash)
        (:prefix "o"
         :desc "Consume Later" :n "c" #'gtd-file-read-later-open
