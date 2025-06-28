@@ -99,7 +99,7 @@ Dormant files:  Contains tasks that become active at a set time,
   "Return a list of GTD project files."
   (directory-files gtd-projects-dir nil "^[^.].*")) ; Exclude dotfiles.
 
-(defun gtd--filter-project-buckets (comp-candidate)
+(defun gtd--bucket-project-filter (comp-candidate)
   "Filter for project nodes."
   (string-prefix-p gtd-projects-dir
                    (org-roam-node-file (cdr comp-candidate)))) ; Must get the cdr of the completion candidate first.
@@ -111,12 +111,12 @@ INITIAL-INPUT: Like roam-find, this is the value entered into the input section 
 For example, '(org-roam-node-file node)' (the file path) will be nil. Setting this option to
 nil is useful in scenarios where you want to create the node, if it doesn't exist."
   (interactive)
-  (org-roam-node-read initial-input #'gtd--filter-project-buckets nil require-match "Pick a project: "))
+  (org-roam-node-read initial-input #'gtd--bucket-project-filter nil require-match "Pick a project: "))
 
 (defun gtd-file-project-open ()
   "Find and open a project file. Create one if it doesn't exist."
   (interactive)
-  (org-roam-node-find nil nil #'gtd--filter-project-buckets))
+  (org-roam-node-find nil nil #'gtd--bucket-project-filter))
 
 (defun gtd--project-create (title)
   "Create a GTD project.
@@ -133,7 +133,7 @@ This creates a new org-roam project under the GTD projects directory.
 (defun gtd-refile-to-project ()
   "Pick an existing project to refile to."
   (interactive)
-  (gtd--refile #'gtd--filter-project-buckets "Refile to project: "))
+  (gtd--refile #'gtd--bucket-project-filter "Refile to project: "))
 
 (defun my/org-find-headline-position (headline)
   "Return the position of HEADLINE in FILE."
