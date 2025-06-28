@@ -159,11 +159,11 @@ This creates a new org-roam project under the GTD projects directory.
   "Refile the current node to any target node defined by FILTER-FN."
   ;; Pick the node first, so that it doesn't apply TODO and priority while we're picking.
   (let* ((roam-node (org-roam-node-read initial-input filter-fn nil t prompt)))
-    ;; Apply TODO, if not alread set.
+    ;; Apply TODO if not already set.
     (unless (org-get-todo-state)
       (org-todo "TODO"))
 
-    ;; Apply priority 3, if not already set.
+    ;; Apply priority 3 if not already set.
     (unless (> (org-get-priority (org-get-heading)) 0)
       (org-priority org-default-priority))
 
