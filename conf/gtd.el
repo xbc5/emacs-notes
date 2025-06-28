@@ -158,7 +158,8 @@ This creates a new org-roam project under the GTD projects directory.
 (defun gtd--refile (filter-fn prompt &optional initial-input)
   "Refile the current node to any target node defined by FILTER-FN."
   (org-roam-refile
-   (org-roam-node-read initial-input filter-fn nil t prompt)))
+   (org-roam-node-read initial-input filter-fn nil t prompt))
+  (org-save-all-org-buffers))
 
 ;; - PROJECT REFILER -
 ;; List all projects, and sub-projects, pick one, and refile to it.
@@ -454,8 +455,6 @@ processes that and turns it into a list suitable for use with org.
   (advice-add 'org-refile :before (lambda (&rest _) (my/org-ensure-priority)))
   ;; We want Org nodes to at least have a TODO state before refiling.
   (advice-add 'org-refile :before (lambda (&rest _) (my/org-ensure-todo-state)))
-  ;; We don't want unsaved buffers after refiling.
-  (advice-add 'org-refile :after (lambda (&rest _) (org-save-all-org-buffers)))
 
   ;; - MISC -
   org-agenda-file-regexp "^.*\\.org$"
