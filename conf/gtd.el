@@ -146,7 +146,7 @@ nil is useful in scenarios where you want to create the node, if it doesn't exis
 
 (defun gtd--project-create (title)
   "Create a GTD project.
-This creates a new org-roam project under the GTD projects directory.
+This creates a new org-roam project file under the GTD projects directory.
 \nReturns the full path."
   (interactive "MEnter a project title: ")
   (xroam-node-create-at-path (f-join gtd-projects-dir (gtd--org-fname title)) title))
@@ -417,16 +417,17 @@ processes that and turns it into a list suitable for use with org.
       (:prefix "j"
        :n "P" #'gtd-project-create
        :n "T" #'gtd-tag-file-edit
-       (:prefix "r"
+       (:prefix "r" ; Refiling.
         :desc "Consume Later" :n "c" #'gtd-refile-to-read-later
-        :desc "Project" :n "p" #'gtd-refile-to-project ;
-        :desc "Someday or Maybe" :n "s" #'gtd-refile-to-someday-or-maybe ;
-        :desc "Tasks" :n "t" #'gtd-refile-to-tasks ;
-        :desc "Tickler" :n "k" #'gtd-refile-to-tickler ;
+        :desc "Project" :n "p" #'gtd-refile-to-project
+        :desc "Someday or Maybe" :n "s" #'gtd-refile-to-someday-or-maybe
+        :desc "Tasks" :n "t" #'gtd-refile-to-tasks
+        :desc "Tickler" :n "k" #'gtd-refile-to-tickler
         :desc "Trash" :n "x" #'gtd-refile-to-trash)
-       (:prefix "o"
+       (:prefix "o" ; Open.
         :desc "Consume Later" :n "c" #'gtd-file-read-later-open
         :desc "Inbox" :n "i" #'gtd-file-inbox-open
+        :desc "Project" :n "P" #'gtd--project-create
         :desc "Project" :n "p" #'gtd-file-project-open
         :desc "Someday or Maybe" :n "s" #'gtd-file-someday-or-maybe-open
         :desc "Tasks" :n "t" #'gtd-file-tasks-open
