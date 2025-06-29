@@ -381,12 +381,15 @@ buffer into an alist."
   (org-todo-list "NEXT"))
 
 (defun gtd-daily-review ()
-  "Display ALL items from active buckets."
+  "Display ALL items from active buckets, grouped by file."
   (interactive)
-  (org-agenda nil "t"))
+  (let* ((org-super-agenda-groups
+          '((:name "Daily Review"
+             :auto-category t))))
+    (org-agenda nil "t")))
 
 (defun gtd-weekly-review ()
-  "Display ALL items from ALL buckets."
+  "Display ALL items from ALL buckets, grouped by file."
   (interactive)
   (let* ((org-agenda-files (gtd--buckets-all-get))
          (org-super-agenda-groups
