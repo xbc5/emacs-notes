@@ -434,7 +434,7 @@ buffer into an alist."
         :desc "Trash" :n "x" #'gtd-refile-to-trash)
        (:prefix "o" ; Open.
         :desc "Inbox" :n "i" #'gtd-file-inbox-open
-        :desc "Project" :n "P" #'gtd--project-create
+        :desc "Create Project" :n "P" #'gtd--project-create
         :desc "Project" :n "p" #'gtd-file-project-open
         :desc "Someday or Maybe" :n "s" #'gtd-file-someday-or-maybe-open
         :desc "Tasks" :n "t" #'gtd-file-tasks-open
