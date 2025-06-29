@@ -385,7 +385,6 @@ buffer into an alist."
   (interactive)
   ;;(org-todo-list "NEXT")
   (let* ((7-days (gtd--future-days 7))
-         (tomorrow (gtd--future-days 1))
          (org-super-agenda-groups
           `((:name "Due Today"
              :deadline today)
@@ -401,8 +400,13 @@ buffer into an alist."
 (defun gtd-daily-review ()
   "Display ALL items from active buckets, grouped by file."
   (interactive)
-  (let* ((org-super-agenda-groups
-          '((:name "Daily Review"
+  (let* ((7-days (gtd--future-days 7))
+         (org-super-agenda-groups
+          `((:name "Due Today"
+             :deadline today)
+            (:name "Due This Week"
+             :deadline (before ,7-days))
+            (:name "Daily Review"
              :auto-category t))))
     (org-agenda nil "t")))
 
@@ -410,8 +414,13 @@ buffer into an alist."
   "Display ALL items from ALL buckets, grouped by file."
   (interactive)
   (let* ((org-agenda-files (gtd--buckets-all-get))
+         (7-days (gtd--future-days 7))
          (org-super-agenda-groups
-          '((:name "Weekly Review"
+          `((:name "Due Today"
+             :deadline today)
+            (:name "Due This Week"
+             :deadline (before ,7-days))
+            (:name "Weekly Review"
              :auto-category t))))
     (org-agenda nil "t")))
 
