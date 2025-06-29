@@ -60,6 +60,10 @@
   "Get all inactive buckets."
   (directory-files-recursively gtd-inactive-dir "\\.org$"))
 
+(defun gtd--buckets-all-get ()
+  "Get all buckets, active and inactive."
+  (append (gtd--buckets-active-get) (gtd--buckets-inactive-get)))
+
 (defun gtd-set-active-candidates ()
   "Set the 'org-agenda-files' actionable, or semi-actionable task files.
 Essentially, determine active and dormant file paths, then set 'org-agenda-files'.\n
@@ -371,6 +375,25 @@ buffer into an alist."
            (split-string tags-str "\n" t))))
 
 
+(defun gtd-next-actions ()
+  "Display next actions."
+  (interactive)
+  (org-todo-list "NEXT"))
+
+(defun gtd-daily-review ()
+  "Display ALL items from active buckets."
+  (interactive)
+  (org-agenda nil "t"))
+
+(defun gtd-weekly-review ()
+  "Display ALL items from ALL buckets."
+  (interactive)
+  (let* ((org-agenda-files (gtd--buckets-all-get))
+         (org-super-agenda-groups
+          '((:name "Weekly Review"
+             :auto-category t))))
+    (org-agenda nil "t")))
+
 ;; PRE-INITIALISATION ------------------------------------------------
 ;; - DIRECTORY CREATION -
 (make-directory gtd-active-dir t)
@@ -423,20 +446,26 @@ buffer into an alist."
       (:prefix "j"
        :n "P" #'gtd-project-create
        :n "T" #'gtd-tag-file-edit
-       (:prefix "r" ; Refiling.
-        :desc "Project" :n "p" #'gtd-refile-to-project
-        :desc "Someday or Maybe" :n "s" #'gtd-refile-to-someday-or-maybe
-        :desc "Tasks" :n "t" #'gtd-refile-to-tasks
-        :desc "Tickler" :n "k" #'gtd-refile-to-tickler
-        :desc "Trash" :n "x" #'gtd-refile-to-trash)
+       (:prefix "r" ; Refile and review.
+        :desc "Refile to Project" :n "p" #'gtd-refile-to-project
+        :desc "Refile to Someday or Maybe" :n "s" #'gtd-refile-to-someday-or-maybe
+        :desc "Refile to Tasks" :n "t" #'gtd-refile-to-tasks
+        :desc "Refile to Tickler" :n "k" #'gtd-refile-to-tickler
+        :desc "Refile to Trash" :n "x" #'gtd-refile-to-trash
+        :desc "Review Daily" :n "d" #'gtd-daily-review
+        :desc "Review Weekly" :n "w" #'gtd-weekly-review)
        (:prefix "o" ; Open.
-        :desc "Inbox" :n "i" #'gtd-file-inbox-open
         :desc "Create Project" :n "P" #'gtd--project-create
+        :desc "Inbox" :n "i" #'gtd-file-inbox-open
         :desc "Project" :n "p" #'gtd-file-project-open
         :desc "Someday or Maybe" :n "s" #'gtd-file-someday-or-maybe-open
         :desc "Tasks" :n "t" #'gtd-file-tasks-open
         :desc "Tickler" :n "k" #'gtd-file-tickler-open
         :desc "Trash" :n "x" #'gtd-file-trash-open)))
+
+;; - ORG AGENDA KEYMAPS -
+(map! :after org-agenda
+      "M-t" #'gtd-next-actions)
 
 (after! evil-org-agenda
   ;; Unmap/remap the useless motion keys.
