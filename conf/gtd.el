@@ -495,8 +495,8 @@ buffer into an alist."
   ;; - TASK STATES -
   (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "WAIT(w)" "|" "DONE(d)" "DROP(c)"))
         org-todo-keyword-faces
-        '(("TODO" :foreground "#16cafa")
-          ("NEXT" :foreground "magenta")
+        '(("NEXT" :foreground "magenta")
+          ("TODO" :foreground "#16cafa")
           ("WAIT" :foreground "brown")
           ("DONE" :foreground "#666666")
           ("DROP" :foreground "#666666")))
