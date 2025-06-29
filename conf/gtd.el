@@ -374,22 +374,29 @@ buffer into an alist."
                (cons tag key)))
            (split-string tags-str "\n" t))))
 
+(defun gtd--future-days (n-days)
+  "Return a date string N-DAYS in the future."
+  (format-time-string "%Y-%m-%d"
+                      (time-add (current-time)
+                                (days-to-time n-days))))
 
 (defun gtd-next-actions ()
-  "Display next actions."
+  "Display next actions, grouped by deadlines and state."
   (interactive)
   ;;(org-todo-list "NEXT")
-  (let* ((org-super-agenda-groups
-          '((:name "Next Actions"
+  (let* ((7-days (gtd--future-days 7))
+         (tomorrow (gtd--future-days 1))
+         (org-super-agenda-groups
+          `((:name "Due Today"
+             :deadline today)
+            (:name "Due This Week"
+             :deadline (before ,7-days))
+            (:name "Next Actions"
              :todo "NEXT")
             (:name "Waiting"
              :todo "WAIT")
-            (:discard (:todo "TODO")) ; We don't want to see TODO items in this view.
-
-            )))
-    (org-agenda nil "t"))
-
-  )
+            (:discard (:todo "TODO")))))
+    (org-agenda nil "t"))) ; Load ALL items.
 
 (defun gtd-daily-review ()
   "Display ALL items from active buckets, grouped by file."
