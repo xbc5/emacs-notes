@@ -282,7 +282,7 @@ Why? Because we don't modify the agenda list directly."
   "Build a hydra menu from the contents of 'gtd--context-tags-menu'.
 This is the menu you use to filter tags in the agenda view.
 \nCONTEXT-TAGS is an alist of (tag . key) pairs. If you do not provide this,
-it defaults to 'gtd--context-tags-alist' (the global)."
+it defaults to 'gtd--context-tags' (the global)."
   (let ((heads (append
                 ;; - STATIC HEADS -
                 '(("q"  (progn (gtd--use-tag-candidates)
@@ -293,7 +293,7 @@ it defaults to 'gtd--context-tags-alist' (the global)."
                           (let ((tag (car tag-key))
                                 (key (cdr tag-key)))
                             (list key `(gtd--toggle-tag ,tag) tag)))
-                        (or context-tags gtd--context-tags-alist)))))
+                        (or context-tags gtd--context-tags)))))
     ;; - APPLY THE HEADS -
     (eval `(defhydra
              gtd-toggle-tags
@@ -302,22 +302,63 @@ it defaults to 'gtd--context-tags-alist' (the global)."
               (setq gtd--tag-filter-candidates ; Work upon a copy of applied tags.
                     org-agenda-tag-filter-preset)) "Tags" ,@heads))))
 
-;; - OBSERVERS -
-(defun gtd--refresh-tag-watcher (symbol newval operation where)
-  "The handler that watches 'gtd--context-tags-alist' and refreshes the tag menu."
-  (when (eq operation 'set)
-    (setq org-tag-alist (gtd--generate-org-tag-alist newval))
-    (gtd--refresh-tag-menu newval)
-    (org-reload)))
+;; TAGS --------------------------------------------------------------
+(defvar gtd--context-tags nil "A list of (\"@<tag>\" . \"<key>\") pairs.")
 
+;; - CONTEXT TAG LOADER -
+(defun gtd--load-context-tags ()
+  "Load context tags from a file and set a global variable."
+  (with-temp-buffer
+    (insert-file-contents gtd-context-tags-fpath)
+    (setq gtd--context-tags
+          (gtd--tags-string-to-alist (buffer-string)))))
+
+;; - ORG TAG GENERATOR -
+(defun gtd--generate-org-tags (&optional tags-alist)
+  "Produce org tags from the global tags variable."
+  (mapcar
+   (lambda (con)
+     (let* ((tag (car con))
+            (key (string-to-char (cdr con)))) ; We need a keycode for the key.
+       (cons tag key)))
+   (or tags-alist gtd--context-tags)))
+
+;; - TAG LOADERS -
+;; A convenience method to run both tag loaders.
+(defun gtd--set-tag-variables ()
+  "Set all of the tag variables. Run this after the tag file changes."
+  (gtd--load-context-tags)
+  (setq org-tag-alist (gtd--generate-org-tags)))
+
+;; - ORG REFRESHER -
+;; Tag change do not reflect in org-mode, so we need to
+;; manually refresh each open Org file.
+(defun gtd--reparse-org-tag-properties ()
+  "Refresh Org tag configuration in all open Org buffers."
+  (dolist (buf (buffer-list))
+    (with-current-buffer buf
+      (when (derived-mode-p 'org-mode)
+        ;; Reparse PROPERTIES for tag specific properties only.
+        (org-set-regexps-and-options t)))))
+
+;; - TAG OBSERVER -
+(defun gtd--tag-observer (symbol newval operation where)
+  "Refresh depencencies when GTD context tags change."
+  (when (eq operation 'set)
+    (setq org-tag-alist (gtd--generate-org-tags newval))
+    (gtd--refresh-tag-menu newval)
+    (gtd--reparse-org-tag-properties)))
+;; Actually watch for changes to tags.
+(add-variable-watcher 'gtd--context-tags #'gtd--tag-observer)
+
+;; - AGENDA TAG REFRESHER -
 (defun gtd--agenda-tag-preset-watcher (symbol newval operation where)
-  "Handle the 'add-variable-watcher' for 'org-agenda-tag-filter-preset'.
-Refresh the agenda view when new tags are applied."
+  "Refresh the agenda view when the user applies new tags."
   (when (and (eq operation 'set) (get-buffer "*Org Agenda*"))
     (with-current-buffer "*Org Agenda*"
       (run-at-time "0.01 sec" nil ; It's a little racy; we need to delay.
                    (lambda () (org-agenda-redo))))))
-
+;; Observe for tag changes, then refresh.
 (add-variable-watcher 'org-agenda-tag-filter-preset #'gtd--agenda-tag-preset-watcher)
 
 (defun gtd--tags-string-to-alist (tags-str)
@@ -332,45 +373,9 @@ buffer into an alist."
                (cons tag key)))
            (split-string tags-str "\n" t))))
 
-;; - TAG LOADER -
-(defvar gtd--context-tags-alist nil "A list of (\"@<tag>\" . \"<key>\") pairs.")
-(defun gtd--load-context-tags ()
-  "Load the contents of the tag file into the context tag alist."
-  (with-temp-buffer
-    (insert-file-contents gtd-context-tags-fpath)
-    (setq gtd--context-tags-alist
-          (gtd--tags-string-to-alist (buffer-string)))))
-
-(defun gtd--generate-org-tag-alist (&optional tags-alist)
-  "Generate 'org-tag-alist' from 'gtd--context-tags-alist'
-The GTD list is is a generic alist without character key codes. This function
-processes that and turns it into a list suitable for use with org.
-\nTAGS-ALIST: A value in the same shap of 'gtd--context-tags-alist'.
-\nRETURN: An alist, suitable to set to 'org-tag-alist'."
-  (mapcar
-   (lambda (con)
-     (let* ((tag (car con))
-            (key (string-to-char (cdr con)))) ; We need a keycode for the key.
-       (cons tag key)))
-   (or tags-alist gtd--context-tags-alist)))
-
-(defun gtd--set-tag-variables ()
-  "Set all of the tag variables. Run this after the tag file changes."
-  (gtd--load-context-tags)
-  (setq org-tag-alist (gtd--generate-org-tag-alist)))
-
-
-;; PRE-INITIALISATION ------------------------------------------------
-;; - DIRECTORY CREATION -
-(make-directory gtd-active-dir t)
-(make-directory gtd-dormant-dir t)
-(make-directory gtd-inactive-dir t)
-
-;; - FILE CREATION -
-(xtouch-new gtd-context-tags-fpath) ; We want a tag file to exist.
-
 ;; - TAG LOADING -
-;; Load the tags from file into a global.
+;; Load the tags from file into a global. This should trigger
+;; an observer, which will refresh the org-tag-alist, and the hydra menu.
 (gtd--load-context-tags)
 
 ;; Watch the tags file. Update the global upon change.
@@ -384,8 +389,16 @@ processes that and turns it into a list suitable for use with org.
 
 ;; Built a tag menu from the global.
 (gtd--refresh-tag-menu)
-;; Watch the tags global for changes then refresh the menu.
-(add-variable-watcher 'gtd--context-tags-alist #'gtd--refresh-tag-watcher)
+
+
+;; PRE-INITIALISATION ------------------------------------------------
+;; - DIRECTORY CREATION -
+(make-directory gtd-active-dir t)
+(make-directory gtd-dormant-dir t)
+(make-directory gtd-inactive-dir t)
+
+;; - FILE CREATION -
+(xtouch-new gtd-context-tags-fpath) ; We want a tag file to exist.
 
 
 ;; - ORG AGENDA FILES -
@@ -473,7 +486,7 @@ processes that and turns it into a list suitable for use with org.
 
   ;; - TAGS -
   ;; These are selectable via (org-set-tags-command) or (counsel-org-tag).
-  (setq org-tag-alist (gtd--generate-org-tag-alist))
+  (setq org-tag-alist (gtd--generate-org-tags))
 
   ;; - TASK PRIORITIES -
   (setq org-highest-priority ?A
