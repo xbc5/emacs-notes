@@ -370,10 +370,20 @@ buffer into an alist."
                (cons tag key)))
            (split-string tags-str "\n" t))))
 
-;; - TAG LOADING -
-;; Load the tags from file into a global. This should trigger
+
+;; PRE-INITIALISATION ------------------------------------------------
+;; - DIRECTORY CREATION -
+(make-directory gtd-active-dir t)
+(make-directory gtd-dormant-dir t)
+(make-directory gtd-inactive-dir t)
+
+;; - LOAD TAGS -
+(xtouch-new gtd-context-tags-fpath) ; We want a tag file to exist.
+
+;; Load the tags from the file into a global. This should trigger
 ;; an observer, which will refresh the org-tag-alist, and the hydra menu.
 (gtd--load-context-tags)
+(gtd--refresh-tag-menu)
 
 ;; Watch the tags file. Update the global upon change.
 (when (version<= "24.4" emacs-version)
@@ -383,19 +393,6 @@ buffer into an alist."
    (lambda (event)
      (when (eq (cadr event) 'changed)
        (gtd--set-tag-variables)))))
-
-;; Built a tag menu from the global.
-(gtd--refresh-tag-menu)
-
-
-;; PRE-INITIALISATION ------------------------------------------------
-;; - DIRECTORY CREATION -
-(make-directory gtd-active-dir t)
-(make-directory gtd-dormant-dir t)
-(make-directory gtd-inactive-dir t)
-
-;; - FILE CREATION -
-(xtouch-new gtd-context-tags-fpath) ; We want a tag file to exist.
 
 
 ;; - ORG AGENDA FILES -
