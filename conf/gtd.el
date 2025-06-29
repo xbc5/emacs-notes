@@ -527,10 +527,10 @@ buffer into an alist."
     ";" #'undefined
     "$" #'undefined))
 
-(after! org-super-agenda
-  (evil-define-key 'motion evil-org-agenda-mode-map
-    "j" #'evil-next-line
-    "k" #'evil-previous-line))
+;; This disables super-agenda maps, which clobbers evils j and k keys.
+;; https://github.com/alphapapa/org-super-agenda/issues/50#issuecomment-821448607
+;; Now it falls back to the above keymaps.
+(setq org-super-agenda-header-map (make-sparse-keymap))
 
 ;; - ORG KEYMAPS -
 ;; Doom swaps 'org-set-tags-command' with 'counsel-org-tag'[0]:
