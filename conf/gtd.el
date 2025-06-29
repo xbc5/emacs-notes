@@ -378,7 +378,18 @@ buffer into an alist."
 (defun gtd-next-actions ()
   "Display next actions."
   (interactive)
-  (org-todo-list "NEXT"))
+  ;;(org-todo-list "NEXT")
+  (let* ((org-super-agenda-groups
+          '((:name "Next Actions"
+             :todo "NEXT")
+            (:name "Waiting"
+             :todo "WAIT")
+            (:discard (:todo "TODO")) ; We don't want to see TODO items in this view.
+
+            )))
+    (org-agenda nil "t"))
+
+  )
 
 (defun gtd-daily-review ()
   "Display ALL items from active buckets, grouped by file."
@@ -432,6 +443,7 @@ buffer into an alist."
   ;; See 'gtd-project-create' for example, it uses 'xroam-node-create-at-path'.
   (add-hook 'org-roam-capture-new-node-hook #'gtd-set-active-candidates) ; Update Org agenda files.
   (add-hook 'org-roam-capture-new-node-hook #'gtd--refile-targets-set) ; We may want to refile to the new files.
+  (add-hook 'org-agenda-mode-hook #'org-super-agenda-mode) ; We need to activate super agenda too.
 
   ;; These rely on roam functions to register IDs.
   (xroam-node-create-at-path gtd-inbox-fpath "inbox for GTD")
