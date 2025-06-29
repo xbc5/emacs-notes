@@ -11,7 +11,6 @@
 ;; - Ticker: A single file with a set of date headers. A reminder is set when they're due.
 ;; - Trash: Where everything eventually goes.
 ;; - Someday/Maybe: Things that I want to do, but don't know what or when.
-;; - Read Later: Like Someday/Maybe, except for books and articles.
 ;; - Tasks: If none of the above, it goes here. Most items end up here, and they should be actionable.
 ;;
 
@@ -38,7 +37,6 @@
       gtd-tasks-fpath (f-join gtd-active-dir "tasks.org") ; Visible.
       gtd-tickler-fpath (f-join gtd-dormant-dir "tickler.org") ; Semi-visible.
       gtd-inbox-fpath (f-join gtd-inactive-dir "inbox.org") ; Invisible
-      gtd-read-later-fpath (f-join gtd-inactive-dir "read_later.org") ; Invisible
       gtd-someday-or-maybe-fpath (f-join gtd-inactive-dir "someday_or_maybe.org") ; Invisible
       gtd-trash-fpath (f-join gtd-inactive-dir "trash.org") ; Invisible
       ;; - SETTINGS -
@@ -48,7 +46,6 @@
 (defun gtd-file-tasks-open () (interactive) (find-file gtd-tasks-fpath))
 (defun gtd-file-tickler-open () (interactive) (find-file gtd-tickler-fpath))
 (defun gtd-file-inbox-open () (interactive) (find-file gtd-inbox-fpath))
-(defun gtd-file-read-later-open () (interactive) (find-file gtd-read-later-fpath))
 (defun gtd-file-someday-or-maybe-open () (interactive) (find-file gtd-someday-or-maybe-fpath))
 (defun gtd-file-trash-open () (interactive) (find-file gtd-trash-fpath))
 
@@ -418,7 +415,6 @@ buffer into an alist."
   (xroam-node-create-at-path gtd-tasks-fpath "tasks for GTD")
   (xroam-node-create-at-path gtd-someday-or-maybe-fpath "someday or maybe for GTD")
   (xroam-node-create-at-path gtd-trash-fpath "trash for GTD")
-  (xroam-node-create-at-path gtd-read-later-fpath "read later for GTD")
   (xroam-node-create-at-path gtd-tickler-fpath "tickler for GTD"))
 
 
@@ -431,14 +427,12 @@ buffer into an alist."
        :n "P" #'gtd-project-create
        :n "T" #'gtd-tag-file-edit
        (:prefix "r" ; Refiling.
-        :desc "Consume Later" :n "c" #'gtd-refile-to-read-later
         :desc "Project" :n "p" #'gtd-refile-to-project
         :desc "Someday or Maybe" :n "s" #'gtd-refile-to-someday-or-maybe
         :desc "Tasks" :n "t" #'gtd-refile-to-tasks
         :desc "Tickler" :n "k" #'gtd-refile-to-tickler
         :desc "Trash" :n "x" #'gtd-refile-to-trash)
        (:prefix "o" ; Open.
-        :desc "Consume Later" :n "c" #'gtd-file-read-later-open
         :desc "Inbox" :n "i" #'gtd-file-inbox-open
         :desc "Project" :n "P" #'gtd--project-create
         :desc "Project" :n "p" #'gtd-file-project-open
