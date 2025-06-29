@@ -438,10 +438,32 @@ buffer into an alist."
         :desc "Tickler" :n "k" #'gtd-file-tickler-open
         :desc "Trash" :n "x" #'gtd-file-trash-open)))
 
-;; - ORG AGENDA KEYMAPS -
 (after! evil-org-agenda
-  (map! :map org-agenda-mode-map
-        "M-t" #'gtd-toggle-tags/body))
+  ;; Unmap/remap the useless motion keys.
+  ;; NOTE: that Org agenda is ALWAYS in 'motion state;
+  ;; mapping to other states does nothing.
+  (evil-define-key 'motion evil-org-agenda-mode-map
+    "l" #'undefined
+    "h" #'undefined
+    "w" #'undefined
+    "W" #'undefined
+    "b" #'undefined
+    "B" #'undefined
+    "e" #'gtd-toggle-tags/body
+    "E" #'undefined
+    "f" #'undefined
+    "F" #'undefined
+    "(" #'undefined
+    ")" #'undefined
+    "^" #'undefined
+    "_" #'undefined
+    "`" #'undefined
+    "," #'undefined
+    "'" #'undefined
+    "?" #'undefined
+    "#" #'undefined
+    ";" #'undefined
+    "$" #'undefined))
 
 ;; - ORG KEYMAPS -
 ;; Doom swaps 'org-set-tags-command' with 'counsel-org-tag'[0]:
