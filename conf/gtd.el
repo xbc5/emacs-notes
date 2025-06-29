@@ -380,6 +380,9 @@ buffer into an alist."
                       (time-add (current-time)
                                 (days-to-time n-days))))
 
+;; We need this so that we can dynamicall bind it within functions.
+(defvar org-super-agenda-groups)
+
 (defun gtd-next-actions ()
   "Display next actions, grouped by deadlines and state."
   (interactive)
@@ -470,7 +473,6 @@ buffer into an alist."
 
 
 ;; KEYMAPS -----------------------------------------------------------
-(global-unset-key (kbd "M-t"))
 
 ;; - NORMAL KEYMAPS -
 (map! :leader
@@ -525,18 +527,23 @@ buffer into an alist."
     ";" #'undefined
     "$" #'undefined))
 
+(after! org-super-agenda
+  (evil-define-key 'motion evil-org-agenda-mode-map
+    "j" #'evil-next-line
+    "k" #'evil-previous-line))
+
 ;; - ORG KEYMAPS -
 ;; Doom swaps 'org-set-tags-command' with 'counsel-org-tag'[0]:
 ;; > [remap org-set-tags-command]     #'counsel-org-tag
 ;; We want to undo that.
 ;; [0] https://github.com/doomemacs/doomemacs/blob/e6c755305358412a71a990fc2cf592c629edde1e/modules/completion/ivy/config.el#L178
-(after! (:and counsel org)
-  ;; Prevent counsel-mode from overriding 'org-set-tags-command'.
-  (define-key counsel-mode-map [remap org-set-tags-command] nil)
-  ;; Set 'org-set-tags-command' back to itself.
-  (define-key org-mode-map [remap org-set-tags-command] #'org-set-tags-command)
-  ;; Now map M-t.
-  (map! :map org-mode-map "M-t" #'org-set-tags-command))
+;; (after! (:and counsel org)
+;;   ;; Prevent counsel-mode from overriding 'org-set-tags-command'.
+;;   (define-key counsel-mode-map [remap org-set-tags-command] nil)
+;;   ;; Set 'org-set-tags-command' back to itself.
+;;   (define-key org-mode-map [remap org-set-tags-command] #'org-set-tags-command)
+;;   ;; Now map M-t.
+;;   (map! :map org-mode-map "M-t" #'org-set-tags-command))
 
 
 ;; INITIALISE ORG ----------------------------------------------------
