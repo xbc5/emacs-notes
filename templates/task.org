@@ -1,5 +1,0 @@
-* TODO [#E] %^{Title} %^G
-:PROPERTIES:
-:KIND: task
-:END:
-%?

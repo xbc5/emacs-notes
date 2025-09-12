@@ -502,9 +502,43 @@ Returns a hash table."
 (advice-add #'org-roam-node-read--completions
             :around
             (lambda (fn &rest args)
-              (when (not xroam--cache)
+              ;; - SET CACHE -
+              (when (not xroam--cache) ; Idempotent.
                 (setq xroam--cache (apply fn args)))
-              xroam--cache))
+
+              (let* ((filter-fn (car args))
+                     (sort-fn (nth 1 args))
+                     (nodes xroam--cache)
+
+                     ;; - FILTER -
+                     ;; Apply it if we have one.
+                     (nodes (if filter-fn
+                                (cl-remove-if-not
+                                 (lambda (n) (funcall filter-fn n))
+                                 nodes)
+                              nodes))
+
+                     ;; - BUILD TEMPLATES -
+                     ;; Templates control how the completion window looks.
+                     ;; These are horribly slow, so I've left them out.
+                     ;; To apply templates, use 'xroam-cache-reload' manually;
+                     ;; required when resizing the window.
+
+                     ;; - SORT -
+                     ;; Apply it if we have one.
+                     (sort-fn (or sort-fn
+                                  (when org-roam-node-default-sort
+                                    (intern (concat "org-roam-node-read-sort-by-"
+                                                    (symbol-name org-roam-node-default-sort))))))
+                     (nodes (if sort-fn (seq-sort sort-fn nodes) nodes)))
+                nodes)))
+
+(defun gtd--filter-project-buckets (n)
+  (string-prefix-p gtd-projects-dir (org-roam-node-file (cdr n))))
+
+(defun gtd-find-project-buckets ()
+  (interactive)
+  (org-roam-node-find nil nil #'gtd--filter-roam-buckets))
 
 (defun xroam-node= (a b)
   "Test that two Roam nodes are equal via their ID."
@@ -519,6 +553,20 @@ Returns a hash table."
   "Test that a node within a completion COMP matches a PATH,
   where a completion is (title . node)."
   (string= path (org-roam-node-file (cdr comp))))
+
+(defun xroam-node-create-at-path (path title)
+  "Create an org-roam node at PATH with TITLE, only if it doesn't exist.
+PATH should be relative to the 'org-roam' directory, e.g., foo/bar.
+\nReturns the path if created, otherwise nil."
+  (let ((fpath (expand-file-name path org-roam-directory)))
+    (unless (file-regular-p fpath)
+      (make-directory (file-name-directory fpath) t)
+      (with-temp-file fpath
+        (insert (format ":PROPERTIES:\n:ID: %s\n:END:\n#+title: %s\n\n" (org-id-uuid) title)))
+      (org-id-update-id-locations '(fpath))
+      (org-roam-db-update-file fpath)
+      (run-hooks 'org-roam-capture-new-node-hook) ; We want to inform consumers.
+      fpath)))
 
 ;; Note the smartest clone, but `copy-org-roam-node` doesn't exist anywhere.
 (defun xroam--node-clone (node title)
