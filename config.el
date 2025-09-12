@@ -15,7 +15,7 @@
 (load! "lib/xnum")
 
 ;; MISC --------------------------------------------------------------
-(load! "secrets/secrets-1")
+;;(load! "secrets/secrets-1")
 
 ;; LIB ---------------------------------------------------------------
 (load! "lib/shims")
@@ -31,8 +31,9 @@
 (load! "lib/xvulpea")
 (load! "lib/xname")
 (load! "lib/xtime")
-(load! "lib/xtv")
+;;(load! "lib/xtv")
 (load! "lib/xdrill")
+(load! "lib/xbeancount")
 
 ;; CONFIG ------------------------------------------------------------
 (load! "conf/plantuml-mode")
