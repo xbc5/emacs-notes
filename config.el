@@ -13,6 +13,7 @@
 (load! "lib/xstr")
 (load! "lib/xseq")
 (load! "lib/xnum")
+(load! "lib/email")
 
 ;; MISC --------------------------------------------------------------
 ;;(load! "secrets/secrets-1")
@@ -47,6 +48,7 @@
 (load! "conf/org-ql")
 (load! "conf/org-fancy-priorities")
 (load! "conf/nursery")
+(load! "conf/mu4e")
 ;; (load! "conf/org-roam-server")
 
 ;; WARN: slows down boot by ~6s
