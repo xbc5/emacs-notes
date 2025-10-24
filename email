@@ -1,0 +1,23 @@
+#!/bin/env bash
+
+function __help() {
+  cat <<EOF
+Usage: $(basename $0) <command>
+
+Commands:
+  bridge-init  Pull and initialize the Proton bridge
+EOF
+}
+
+case "expression" in
+-i | --bridge-init)
+  podman run --rm -it -v protonmail:/root shenxn/protonmail-bridge init
+  ;;
+-h | --help)
+  __help
+  ;;
+*)
+  echo "Unknown command: $1" >&2
+  __help
+  ;;
+esac
