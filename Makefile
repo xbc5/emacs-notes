@@ -1,7 +1,8 @@
 .PHONY: all install uninstall
 
 SYSTEMD_USER_DIR := $(HOME)/.config/systemd/user
-SERVICE_FILE := podman.service
+PODMAN_SERVICE := podman.service
+EMACS_SERVICE := emacs.service
 XDG_DATA_HOME ?= $(HOME)/.local/share
 DATA_DIR := $(XDG_DATA_HOME)/emacs-email
 COMPOSE_FILE := docker-compose.yml
@@ -9,22 +10,30 @@ COMPOSE_FILE := docker-compose.yml
 all: install
 
 install:
-	# - SERVICE FILE -
+	# - PODMAN SERVICE FILE -
 	@mkdir -p $(SYSTEMD_USER_DIR)
-	@cp $(SERVICE_FILE) $(SYSTEMD_USER_DIR)/$(SERVICE_FILE)
+	@cp $(PODMAN_SERVICE) $(SYSTEMD_USER_DIR)/$(PODMAN_SERVICE)
 	@systemctl --user daemon-reload
-	@systemctl --user enable $(SERVICE_FILE)
-	@systemctl --user start $(SERVICE_FILE)
+	@systemctl --user enable $(PODMAN_SERVICE)
+	@systemctl --user start $(PODMAN_SERVICE)
+	# - EMACS SERVICE FILE -
+	@cp $(EMACS_SERVICE) $(SYSTEMD_USER_DIR)/$(EMACS_SERVICE)
+	@systemctl --user daemon-reload
+	@systemctl --user enable $(EMACS_SERVICE)
+	@systemctl --user start $(EMACS_SERVICE)
 	# - COMPOSE FILE -
 	@mkdir -p $(DATA_DIR)
 	@cp $(COMPOSE_FILE) $(DATA_DIR)/$(COMPOSE_FILE)
 
 uninstall:
 	# - PRECONDITIONS -
-	@-systemctl --user stop $(SERVICE_FILE) 2>/dev/null || true
-	@-systemctl --user disable $(SERVICE_FILE) 2>/dev/null || true
+	@-systemctl --user stop $(PODMAN_SERVICE) 2>/dev/null || true
+	@-systemctl --user disable $(PODMAN_SERVICE) 2>/dev/null || true
+	@-systemctl --user stop $(EMACS_SERVICE) 2>/dev/null || true
+	@-systemctl --user disable $(EMACS_SERVICE) 2>/dev/null || true
 	# - UNINSTALL -
-	@rm -f $(SYSTEMD_USER_DIR)/$(SERVICE_FILE)
+	@rm -f $(SYSTEMD_USER_DIR)/$(PODMAN_SERVICE)
+	@rm -f $(SYSTEMD_USER_DIR)/$(EMACS_SERVICE)
 	@rm -f $(DATA_DIR)/$(COMPOSE_FILE)
 	# - FINISH -
 	@systemctl --user daemon-reload
