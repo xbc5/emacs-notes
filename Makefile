@@ -6,6 +6,7 @@ EMACS_SERVICE := emacs.service
 PROTON_MAIL_BRIDGE_SERVICE := proton-mail-bridge.service
 XDG_DATA_HOME ?= $(HOME)/.local/share
 DATA_DIR := $(XDG_DATA_HOME)/emacs-email
+MAIL_DIR := $(HOME)/.mail/proton-mail
 COMPOSE_FILE := docker-compose.yml
 
 all: install-email
@@ -34,6 +35,8 @@ install-email:
 	# - COMPOSE FILE -
 	@mkdir -p $(DATA_DIR)
 	@cp $(COMPOSE_FILE) $(DATA_DIR)/$(COMPOSE_FILE)
+	# - MAIL DIRECTORY -
+	@mkdir -p $(MAIL_DIR)
 	# - SYNC WITH REMOTE ACCOUNT -
 	#@podman run --rm -it -v protonmail:/root shenxn/protonmail-bridge init
 	# - PROTON MAIL BRIDGE SERVICE FILE -
