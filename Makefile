@@ -45,9 +45,9 @@ install-email: install-doom-emacs
 	@# - PODMAN SERVICE FILE -
 	@mkdir -p $(SYSTEMD_USER_DIR)
 	cp $(PODMAN_SERVICE) $(SYSTEMD_USER_DIR)/$(PODMAN_SERVICE)
-	@systemctl --user daemon-reload
-	@systemctl --user enable $(PODMAN_SERVICE)
-	@systemctl --user start $(PODMAN_SERVICE)
+	systemctl --user daemon-reload
+	systemctl --user enable $(PODMAN_SERVICE)
+	systemctl --user start $(PODMAN_SERVICE)
 	@# - COMPOSE FILE -
 	@mkdir -p $(DATA_DIR)
 	cp $(COMPOSE_FILE) $(DATA_DIR)/$(COMPOSE_FILE)
@@ -62,9 +62,9 @@ install-email: install-doom-emacs
 	fi
 	@# - PROTON MAIL BRIDGE SERVICE FILE -
 	cp $(PROTON_MAIL_BRIDGE_SERVICE) $(SYSTEMD_USER_DIR)/$(PROTON_MAIL_BRIDGE_SERVICE)
-	@systemctl --user daemon-reload
-	@systemctl --user enable $(PROTON_MAIL_BRIDGE_SERVICE)
-	@systemctl --user start $(PROTON_MAIL_BRIDGE_SERVICE)
+	systemctl --user daemon-reload
+	systemctl --user enable $(PROTON_MAIL_BRIDGE_SERVICE)
+	systemctl --user start $(PROTON_MAIL_BRIDGE_SERVICE)
 	@# - EMAIL SCRIPT -
 	@mkdir -p $(BIN_DIR)
 	@install -m 755 $(EMAIL_SCRIPT) $(BIN_DIR)/$(EMAIL_SCRIPT)
@@ -74,9 +74,9 @@ install-email: install-doom-emacs
 	fi
 	@# - EMACS SERVICE FILE -
 	cp $(EMACS_SERVICE) $(SYSTEMD_USER_DIR)/$(EMACS_SERVICE)
-	@systemctl --user daemon-reload
-	@systemctl --user enable $(EMACS_SERVICE)
-	@systemctl --user start $(EMACS_SERVICE)
+	systemctl --user daemon-reload
+	systemctl --user enable $(EMACS_SERVICE)
+	systemctl --user start $(EMACS_SERVICE)
 	@# - INSTALLATION COMPLETE -
 	@echo ""
 	@echo "Installation complete!"
