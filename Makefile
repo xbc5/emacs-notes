@@ -31,17 +31,11 @@ install-email:
 	@systemctl --user daemon-reload
 	@systemctl --user enable $(PODMAN_SERVICE)
 	@systemctl --user start $(PODMAN_SERVICE)
-	# - EMACS SERVICE FILE -
-	@cp $(EMACS_SERVICE) $(SYSTEMD_USER_DIR)/$(EMACS_SERVICE)
-	@systemctl --user daemon-reload
-	@systemctl --user enable $(EMACS_SERVICE)
-	@systemctl --user start $(EMACS_SERVICE)
 	# - COMPOSE FILE -
 	@mkdir -p $(DATA_DIR)
 	@cp $(COMPOSE_FILE) $(DATA_DIR)/$(COMPOSE_FILE)
-	# - MAIL DIRECTORY -
+	# - DIRECTORIES -
 	@mkdir -p $(MAIL_DIR)
-	# - CONFIG DIRECTORY -
 	@mkdir -p $(CONFIG_DIR)
 	# - SYNC WITH REMOTE ACCOUNT -
 	@read -p "Sync remote Proton mailbox (takes a long time)? [y/N] " answer; \
@@ -61,6 +55,11 @@ install-email:
 	@if ! grep -q '\.local/bin' $(ZSHRC) 2>/dev/null; then \
 		echo 'export PATH="$$HOME/.local/bin:$$PATH"' >> $(ZSHRC); \
 	fi
+	# - EMACS SERVICE FILE -
+	@cp $(EMACS_SERVICE) $(SYSTEMD_USER_DIR)/$(EMACS_SERVICE)
+	@systemctl --user daemon-reload
+	@systemctl --user enable $(EMACS_SERVICE)
+	@systemctl --user start $(EMACS_SERVICE)
 	# - INSTALLATION COMPLETE -
 	@echo ""
 	@echo "Installation complete!"
@@ -69,6 +68,10 @@ install-email:
 	@echo "  1. Create ~/.mbsyncrc with your mail sync configuration"
 	@echo "  2. Create ~/.authinfo with your authentication credentials"
 	@echo "  3. Create ~/.config/emacs-email/conf.el with your Emacs email configuration"
+	@echo "  4. Run 'mu init --my-address foo@protonmail.com --maildir=~/.mail' to set the necessary 'mu' metadata"
+	@echo "  4. Run 'mbsync -a' to synchronize mail"
+	@echo "  5. Run 'mu index --maildir=~/.mail' to index mail"
+	@echo "  6. Run 'email start' to start the email system"
 	@echo ""
 	@echo "See docs/email.md for detailed configuration instructions."
 	@echo ""
