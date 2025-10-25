@@ -16,7 +16,11 @@ start)
   systemctl --user start podman.service
   systemctl --user start emacs.service
   systemctl --user start proton-mail-bridge.service
-  emacsclient -c
+  if ! pgrep --exact emacsclient; then
+    nohup emacsclient -c >/dev/null 2>&1 &
+  else
+    echo "An Emacs client already running, skipping..."
+  fi
   ;;
 stop)
   systemctl --user stop proton-mail-bridge.service
