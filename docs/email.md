@@ -42,7 +42,7 @@ IMAPStore foo@protonmail.com-remote # Arbitrary identifier
 Host 127.0.0.1 # The remote server's hostname
 Port 1143
 User foo@protonmail.com # Your email address
-PassCmd "cat ~/.config/emacs-mail/bridge-password"
+PassCmd "cat ~/.config/emacs-email/bridge-password"
 AuthMechs LOGIN
 TLSType None
 

@@ -16,7 +16,7 @@ start)
   systemctl --user start podman.service
   systemctl --user start proton-mail-bridge.service
   if ! pgrep --exact emacs-lucid; then
-    nohup emacs-lucid >/dev/null 2>&1 &
+    EMACS_MODE=email nohup emacs-lucid >/dev/null 2>&1 &
   else
     echo "Emacs already running, skipping..."
   fi

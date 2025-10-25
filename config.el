@@ -48,7 +48,8 @@
 (load! "conf/org-ql")
 (load! "conf/org-fancy-priorities")
 (load! "conf/nursery")
-(load! "conf/mu4e")
+(when (string= (getenv "EMACS_MODE") "email")
+  (load! "conf/mu4e"))
 ;; (load! "conf/org-roam-server")
 
 ;; WARN: slows down boot by ~6s
