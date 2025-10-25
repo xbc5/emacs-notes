@@ -25,6 +25,8 @@ install-email:
 	# - COMPOSE FILE -
 	@mkdir -p $(DATA_DIR)
 	@cp $(COMPOSE_FILE) $(DATA_DIR)/$(COMPOSE_FILE)
+	# - SYNC WITH REMOTE ACCOUNT -
+	#@podman run --rm -it -v protonmail:/root shenxn/protonmail-bridge init
 	# - PROTON MAIL BRIDGE SERVICE FILE -
 	@cp $(PROTON_MAIL_BRIDGE_SERVICE) $(SYSTEMD_USER_DIR)/$(PROTON_MAIL_BRIDGE_SERVICE)
 	@systemctl --user daemon-reload
