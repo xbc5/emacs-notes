@@ -1,11 +1,15 @@
 Decrypt `key.asc` to get the `git-crypt` symmetric key; use that to transparently decrypt secrets/.
 
+## Documentation
+
+- [Email Setup](docs/email.md) - Complete guide for setting up the email system with Proton Mail Bridge, mbsync, and mu4e
+
 ## Commands
 
 ### Makefile Commands
 
-| Command   | Description                                                                                         |
-| --------- | --------------------------------------------------------------------------------------------------- |
-| all       | Build and install the podman service (default target).                                              |
-| install   | Install podman.service to ~/.config/systemd/user/, reload systemd, enable and start the service.    |
-| uninstall | Stop and disable the podman service, then remove it from the systemd user directory.                |
+| Command         | Description                                                                                         |
+| --------------- | --------------------------------------------------------------------------------------------------- |
+| all             | Install the complete email system (default target).                                                 |
+| install-email   | Install all email services, configure systemd, install the email script, and set up PATH.           |
+| uninstall-email | Stop and disable all email services, then remove service files and clean up.                        |
