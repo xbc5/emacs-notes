@@ -1,0 +1,12 @@
+services:
+  protonmail-bridge:
+    image: shenxn/protonmail-bridge
+    ports:
+      - 127.0.0.1:1025:25/tcp
+      - 127.0.0.1:1143:143/tcp
+    restart: unless-stopped
+    volumes:
+      - protonmail:/root
+volumes:
+  protonmail:
+    name: protonmail
