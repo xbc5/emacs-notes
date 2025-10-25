@@ -11,6 +11,15 @@ COMPOSE_FILE := docker-compose.yml
 all: install-email
 
 install-email:
+	# - PRECONDITIONS -
+	@missing=""; \
+	command -v podman >/dev/null 2>&1 || missing="$$missing podman"; \
+	command -v mu >/dev/null 2>&1 || missing="$$missing mu"; \
+	command -v mbsync >/dev/null 2>&1 || missing="$$missing mbsync"; \
+	if [ -n "$$missing" ]; then \
+		echo "Error: Missing required dependencies:$$missing" >&2; \
+		exit 1; \
+	fi
 	# - PODMAN SERVICE FILE -
 	@mkdir -p $(SYSTEMD_USER_DIR)
 	@cp $(PODMAN_SERVICE) $(SYSTEMD_USER_DIR)/$(PODMAN_SERVICE)
