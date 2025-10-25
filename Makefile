@@ -8,7 +8,7 @@ XDG_DATA_HOME ?= $(HOME)/.local/share
 DATA_DIR := $(XDG_DATA_HOME)/emacs-email
 MAIL_DIR := $(HOME)/.mail/proton-mail
 CONFIG_DIR := $(HOME)/.config/emacs-email
-DOOM_DIR := $(HOME)/.doom.d
+EMACS_DIR := $(HOME)/.emacs.d
 EMACS_BIN_DIR := $(HOME)/.emacs.d/bin
 BIN_DIR := $(HOME)/.local/bin
 EMAIL_SCRIPT := email
@@ -19,8 +19,8 @@ all: install-email
 
 install-doom-emacs:
 	@# - CHECK IF DOOM EMACS ALREADY EXISTS -
-	@if [ -d $(DOOM_DIR) ]; then \
-		echo "Doom Emacs already installed ($(DOOM_DIR) exists), skipping..."; \
+	@if [ -d $(EMACS_DIR) ]; then \
+		echo "Doom Emacs already installed ($(EMACS_DIR) exists), skipping..."; \
 	else \
 		echo "Installing Doom Emacs..."; \
 		git clone --depth 1 https://github.com/doomemacs/doomemacs $(HOME)/.emacs.d; \
