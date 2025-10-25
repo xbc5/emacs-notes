@@ -5,7 +5,4 @@
 
 (after! mu4e
         ;; Auto-updates
-        (setq mu4e-update-interval 30
-              ;; Make "send mail" async.
-              send-mail-function . async-smtpmail-send-it
-              message-send-mail-function . async-smtpmail-send-it))
+        (setq mu4e-update-interval 30))
