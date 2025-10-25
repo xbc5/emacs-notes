@@ -58,6 +58,17 @@ install-email:
 	@if ! grep -q '\.local/bin' $(ZSHRC) 2>/dev/null; then \
 		echo 'export PATH="$$HOME/.local/bin:$$PATH"' >> $(ZSHRC); \
 	fi
+	# - INSTALLATION COMPLETE -
+	@echo ""
+	@echo "Installation complete!"
+	@echo ""
+	@echo "Next steps:"
+	@echo "  1. Create ~/.mbsyncrc with your mail sync configuration"
+	@echo "  2. Create ~/.authinfo with your authentication credentials"
+	@echo "  3. Create ~/.config/emacs-email/conf.el with your Emacs email configuration"
+	@echo ""
+	@echo "See docs/email.md for detailed configuration instructions."
+	@echo ""
 
 uninstall-email:
 	# - PRECONDITIONS -
