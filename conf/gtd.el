@@ -278,31 +278,6 @@ It tests that each line is in the form @tag:k"
 Why? Because we don't modify the agenda list directly."
   (setq org-agenda-tag-filter-preset gtd--tag-filter-candidates))
 
-;; - TAG MENU -
-(defun gtd--refresh-tag-menu (&optional context-tags)
-  "Build a hydra menu from the contents of 'gtd--context-tags-menu'.
-This is the menu you use to filter tags in the agenda view.
-\nCONTEXT-TAGS is an alist of (tag . key) pairs. If you do not provide this,
-it defaults to 'gtd--context-tags' (the global)."
-  (let ((heads (append
-                ;; - STATIC HEADS -
-                '(("q"  (progn (gtd--use-tag-candidates)
-                               (gtd--reset-tag-candidates)) "Quit" :exit t)
-                  ("M-c" (progn (gtd--reset-tag-candidates) nil) "Cancel" :exit t))
-                ;; - DYNAMIC HEADS -
-                (mapcar (lambda (tag-key)
-                          (let ((tag (car tag-key))
-                                (key (cdr tag-key)))
-                            (list key `(gtd--toggle-tag ,tag) tag)))
-                        (or context-tags gtd--context-tags)))))
-    ;; - APPLY THE HEADS -
-    (eval `(defhydra
-             gtd-toggle-tags
-             (:foreign-keys run ; Prevent Hydra from closing when non-hydra key pressed.
-              :on-enter
-              (setq gtd--tag-filter-candidates ; Work upon a copy of applied tags.
-                    org-agenda-tag-filter-preset)) "Tags" ,@heads))))
-
 ;; TAGS --------------------------------------------------------------
 (defvar gtd--context-tags nil "A list of (\"@<tag>\" . \"<key>\") pairs.")
 
@@ -347,7 +322,6 @@ it defaults to 'gtd--context-tags' (the global)."
   "Refresh depencencies when GTD context tags change."
   (when (eq operation 'set)
     (setq org-tag-alist (gtd--generate-org-tags newval))
-    (gtd--refresh-tag-menu newval)
     (gtd--reparse-org-tag-properties)))
 ;; Actually watch for changes to tags.
 (add-variable-watcher 'gtd--context-tags #'gtd--tag-observer)
@@ -439,7 +413,6 @@ buffer into an alist."
 ;; Load the tags from the file into a global. This should trigger
 ;; an observer, which will refresh the org-tag-alist, and the hydra menu.
 (gtd--load-context-tags)
-(gtd--refresh-tag-menu)
 
 ;; Watch the tags file. Update the global upon change.
 (when (version<= "24.4" emacs-version)

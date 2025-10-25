@@ -15,9 +15,6 @@
 (load! "lib/xnum")
 (load! "lib/email")
 
-;; MISC --------------------------------------------------------------
-;;(load! "secrets/secrets-1")
-
 ;; LIB ---------------------------------------------------------------
 (load! "lib/shims")
 (load! "lib/xtag")
@@ -32,7 +29,6 @@
 (load! "lib/xvulpea")
 (load! "lib/xname")
 (load! "lib/xtime")
-;;(load! "lib/xtv")
 (load! "lib/xdrill")
 (load! "lib/xbeancount")
 
