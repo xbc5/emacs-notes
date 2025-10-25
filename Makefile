@@ -7,6 +7,9 @@ PROTON_MAIL_BRIDGE_SERVICE := proton-mail-bridge.service
 XDG_DATA_HOME ?= $(HOME)/.local/share
 DATA_DIR := $(XDG_DATA_HOME)/emacs-email
 MAIL_DIR := $(HOME)/.mail/proton-mail
+BIN_DIR := $(HOME)/.local/bin
+EMAIL_SCRIPT := email
+ZSHRC := $(HOME)/.zshrc
 COMPOSE_FILE := docker-compose.yml
 
 all: install-email
@@ -48,6 +51,13 @@ install-email:
 	@systemctl --user daemon-reload
 	@systemctl --user enable $(PROTON_MAIL_BRIDGE_SERVICE)
 	@systemctl --user start $(PROTON_MAIL_BRIDGE_SERVICE)
+	# - EMAIL SCRIPT -
+	@mkdir -p $(BIN_DIR)
+	@install -m 755 $(EMAIL_SCRIPT) $(BIN_DIR)/$(EMAIL_SCRIPT)
+	# - PATH CONFIGURATION -
+	@if ! grep -q '\.local/bin' $(ZSHRC) 2>/dev/null; then \
+		echo 'export PATH="$$HOME/.local/bin:$$PATH"' >> $(ZSHRC); \
+	fi
 
 uninstall-email:
 	# - PRECONDITIONS -
