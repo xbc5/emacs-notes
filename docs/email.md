@@ -33,8 +33,8 @@ This file configures mbsync to synchronize mail between Proton Mail Bridge and l
 Example configuration:
 
 ```
-# IMAPStore: Define a remore connection and assign it an ID.
 # ----- REMOTE ------------------------------------------------------------------
+# IMAPStore: Define a remore connection and assign it an ID.
 IMAPStore foo@protonmail.com-remote # Arbitrary identifier
 Host 127.0.0.1 # The remote server's hostname
 Port 1143
