@@ -7,9 +7,9 @@ XDG_DATA_HOME ?= $(HOME)/.local/share
 DATA_DIR := $(XDG_DATA_HOME)/emacs-email
 COMPOSE_FILE := docker-compose.yml
 
-all: install
+all: install-email
 
-install:
+install-email:
 	# - PODMAN SERVICE FILE -
 	@mkdir -p $(SYSTEMD_USER_DIR)
 	@cp $(PODMAN_SERVICE) $(SYSTEMD_USER_DIR)/$(PODMAN_SERVICE)
@@ -25,7 +25,7 @@ install:
 	@mkdir -p $(DATA_DIR)
 	@cp $(COMPOSE_FILE) $(DATA_DIR)/$(COMPOSE_FILE)
 
-uninstall:
+uninstall-email:
 	# - PRECONDITIONS -
 	@-systemctl --user stop $(PODMAN_SERVICE) 2>/dev/null || true
 	@-systemctl --user disable $(PODMAN_SERVICE) 2>/dev/null || true
