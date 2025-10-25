@@ -42,41 +42,50 @@ install-email: install-doom-emacs
 		echo "Error: Missing required dependencies:$$missing" >&2; \
 		exit 1; \
 	fi
+
 	@# - PODMAN SERVICE FILE -
 	@mkdir -p $(SYSTEMD_USER_DIR)
 	cp $(PODMAN_SERVICE) $(SYSTEMD_USER_DIR)/$(PODMAN_SERVICE)
 	systemctl --user daemon-reload
 	systemctl --user enable $(PODMAN_SERVICE)
 	systemctl --user start $(PODMAN_SERVICE)
+
 	@# - COMPOSE FILE -
 	@mkdir -p $(DATA_DIR)
 	cp $(COMPOSE_FILE) $(DATA_DIR)/$(COMPOSE_FILE)
+
 	@# - DIRECTORIES -
 	@mkdir -p $(MAIL_DIR)
 	@mkdir -p $(CONFIG_DIR)
+
 	@# - SYNC WITH REMOTE ACCOUNT -
 	@read -p "Sync remote Proton mailbox (takes a long time)? [y/N] " answer; \
 	answer=$${answer:-N}; \
 	if [ "$$answer" = "y" ] || [ "$$answer" = "Y" ]; then \
 		podman run --rm -it -v protonmail:/root shenxn/protonmail-bridge init; \
 	fi
+
 	@# - PROTON MAIL BRIDGE SERVICE FILE -
 	cp $(PROTON_MAIL_BRIDGE_SERVICE) $(SYSTEMD_USER_DIR)/$(PROTON_MAIL_BRIDGE_SERVICE)
 	systemctl --user daemon-reload
 	systemctl --user enable $(PROTON_MAIL_BRIDGE_SERVICE)
 	systemctl --user start $(PROTON_MAIL_BRIDGE_SERVICE)
+
 	@# - EMAIL SCRIPT -
 	@mkdir -p $(BIN_DIR)
 	@install -m 755 $(EMAIL_SCRIPT) $(BIN_DIR)/$(EMAIL_SCRIPT)
+
 	@# - PATH CONFIGURATION -
 	@if ! grep -q '\.local/bin' $(ZSHRC) 2>/dev/null; then \
 		echo 'export PATH="$$HOME/.local/bin:$$PATH"' >> $(ZSHRC); \
 	fi
+
 	@# - EMACS SERVICE FILE -
 	cp $(EMACS_SERVICE) $(SYSTEMD_USER_DIR)/$(EMACS_SERVICE)
 	systemctl --user daemon-reload
 	systemctl --user enable $(EMACS_SERVICE)
 	systemctl --user start $(EMACS_SERVICE)
+
 	@# - INSTALLATION COMPLETE -
 	@echo ""
 	@echo "Installation complete!"
