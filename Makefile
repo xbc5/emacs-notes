@@ -7,6 +7,7 @@ PROTON_MAIL_BRIDGE_SERVICE := proton-mail-bridge.service
 XDG_DATA_HOME ?= $(HOME)/.local/share
 DATA_DIR := $(XDG_DATA_HOME)/emacs-email
 MAIL_DIR := $(HOME)/.mail/proton-mail
+CONFIG_DIR := $(HOME)/.config/emacs-email
 BIN_DIR := $(HOME)/.local/bin
 EMAIL_SCRIPT := email
 ZSHRC := $(HOME)/.zshrc
@@ -40,6 +41,8 @@ install-email:
 	@cp $(COMPOSE_FILE) $(DATA_DIR)/$(COMPOSE_FILE)
 	# - MAIL DIRECTORY -
 	@mkdir -p $(MAIL_DIR)
+	# - CONFIG DIRECTORY -
+	@mkdir -p $(CONFIG_DIR)
 	# - SYNC WITH REMOTE ACCOUNT -
 	@read -p "Sync remote Proton mailbox (takes a long time)? [y/N] " answer; \
 	answer=$${answer:-N}; \
