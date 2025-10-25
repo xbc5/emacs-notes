@@ -5,11 +5,10 @@ This document provides detailed configuration instructions for setting up the em
 ## Overview
 
 The email system consists of:
-- **Emacs daemon**: Runs in the background for quick access
 - **Podman**: Container runtime for running Proton Mail Bridge
 - **Proton Mail Bridge**: Provides IMAP/SMTP bridge for Proton Mail
 - **mbsync**: Synchronizes email between the bridge and local storage
-- **mu**: Emacs email client
+- **mu**: Email indexing tool
 - **mu4e**: Emacs email client
 
 ## Installation
@@ -142,6 +141,5 @@ The `email` script provides convenient commands for managing the email system: `
 The following systemd user services are installed:
 
 - **podman.service**: Runs the Podman API service
-- **emacs.service**: Runs the Emacs daemon
 - **proton-mail-bridge.service**: Runs Proton Mail Bridge (depends on podman.service)
 

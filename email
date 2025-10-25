@@ -5,8 +5,8 @@ function __help() {
 Usage: $(basename $0) <command>
 
 Commands:
-  start          Start all email services and emacs client
-  stop           Stop all email services and emacs client
+  start          Start all email services and emacs
+  stop           Stop all email services
   cli            Access Proton Mail Bridge CLI (stops bridge service first)
 EOF
 }
@@ -14,17 +14,15 @@ EOF
 case "$1" in
 start)
   systemctl --user start podman.service
-  systemctl --user start emacs.service
   systemctl --user start proton-mail-bridge.service
-  if ! pgrep --exact emacsclient; then
-    nohup emacsclient -c >/dev/null 2>&1 &
+  if ! pgrep --exact emacs-lucid; then
+    nohup emacs-lucid >/dev/null 2>&1 &
   else
-    echo "An Emacs client already running, skipping..."
+    echo "Emacs already running, skipping..."
   fi
   ;;
 stop)
   systemctl --user stop proton-mail-bridge.service
-  systemctl --user stop emacs.service
   systemctl --user stop podman.service
   ;;
 cli)
