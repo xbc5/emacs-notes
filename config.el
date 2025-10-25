@@ -28,7 +28,6 @@
 (load! "lib/xvulpea")
 (load! "lib/xname")
 (load! "lib/xtime")
-(load! "lib/xtv")
 (load! "lib/xdrill")
 
 ;; CONFIG ------------------------------------------------------------
