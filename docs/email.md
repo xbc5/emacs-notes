@@ -14,6 +14,8 @@ The email system consists of:
 
 ## Installation
 
+**IMPORTANT:** You must run `make sync-proton-mail-bridge` before running `make install-email`.
+
 Run the installation command:
 
 ```bash
@@ -122,17 +124,16 @@ The `email` script provides convenient commands for managing the email system: `
 
 ## Initial Setup Workflow
 
-1. Run `make install-email`
-2. When prompted, choose 'y' to initialize Proton Mail Bridge
-3. In the Bridge CLI, log in to your Proton Mail account
-4. Create `~/.authinfo` with your bridge credentials
-5. Create `~/.mbsyncrc` with your sync configuration
-6. Create `~/.config/emacs-email/conf.el` with your Emacs configuration
-7. Ensure the mail service is running
-8. Run `mu init --my-address foo@protonmail.com --maildir=~/.mail` to set the necessary `mu` metadata
-9. Run `mbsync -a` to pull mail from the bridge
-10. Run `mu index` to index the unencrypted mail
-11. Start the email system with `email start`
+1. Run `make sync-proton-mail-bridge` to sync with your Proton Mail account (must be run before install-email)
+2. Run `make install-email`
+3. Create `~/.authinfo` with your bridge credentials
+4. Create `~/.mbsyncrc` with your sync configuration
+5. Create `~/.config/emacs-email/conf.el` with your Emacs configuration
+6. Ensure the mail service is running
+7. Run `mu init --my-address foo@protonmail.com --maildir=~/.mail` to set the necessary `mu` metadata
+8. Run `mbsync -a` to pull mail from the bridge
+9. Run `mu index` to index the unencrypted mail
+10. Start the email system with `email start`
 
 ## Systemd Services
 

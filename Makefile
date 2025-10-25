@@ -1,4 +1,4 @@
-.PHONY: all install-doom-emacs install-email uninstall-email
+.PHONY: all install-doom-emacs sync-proton-mail-bridge install-email uninstall-email
 
 SYSTEMD_USER_DIR := $(HOME)/.config/systemd/user
 PODMAN_SERVICE := podman.service
@@ -32,6 +32,10 @@ install-doom-emacs:
 		echo 'export PATH="$$HOME/.emacs.d/bin:$$PATH"' >> $(ZSHRC); \
 	fi
 
+sync-proton-mail-bridge:
+	@# - SYNC WITH REMOTE ACCOUNT -
+	podman run --rm -it -v protonmail:/root shenxn/protonmail-bridge init
+
 install-email: install-doom-emacs
 	@# - PRECONDITIONS -
 	@missing=""; \
@@ -57,13 +61,6 @@ install-email: install-doom-emacs
 	@# - DIRECTORIES -
 	@mkdir -p $(MAIL_DIR)
 	@mkdir -p $(CONFIG_DIR)
-
-	@# - SYNC WITH REMOTE ACCOUNT -
-	@read -p "Sync remote Proton mailbox (takes a long time)? [y/N] " answer; \
-	answer=$${answer:-N}; \
-	if [ "$$answer" = "y" ] || [ "$$answer" = "Y" ]; then \
-		podman run --rm -it -v protonmail:/root shenxn/protonmail-bridge init; \
-	fi
 
 	@# - PROTON MAIL BRIDGE SERVICE FILE -
 	cp $(PROTON_MAIL_BRIDGE_SERVICE) $(SYSTEMD_USER_DIR)/$(PROTON_MAIL_BRIDGE_SERVICE)
