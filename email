@@ -5,13 +5,28 @@ function __help() {
 Usage: $(basename $0) <command>
 
 Commands:
-  --bridge-init  Pull and initialize the Proton bridge
+  start          Start all email services and emacs client
+  stop           Stop all email services and emacs client
+  cli            Access Proton Mail Bridge CLI (stops bridge service first)
 EOF
 }
 
 case "$1" in
--i | --bridge-init)
-  podman run --rm -it -v protonmail:/root shenxn/protonmail-bridge init
+start)
+  systemctl --user start podman.service
+  systemctl --user start emacs.service
+  systemctl --user start proton-mail-bridge.service
+  emacsclient -c
+  ;;
+stop)
+  systemctl --user stop proton-mail-bridge.service
+  systemctl --user stop emacs.service
+  systemctl --user stop podman.service
+  ;;
+cli)
+  systemctl --user stop proton-mail-bridge.service
+  podman run --rm -it -v protonmail:/root shenxn/protonmail-bridge init || true
+  systemctl --user start proton-mail-bridge.service
   ;;
 -h | --help)
   __help
