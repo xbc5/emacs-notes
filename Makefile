@@ -18,7 +18,7 @@ COMPOSE_FILE := docker-compose.yml
 all: install-email
 
 install-doom-emacs:
-	# - CHECK IF DOOM EMACS ALREADY EXISTS -
+	@# - CHECK IF DOOM EMACS ALREADY EXISTS -
 	@if [ -d $(DOOM_DIR) ]; then \
 		echo "Doom Emacs already installed ($(DOOM_DIR) exists), skipping..."; \
 	else \
@@ -27,13 +27,13 @@ install-doom-emacs:
 		$(EMACS_BIN_DIR)/doom install; \
 		$(EMACS_BIN_DIR)/doom sync; \
 	fi
-	# - PATH CONFIGURATION -
+	@# - PATH CONFIGURATION -
 	@if ! grep -q '\.emacs\.d/bin' $(ZSHRC) 2>/dev/null; then \
 		echo 'export PATH="$$HOME/.emacs.d/bin:$$PATH"' >> $(ZSHRC); \
 	fi
 
 install-email: install-doom-emacs
-	# - PRECONDITIONS -
+	@# - PRECONDITIONS -
 	@missing=""; \
 	command -v podman >/dev/null 2>&1 || missing="$$missing podman"; \
 	command -v mu >/dev/null 2>&1 || missing="$$missing mu"; \
@@ -42,42 +42,42 @@ install-email: install-doom-emacs
 		echo "Error: Missing required dependencies:$$missing" >&2; \
 		exit 1; \
 	fi
-	# - PODMAN SERVICE FILE -
+	@# - PODMAN SERVICE FILE -
 	@mkdir -p $(SYSTEMD_USER_DIR)
 	@cp $(PODMAN_SERVICE) $(SYSTEMD_USER_DIR)/$(PODMAN_SERVICE)
 	@systemctl --user daemon-reload
 	@systemctl --user enable $(PODMAN_SERVICE)
 	@systemctl --user start $(PODMAN_SERVICE)
-	# - COMPOSE FILE -
+	@# - COMPOSE FILE -
 	@mkdir -p $(DATA_DIR)
 	@cp $(COMPOSE_FILE) $(DATA_DIR)/$(COMPOSE_FILE)
-	# - DIRECTORIES -
+	@# - DIRECTORIES -
 	@mkdir -p $(MAIL_DIR)
 	@mkdir -p $(CONFIG_DIR)
-	# - SYNC WITH REMOTE ACCOUNT -
+	@# - SYNC WITH REMOTE ACCOUNT -
 	@read -p "Sync remote Proton mailbox (takes a long time)? [y/N] " answer; \
 	answer=$${answer:-N}; \
 	if [ "$$answer" = "y" ] || [ "$$answer" = "Y" ]; then \
 		podman run --rm -it -v protonmail:/root shenxn/protonmail-bridge init; \
 	fi
-	# - PROTON MAIL BRIDGE SERVICE FILE -
+	@# - PROTON MAIL BRIDGE SERVICE FILE -
 	@cp $(PROTON_MAIL_BRIDGE_SERVICE) $(SYSTEMD_USER_DIR)/$(PROTON_MAIL_BRIDGE_SERVICE)
 	@systemctl --user daemon-reload
 	@systemctl --user enable $(PROTON_MAIL_BRIDGE_SERVICE)
 	@systemctl --user start $(PROTON_MAIL_BRIDGE_SERVICE)
-	# - EMAIL SCRIPT -
+	@# - EMAIL SCRIPT -
 	@mkdir -p $(BIN_DIR)
 	@install -m 755 $(EMAIL_SCRIPT) $(BIN_DIR)/$(EMAIL_SCRIPT)
-	# - PATH CONFIGURATION -
+	@# - PATH CONFIGURATION -
 	@if ! grep -q '\.local/bin' $(ZSHRC) 2>/dev/null; then \
 		echo 'export PATH="$$HOME/.local/bin:$$PATH"' >> $(ZSHRC); \
 	fi
-	# - EMACS SERVICE FILE -
+	@# - EMACS SERVICE FILE -
 	@cp $(EMACS_SERVICE) $(SYSTEMD_USER_DIR)/$(EMACS_SERVICE)
 	@systemctl --user daemon-reload
 	@systemctl --user enable $(EMACS_SERVICE)
 	@systemctl --user start $(EMACS_SERVICE)
-	# - INSTALLATION COMPLETE -
+	@# - INSTALLATION COMPLETE -
 	@echo ""
 	@echo "Installation complete!"
 	@echo ""
@@ -94,17 +94,17 @@ install-email: install-doom-emacs
 	@echo ""
 
 uninstall-email:
-	# - PRECONDITIONS -
+	@# - PRECONDITIONS -
 	@-systemctl --user stop $(PODMAN_SERVICE) 2>/dev/null || true
 	@-systemctl --user disable $(PODMAN_SERVICE) 2>/dev/null || true
 	@-systemctl --user stop $(EMACS_SERVICE) 2>/dev/null || true
 	@-systemctl --user disable $(EMACS_SERVICE) 2>/dev/null || true
 	@-systemctl --user stop $(PROTON_MAIL_BRIDGE_SERVICE) 2>/dev/null || true
 	@-systemctl --user disable $(PROTON_MAIL_BRIDGE_SERVICE) 2>/dev/null || true
-	# - UNINSTALL -
+	@# - UNINSTALL -
 	@rm -f $(SYSTEMD_USER_DIR)/$(PODMAN_SERVICE)
 	@rm -f $(SYSTEMD_USER_DIR)/$(EMACS_SERVICE)
 	@rm -f $(SYSTEMD_USER_DIR)/$(PROTON_MAIL_BRIDGE_SERVICE)
 	@rm -f $(DATA_DIR)/$(COMPOSE_FILE)
-	# - FINISH -
+	@# - FINISH -
 	@systemctl --user daemon-reload
