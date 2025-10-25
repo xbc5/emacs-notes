@@ -20,7 +20,7 @@ Run the installation command:
 make install-email
 ```
 
-This will install all necessary scripts and services. It will not install sensitive configuration files, which you must create manually as described in the Required Configuration Files section.
+This will install Doom Emacs (if not already installed) and all necessary scripts and services. It will not install sensitive configuration files, which you must create manually as described in the Required Configuration Files section.
 
 ## Required Configuration Files
 

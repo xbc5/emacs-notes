@@ -1,4 +1,4 @@
-.PHONY: all install uninstall
+.PHONY: all install-doom-emacs install-email uninstall-email
 
 SYSTEMD_USER_DIR := $(HOME)/.config/systemd/user
 PODMAN_SERVICE := podman.service
@@ -8,6 +8,8 @@ XDG_DATA_HOME ?= $(HOME)/.local/share
 DATA_DIR := $(XDG_DATA_HOME)/emacs-email
 MAIL_DIR := $(HOME)/.mail/proton-mail
 CONFIG_DIR := $(HOME)/.config/emacs-email
+DOOM_DIR := $(HOME)/.doom.d
+EMACS_BIN_DIR := $(HOME)/.emacs.d/bin
 BIN_DIR := $(HOME)/.local/bin
 EMAIL_SCRIPT := email
 ZSHRC := $(HOME)/.zshrc
@@ -15,7 +17,22 @@ COMPOSE_FILE := docker-compose.yml
 
 all: install-email
 
-install-email:
+install-doom-emacs:
+	# - CHECK IF DOOM EMACS ALREADY EXISTS -
+	@if [ -d $(DOOM_DIR) ]; then \
+		echo "Doom Emacs already installed ($(DOOM_DIR) exists), skipping..."; \
+	else \
+		echo "Installing Doom Emacs..."; \
+		git clone --depth 1 https://github.com/doomemacs/doomemacs $(HOME)/.emacs.d; \
+		$(EMACS_BIN_DIR)/doom install; \
+		$(EMACS_BIN_DIR)/doom sync; \
+	fi
+	# - PATH CONFIGURATION -
+	@if ! grep -q '\.emacs\.d/bin' $(ZSHRC) 2>/dev/null; then \
+		echo 'export PATH="$$HOME/.emacs.d/bin:$$PATH"' >> $(ZSHRC); \
+	fi
+
+install-email: install-doom-emacs
 	# - PRECONDITIONS -
 	@missing=""; \
 	command -v podman >/dev/null 2>&1 || missing="$$missing podman"; \
