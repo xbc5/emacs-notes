@@ -6,8 +6,8 @@ Requires=podman.service
 [Service]
 Type=simple
 WorkingDirectory=%h/.local/share/emacs-email
-ExecStart=/usr/bin/podman-compose up
-ExecStop=/usr/bin/podman-compose down
+ExecStart=/usr/bin/podman compose up
+ExecStop=/usr/bin/podman compose down
 Restart=on-failure
 
 [Install]
