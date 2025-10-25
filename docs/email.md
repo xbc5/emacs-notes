@@ -130,7 +130,7 @@ The `email` script provides convenient commands for managing the email system: `
 4. Create `~/.mbsyncrc` with your sync configuration
 5. Create `~/.config/emacs-email/conf.el` with your Emacs configuration
 6. Ensure the mail service is running
-7. Run `mu init --my-address foo@protonmail.com --maildir=~/.mail` to set the necessary `mu` metadata
+7. Run `mu init --my-address foo@protonmail.com --maildir ~/.mail` to set the necessary `mu` metadata
 8. Run `mbsync -a` to pull mail from the bridge
 9. Run `mu index` to index the unencrypted mail
 10. Start the email system with `email start`

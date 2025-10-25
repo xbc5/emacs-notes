@@ -93,7 +93,7 @@ install-email: install-doom-emacs
 	@echo "  3. Create ~/.config/emacs-email/conf.el with your Emacs email configuration"
 	@echo "  4. Run 'mu init --my-address foo@protonmail.com --maildir=~/.mail' to set the necessary 'mu' metadata"
 	@echo "  5. Run 'mbsync -a' to synchronize mail"
-	@echo "  6. Run 'mu index --maildir=~/.mail' to index mail"
+	@echo "  6. Run 'mu index --maildir ~/.mail' to index mail"
 	@echo "  7. Run 'email start' to start the email system"
 	@echo ""
 	@echo "See docs/email.md for detailed configuration instructions."
