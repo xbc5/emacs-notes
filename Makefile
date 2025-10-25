@@ -44,13 +44,13 @@ install-email: install-doom-emacs
 	fi
 	@# - PODMAN SERVICE FILE -
 	@mkdir -p $(SYSTEMD_USER_DIR)
-	@cp $(PODMAN_SERVICE) $(SYSTEMD_USER_DIR)/$(PODMAN_SERVICE)
+	cp $(PODMAN_SERVICE) $(SYSTEMD_USER_DIR)/$(PODMAN_SERVICE)
 	@systemctl --user daemon-reload
 	@systemctl --user enable $(PODMAN_SERVICE)
 	@systemctl --user start $(PODMAN_SERVICE)
 	@# - COMPOSE FILE -
 	@mkdir -p $(DATA_DIR)
-	@cp $(COMPOSE_FILE) $(DATA_DIR)/$(COMPOSE_FILE)
+	cp $(COMPOSE_FILE) $(DATA_DIR)/$(COMPOSE_FILE)
 	@# - DIRECTORIES -
 	@mkdir -p $(MAIL_DIR)
 	@mkdir -p $(CONFIG_DIR)
@@ -61,7 +61,7 @@ install-email: install-doom-emacs
 		podman run --rm -it -v protonmail:/root shenxn/protonmail-bridge init; \
 	fi
 	@# - PROTON MAIL BRIDGE SERVICE FILE -
-	@cp $(PROTON_MAIL_BRIDGE_SERVICE) $(SYSTEMD_USER_DIR)/$(PROTON_MAIL_BRIDGE_SERVICE)
+	cp $(PROTON_MAIL_BRIDGE_SERVICE) $(SYSTEMD_USER_DIR)/$(PROTON_MAIL_BRIDGE_SERVICE)
 	@systemctl --user daemon-reload
 	@systemctl --user enable $(PROTON_MAIL_BRIDGE_SERVICE)
 	@systemctl --user start $(PROTON_MAIL_BRIDGE_SERVICE)
@@ -73,7 +73,7 @@ install-email: install-doom-emacs
 		echo 'export PATH="$$HOME/.local/bin:$$PATH"' >> $(ZSHRC); \
 	fi
 	@# - EMACS SERVICE FILE -
-	@cp $(EMACS_SERVICE) $(SYSTEMD_USER_DIR)/$(EMACS_SERVICE)
+	cp $(EMACS_SERVICE) $(SYSTEMD_USER_DIR)/$(EMACS_SERVICE)
 	@systemctl --user daemon-reload
 	@systemctl --user enable $(EMACS_SERVICE)
 	@systemctl --user start $(EMACS_SERVICE)
