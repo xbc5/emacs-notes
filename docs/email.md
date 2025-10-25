@@ -30,7 +30,7 @@ After installation, you need to create three configuration files:
 
 ### 1. ~/.mbsyncrc
 
-This file configures mbsync to synchronize mail between Proton Mail Bridge and local storage.
+This file configures mbsync to synchronize mail between Proton Mail Bridge and local storage. You can simply change "foo" with your username using sed.
 
 Example configuration:
 
@@ -98,7 +98,7 @@ To retrieve your Proton Mail Bridge credentials, use the `email cli` command to 
 
 ### 3. ~/.config/emacs-email/conf.el
 
-This file contains Emacs-specific email configuration for mu4e.
+This file contains Emacs-specific email configuration for mu4e. You can simply change "foo" with your username.
 
 Example configuration:
 
