@@ -33,27 +33,47 @@ This file configures mbsync to synchronize mail between Proton Mail Bridge and l
 Example configuration:
 
 ```
-IMAPAccount proton
-Host 127.0.0.1
+# IMAPStore: Define a remore connection and assign it an ID.
+# ----- REMOTE ------------------------------------------------------------------
+IMAPStore foo@protonmail.com-remote # Arbitrary identifier
+Host 127.0.0.1 # The remote server's hostname
 Port 1143
-User your-email@protonmail.com
-PassCmd "cat ~/.authinfo | grep protonmail | awk '{print $NF}'"
-SSLType None
+User foo@protonmail.com # Your email address
+PassCmd "cat ~/.config/emacs-mail/bridge-password"
+AuthMechs LOGIN
+TLSType None
 
-IMAPStore proton-remote
-Account proton
-
-MaildirStore proton-local
-Path ~/.mail/proton-mail/
-Inbox ~/.mail/proton-mail/INBOX
+# ----- LOCAL -------------------------------------------------------------------
+# MaildirStore: Defines local storage in Maildir format (a standard Unix mail format where each
+# email is a separate file in directories). This is what mu and mu4e expect on your computer.
+MaildirStore foo@protonmail.com-local
+Path ~/.mail/foo@protonmail.com/
+Inbox ~/.mail/foo@protonmail.com/INBOX
+# Preserve exact folder structure from remote server
 SubFolders Verbatim
 
-Channel proton
-Far :proton-remote:
-Near :proton-local:
-Patterns *
+# ----- SYNC --------------------------------------------------------------------
+# A channel is a named identifier that associates remote and local stores.
+# For example, you can run `mbsync foo@protonmail.com` and it will sync from foo@protonmail.com-remote,
+# into the foo@protonmail.com-local folder. These are also identifiers, and they have their own
+# configuration options. MaildirStore defines foo@protonmail.com-local, and IMAPStore defines
+# foo@protonmail.com-remote.
+Channel foo@protonmail.com
+Far :foo@protonmail.com-remote: # Master
+Near :foo@protonmail.com-local: # Slave
+# Patterns: Specify which folders to sync. Useful cases:
+#   "* !Archives !Spam" — sync everything except old/spam folders (saves space)
+#   "INBOX Drafts Sent" — sync only essential folders (faster, minimal storage)
+#   "*" — sync everything (what you have here)
+Patterns * !Archives
+# Create missing folders on both sides if needed
 Create Both
+# Delete messages on both sides if removed on the other
 Expunge Both
+# SyncState: Store sync metadata so mbsync knows what's already been synced.
+# Without this, every sync would unnecessarily retransfer everything.
+# "*" means store state for all folders. Other options: specific folder names, or omit entirely
+# (but omitting means slower syncs and potential duplicates on resync).
 SyncState *
 ```
 
@@ -62,8 +82,8 @@ SyncState *
 This file stores authentication credentials for various remote services and is commonly used by Emacs packages. You need to insert your SMTP credentials here. Since these credentials are only for the local bridge, the file does not need to be encrypted. However, you can append a `.gpg` extension if you prefer, and Emacs will automatically decrypt it when needed.
 
 ```
-machine 127.0.0.1 login your-email@protonmail.com port 1143 password your-bridge-password
-machine 127.0.0.1 login your-email@protonmail.com port 1025 password your-bridge-password
+machine 127.0.0.1 login foo@protonmail.com password your-bridge-password
+machine 127.0.0.1 login bar@protonmail.com password your-bridge-password
 ```
 
 Set proper permissions to protect your credentials:
