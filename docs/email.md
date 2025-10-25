@@ -19,7 +19,9 @@ The email system consists of:
 Run the installation command:
 
 ```bash
-make install-email
+git clone https://github.com/xbc5/emacs-notes ~/.doom.d \
+  && cd ~/.doom.d \
+  && make install-email
 ```
 
 This will install Doom Emacs (if not already installed) and all necessary scripts and services. It will not install sensitive configuration files, which you must create manually as described in the Required Configuration Files section.
