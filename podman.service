@@ -1,0 +1,12 @@
+[Unit]
+Description=Podman API Service
+After=network.target
+
+[Service]
+Type=simple
+RuntimeDirectory=podman
+ExecStart=/usr/bin/podman system service --time=0 unix:///run/user/%U/podman/podman.sock
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
