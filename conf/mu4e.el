@@ -5,4 +5,5 @@
 
 (after! mu4e
         ;; Auto-updates
-        (setq mu4e-update-interval 30))
+        (setq mu4e-update-interval 30
+              mu4e-split-view 'vertical))
