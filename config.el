@@ -51,3 +51,17 @@
 ;; WARN: slows down boot by ~6s
 ;; (require 'org-roam)
 ;; (org-roam-mode)
+
+;; EMOJIS -----------------------------------------------------------
+;; The following code will display emojis (e.g., in mu4e) by setting
+;; emoji-specific fonts as fallback fonts for 'emoji- and `symbol-specific
+;; characters.
+;;
+;; 1. sudo dnf install google-noto-emoji-color-fonts
+;; 1. fc-cache -fv
+;;
+;; `set-fontset-font` is for setting fallback fonts. They also don't
+;; interfere with Nerd fonts.
+(when (member "Noto Color Emoji" (font-family-list))
+  (set-fontset-font t 'symbol "Noto Color Emoji" nil 'prepend)
+  (set-fontset-font t 'emoji "Noto Color Emoji" nil 'prepend))
