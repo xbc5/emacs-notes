@@ -1,0 +1,40 @@
+#!/bin/env bash
+
+function __help() {
+  cat <<EOF
+Usage: $(basename $0) <command>
+
+Commands:
+  start          Start all email services and emacs
+  stop           Stop all email services
+  cli            Access Proton Mail Bridge CLI (stops bridge service first)
+EOF
+}
+
+case "$1" in
+start)
+  systemctl --user start podman.service
+  systemctl --user start proton-mail-bridge.service
+  if ! pgrep --exact emacs-lucid; then
+    EMACS_MODE=email nohup emacs-lucid >/dev/null 2>&1 &
+  else
+    echo "Emacs already running, skipping..."
+  fi
+  ;;
+stop)
+  systemctl --user stop proton-mail-bridge.service
+  systemctl --user stop podman.service
+  ;;
+cli)
+  systemctl --user stop proton-mail-bridge.service
+  podman run --rm -it -v protonmail:/root shenxn/protonmail-bridge init || true
+  systemctl --user start proton-mail-bridge.service
+  ;;
+-h | --help)
+  __help
+  ;;
+*)
+  echo "Unknown command: $1" >&2
+  __help
+  ;;
+esac

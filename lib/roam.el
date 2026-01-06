@@ -41,6 +41,7 @@ either single or multi (meaning a single value, or a list of values).")
 which should be extracted, tagified, and inserted
 as Roam tags.")
 
+
 ;; TODO: use a macro
 (defun xroam-prop-set-aliases-root () (interactive) (xroam--prop-set-text 'roam-aliases t))
 (defun xroam-prop-set-aliases-closest () (interactive) (xroam--prop-set-text 'roam-aliases))
@@ -609,6 +610,17 @@ PATH should be relative to the 'org-roam' directory, e.g., foo/bar.
   "Remove all nodes with the PATH from the memory cache."
   (org-roam-node-read--completions)
   (setq xroam--cache (cl-remove path xroam--cache :test #'xroam--comp-has-path)))
+
+(defun xroam-subdir-get (path)
+  "Get the name of an org-roam subdirectory from a PATH, otherwise nil.
+
+Get the name of an org-roam subdirectory from a given path.
+In the org-roam directory, several subdirectories exist to
+categorize files. This function takes a path and returns the
+name of its corresponding subdirectory, or nil if it's not in
+the org-roam directory."
+  (let ((result (car (split-string (file-relative-name path org-roam-directory) "/" t))))
+    (unless (string= result "..") result)))
 
 ;; add files to memory cache when created, modified, or renamed.
 (advice-add 'org-roam-db-insert-file-node
