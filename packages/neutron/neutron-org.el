@@ -23,4 +23,10 @@
         (when (not (string-empty-p text))
           text)))))
 
+(defun neutron--get-id ()
+  "Extract the :ID: property from the :PROPERTIES: drawer, or nil if absent."
+  (let ((tree (org-element-parse-buffer)))
+    ;; The document node is the root; get its :ID: property.
+    (org-element-property :ID tree)))
+
 (provide 'neutron-org)
