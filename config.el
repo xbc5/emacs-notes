@@ -1,7 +1,14 @@
-;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
+;; -*- lexical-binding: t; -*-
+
+;; Add all package directories to the load path.
+;; This allows us to (require 'package) without long paths.
+(let ((default-directory (concat doom-user-dir "packages/")))
+  (normal-top-level-add-subdirs-to-load-path))
+
 (require 'ht)
 (require 'vulpea)
 (require 'f)
+(require 'neutron)
 
 ;; UTIL --------------------------------------------------------------
 (load! "conf/global")
@@ -36,7 +43,7 @@
 (load! "conf/plantuml-mode")
 (load! "conf/spell")
 (load! "conf/org")
-(load! "conf/gtd") ; It's better to load after conf/org.el, but it's not necessary.
+;;(load! "conf/gtd") ; It's better to load after conf/org.el, but it's not necessary.
 (load! "conf/refs") ; slow boot
 (load! "conf/org-roam")
 (load! "conf/org-drill")
