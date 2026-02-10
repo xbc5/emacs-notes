@@ -48,7 +48,6 @@
   (let ((buf (find-file-noselect file-path)))
     (with-current-buffer buf
       (save-excursion
-        (neutron--ensure-index-heading file-path)
         (goto-char (org-find-exact-headline-in-buffer "index"))
         (unless (org-find-exact-headline-in-buffer "project")
           (org-insert-subheading nil)
@@ -60,5 +59,10 @@
           (forward-line)
           (delete-blank-lines))
         (save-buffer)))))
+
+(defun neutron--ensure-index-structure (file-path)
+  "Ensure both * index and ** project headings exist in FILE-PATH."
+  (neutron--ensure-index-heading file-path)
+  (neutron--ensure-project-subheading file-path))
 
 (provide 'neutron-org)
