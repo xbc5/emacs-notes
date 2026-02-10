@@ -95,6 +95,28 @@ INCLUDE-ROOT adds the root directory as an option."
         (when confirm
           (neutron--move-dir project new-path))))))
 
+(defun neutron--get-parent-index (file-path)
+  "Return the parent directory's index.org, or nil if file is at root or parent index doesn't exist."
+  (let* ((parent-dir (f-parent (f-dirname file-path)))
+         (parent-index (f-join parent-dir "index.org")))
+    ;; Only return if parent index exists and is within neutron-dir.
+    (when (and (f-exists-p parent-index)
+               (f-ancestor-of-p neutron-dir parent-index))
+      parent-index)))
+
+(defun neutron--get-child-indexes (file-path)
+  "Return list of index.org files in immediate subdirectories of FILE-PATH's directory."
+  (let ((dir (f-dirname file-path)))
+    (mapcar (lambda (subdir) (f-join subdir "index.org"))
+            (f-directories dir))))
+
+(defun neutron--get-sibling-files (file-path)
+  "Return list of .org files in the same directory as FILE-PATH, excluding FILE-PATH itself."
+  (let ((dir (f-dirname file-path)))
+    (seq-filter (lambda (f)
+                  (not (f-same-p f file-path)))
+                (f-files dir (lambda (f) (f-ext-p f "org"))))))
+
 (defun neutron--project-loc-type ()
   'parent)
 
