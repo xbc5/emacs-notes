@@ -40,7 +40,25 @@
           (if (re-search-forward "^\\*" nil t)
               (beginning-of-line)
             (goto-char (point-max)))
-          (insert "* index\n\n"))
+          (insert "* index\n"))
+        (save-buffer)))))
+
+(defun neutron--ensure-project-subheading (file-path)
+  "Ensure the ** project subheading exists under * index in FILE-PATH, creating it if necessary."
+  (let ((buf (find-file-noselect file-path)))
+    (with-current-buffer buf
+      (save-excursion
+        (neutron--ensure-index-heading file-path)
+        (goto-char (org-find-exact-headline-in-buffer "index"))
+        (unless (org-find-exact-headline-in-buffer "project")
+          (org-insert-subheading nil)
+          ;; Remove blank lines org-insert-subheading adds around the heading.
+          (beginning-of-line)
+          (delete-char -1)
+          (end-of-line)
+          (insert "project")
+          (forward-line)
+          (delete-blank-lines))
         (save-buffer)))))
 
 (provide 'neutron-org)
