@@ -29,40 +29,34 @@
     ;; The document node is the root; get its :ID: property.
     (org-element-property :ID tree)))
 
-(defun neutron--ensure-index-heading (file-path)
-  "Ensure the * index heading exists in FILE-PATH, creating it if necessary at the top of headings."
+(defun neutron--ensure-heading (file-path heading &optional parent)
+  "Ensure HEADING exists in FILE-PATH. If PARENT is given, insert as subheading under PARENT."
   (let ((buf (find-file-noselect file-path)))
     (with-current-buffer buf
       (save-excursion
-        (goto-char (point-min))
-        (unless (org-find-exact-headline-in-buffer "index")
-          ;; Insert before the first heading, or at end if no headings exist.
-          (if (re-search-forward "^\\*" nil t)
-              (beginning-of-line)
-            (goto-char (point-max)))
-          (insert "* index\n"))
-        (save-buffer)))))
-
-(defun neutron--ensure-project-subheading (file-path)
-  "Ensure the ** project subheading exists under * index in FILE-PATH, creating it if necessary."
-  (let ((buf (find-file-noselect file-path)))
-    (with-current-buffer buf
-      (save-excursion
-        (goto-char (org-find-exact-headline-in-buffer "index"))
-        (unless (org-find-exact-headline-in-buffer "project")
-          (org-insert-subheading nil)
-          ;; Remove blank lines org-insert-subheading adds around the heading.
-          (beginning-of-line)
-          (delete-char -1)
-          (end-of-line)
-          (insert "project")
-          (forward-line)
-          (delete-blank-lines))
+        (unless (org-find-exact-headline-in-buffer heading)
+          (if parent
+              ;; Insert as subheading under parent.
+              (progn
+                (goto-char (org-find-exact-headline-in-buffer parent))
+                (org-insert-subheading nil)
+                (beginning-of-line)
+                (delete-char -1)
+                (end-of-line)
+                (insert heading)
+                (forward-line)
+                (delete-blank-lines))
+            ;; Insert as top-level heading before the first heading.
+            (goto-char (point-min))
+            (if (re-search-forward "^\\*" nil t)
+                (beginning-of-line)
+              (goto-char (point-max)))
+            (insert (format "* %s\n" heading))))
         (save-buffer)))))
 
 (defun neutron--ensure-index-structure (file-path)
   "Ensure both * index and ** project headings exist in FILE-PATH."
-  (neutron--ensure-index-heading file-path)
-  (neutron--ensure-project-subheading file-path))
+  (neutron--ensure-heading file-path "index")
+  (neutron--ensure-heading file-path "project" "index"))
 
 (provide 'neutron-org)
