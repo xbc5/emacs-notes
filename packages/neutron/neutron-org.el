@@ -36,22 +36,15 @@
       (save-excursion
         (unless (org-find-exact-headline-in-buffer heading)
           (if parent
-              ;; Insert as subheading under parent.
               (progn
                 (goto-char (org-find-exact-headline-in-buffer parent))
-                (org-insert-subheading nil)
-                (beginning-of-line)
-                (delete-char -1)
-                (end-of-line)
-                (insert heading)
                 (forward-line)
-                (delete-blank-lines))
-            ;; Insert as top-level heading before the first heading.
+                (insert "** " heading "\n"))
             (goto-char (point-min))
             (if (re-search-forward "^\\*" nil t)
                 (beginning-of-line)
               (goto-char (point-max)))
-            (insert (format "* %s\n" heading))))
+            (insert "* " heading "\n")))
         (save-buffer)))))
 
 (defun neutron--ensure-index-structure (file-path)
