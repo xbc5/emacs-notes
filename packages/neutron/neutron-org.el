@@ -29,4 +29,18 @@
     ;; The document node is the root; get its :ID: property.
     (org-element-property :ID tree)))
 
+(defun neutron--ensure-index-heading (file-path)
+  "Ensure the * index heading exists in FILE-PATH, creating it if necessary at the top of headings."
+  (let ((buf (find-file-noselect file-path)))
+    (with-current-buffer buf
+      (save-excursion
+        (goto-char (point-min))
+        (unless (org-find-exact-headline-in-buffer "index")
+          ;; Insert before the first heading, or at end if no headings exist.
+          (if (re-search-forward "^\\*" nil t)
+              (beginning-of-line)
+            (goto-char (point-max)))
+          (insert "* index\n\n"))
+        (save-buffer)))))
+
 (provide 'neutron-org)
