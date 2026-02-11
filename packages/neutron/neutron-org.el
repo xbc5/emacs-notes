@@ -242,8 +242,9 @@ FILE-PATH defaults to the buffer file name."
          (id (plist-get props :id))
          (file-type (neutron--file-type file)))
     (pcase file-type
+      ;; If the current file is an index.org file.
       ('index
-       ;; Add this index to parent, and parent to this index.
+       ;; Create a two-way link relationship with the parent index.
        (when-let ((parent-index (neutron--get-parent-index file)))
          (neutron--upsert-index-link parent-index "project" id title summary)
          (let ((parent-props (with-current-buffer (find-file-noselect parent-index)
@@ -252,15 +253,19 @@ FILE-PATH defaults to the buffer file name."
                                        (plist-get parent-props :id)
                                        (plist-get parent-props :title)
                                        (plist-get parent-props :summary))))
-       ;; Add each child to this index, and this index to each child.
+       ;; Create a two-way link relationship with child indexes.
        (dolist (child-index (neutron--get-child-indexes file))
+         ;; Open the child and get its props.
          (let ((child-props (with-current-buffer (find-file-noselect child-index)
                               (neutron--get-index-related-props))))
+           ;; Insert child links into the local index file.
            (neutron--upsert-index-link file "project"
                                        (plist-get child-props :id)
                                        (plist-get child-props :title)
                                        (plist-get child-props :summary))
+           ;; Insert the local index link into the child.
            (neutron--upsert-index-link child-index "project" id title summary))))
+      ;; If the current file is a sibling.
       ('sibling
        (let ((local-index (f-join (f-dirname file) "index.org")))
          (neutron--upsert-index-link local-index "project" id title summary)))
