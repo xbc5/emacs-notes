@@ -109,6 +109,13 @@ FILE-PATH is optional and defaults to the buffer file name."
     (and (file-in-directory-p file neutron-dir)
          (not (string= (f-filename file) "index.org")))))
 
+(defun neutron--file-type (&optional file-path)
+  "Return 'index or 'sibling for FILE-PATH within neutron-dir.
+FILE-PATH defaults to the buffer file name."
+  (if (neutron--is-index file-path)
+      'index
+    'sibling))
+
 (defun neutron--get-parent-index (&optional file-path)
   "Return the path to the parent index.
 FILE-PATH is where to start looking (defaults to buffer file name).
