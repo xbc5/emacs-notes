@@ -229,6 +229,15 @@ FILE-PATH can be absolute or relative to neutron-dir."
              (is-not-index (not (string= (f-filename file-path) "index.org"))))
         (and is-same-dir is-not-index)))))
 
+(defun neutron--get-parent-index-path ()
+  "Return the absolute path to the parent index.
+Returns nil if parent is not within neutron-dir."
+  (let* ((neutr-dir (expand-file-name neutron-dir))
+         (parent-dir (f-parent (f-dirname (buffer-file-name))))
+         (parent-index (expand-file-name "index.org" parent-dir)))
+    (when (file-in-directory-p parent-index neutr-dir)
+      parent-index)))
+
 (defun neutron--remove-index-link (file-path id)
   "Remove links by org-roam ID from the index in FILE-PATH.
 FILE-PATH is the target index file.
