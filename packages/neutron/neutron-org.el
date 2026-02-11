@@ -101,7 +101,7 @@ LOCKED, if non-nil, adds ! to preserve the summary."
   (let* ((lock-char (if locked "!" ""))
          (text (format "[[id:%s][%s]]%s: %s" id title lock-char (or summary ""))))
     (org-element-create 'item '(:bullet "- " :pre-blank 0)
-      (org-element-create 'paragraph nil text))))
+                        (org-element-create 'paragraph nil text))))
 
 (defun neutron--extract-old-summary (item-text)
   "Extract summary from ITEM-TEXT if locked (has !), else return nil.
@@ -146,34 +146,39 @@ the summary is locked and won't be replaced."
   (let ((buf (find-file-noselect file-path)))
     (with-current-buffer buf
       (save-excursion
-        ;; Ensure index structure before parsing.
+        ;; Ensure the document contains an index heading before starting.
         (neutron--ensure-index-structure file-path)
+
+        ;; Create the AST
         (let* ((ast (org-element-parse-buffer))
                (index-node (neutron--find-heading-in-ast ast "index")))
+          ;; Get and use an existing index node.
           (when index-node
+            ;; Search for identical links.
             (let ((found-items (neutron--find-items-by-id index-node id)))
               (if found-items
-                  ;; Update all matching items in the AST.
+                  ;; Update all matching links in the AST.
                   (dolist (item found-items)
                     (let* ((item-text (org-element-interpret-data item))
-                           (locked (string-match "\\]\\]!:" item-text))
+                           (locked (string-match "\\]\\]!:" item-text)) ;; [link]! is gets ignored.
                            (old-summary (neutron--extract-old-summary item-text)))
-                      (neutron--update-item item
-                        (neutron--build-item id title
-                          (if locked old-summary summary)
-                          locked))))
-                ;; Not found — insert under specified heading.
+                      ;; Change the existing item…
+                      (neutron--update-item
+                       ;; …by replacing it.
+                       item (neutron--build-item id title
+                                                 (if locked old-summary summary) locked))))
+                ;; Exiting links not found. Instead, insert new link under specified heading.
                 (let ((heading-node (neutron--find-heading-in-ast index-node heading)))
-                  ;; If heading missing, create it and re-parse.
+                  ;; If index heading is missing, create it and re-parse.
                   (unless heading-node
                     (neutron--ensure-heading file-path heading "index")
                     (setq ast (org-element-parse-buffer))
                     (setq index-node (neutron--find-heading-in-ast ast "index"))
                     (setq heading-node (neutron--find-heading-in-ast index-node heading)))
-                  (when heading-node
-                    (neutron--insert-new-item heading-node
-                      (neutron--build-item id title summary)
-                      prepend))))
+                  ;; Create the link.
+                  (neutron--insert-new-item heading-node
+                                            (neutron--build-item id title summary)
+                                            prepend)))
               ;; Write back the index subtree.
               (let ((beg (org-element-property :begin index-node))
                     (end (org-element-property :end index-node)))
