@@ -95,29 +95,70 @@ INCLUDE-ROOT adds the root directory as an option."
         (when confirm
           (neutron--move-dir project new-path))))))
 
-(defun neutron--get-parent-index (file-path)
-  "Return the parent directory's index.org, or nil if file is at root or parent index doesn't exist."
-  (let* ((parent-dir (f-parent (f-dirname file-path)))
+(defun neutron--is-local-index (file-path)
+  "Return non-nil if FILE-PATH is the local index for its directory.
+FILE-PATH can be absolute or relative to neutron-dir."
+  ;; Neutron dir may be relative, so make it absolute.
+  (let* ((neutr-dir (expand-file-name neutron-dir)))
+    ;; Both paths must invariably be within neutron-dir.
+    ;; Outside paths are irrelevant to neutron.
+    (when (and (file-in-directory-p (expand-file-name file-path) neutr-dir)
+               (file-in-directory-p (expand-file-name (buffer-file-name)) neutr-dir))
+
+      (let* ((relative-path (f-relative file-path neutr-dir))
+             ;; Get the relative directory path from the buffer.
+             ;; For example: project1/project2/
+             (local-dir (f-relative
+                         (file-name-directory (buffer-file-name))
+                         neutron-dir))
+             ;; Now, we need a sentinel value to compare to. This
+             ;; is the path we expect the local index file to exist.
+             (index-path (f-join local-dir "index.org")))
+        (string= relative-path index-path)))))
+
+(defun neutron--is-local-sibling (file-path)
+  "Return non-nil if FILE-PATH is a sibling in the buffer's directory.
+A sibling is a non-index file in the same directory as the buffer.
+FILE-PATH can be absolute or relative to neutron-dir."
+  ;; Neutron dir may be relative, so make it absolute.
+  (let* ((neutr-dir (expand-file-name neutron-dir)))
+    ;; Both paths must invariably be within neutron-dir.
+    ;; Outside paths are irrelevant to neutron.
+    (when (and (file-in-directory-p (expand-file-name file-path) neutr-dir)
+               (file-in-directory-p (expand-file-name (buffer-file-name)) neutr-dir))
+      ;; Get relative paths.
+      (let* ((file-rel (f-relative file-path neutr-dir))
+             (buffer-rel (f-relative (buffer-file-name) neutr-dir))
+             ;; Extract directories.
+             (file-dir (f-dirname file-rel))
+             (buffer-dir (f-dirname buffer-rel))
+             ;; A sibling is in the same directory and is not an index.
+             (is-same-dir (string= file-dir buffer-dir))
+             (is-not-index (not (string= (f-filename file-path) "index.org"))))
+        (and is-same-dir is-not-index)))))
+
+(defun neutron--get-parent-index (&optional file-path)
+  "Return the path to the parent index.
+FILE-PATH is where to start looking (defaults to buffer file name).
+Returns nil if the file is not found or is outside neutron-dir."
+  (let* ((parent-dir
+          (f-parent (f-dirname (expand-file-name
+                                (or file-path (buffer-file-name))))))
          (parent-index (f-join parent-dir "index.org")))
     ;; Only return if parent index exists and is within neutron-dir.
     (when (and (f-exists-p parent-index)
                (f-ancestor-of-p neutron-dir parent-index))
       parent-index)))
 
-(defun neutron--get-child-indexes (file-path)
-  "Return list of index.org files in immediate subdirectories of FILE-PATH's directory."
-  (let ((dir (f-dirname file-path)))
-    (mapcar (lambda (subdir) (f-join subdir "index.org"))
-            (f-directories dir))))
-
-(defun neutron--get-sibling-files (file-path)
-  "Return list of .org files in the same directory as FILE-PATH, excluding FILE-PATH itself."
-  (let ((dir (f-dirname file-path)))
-    (seq-filter (lambda (f)
-                  (not (f-same-p f file-path)))
-                (f-files dir (lambda (f) (f-ext-p f "org"))))))
-
-(defun neutron--project-loc-type ()
-  'parent)
+(defun neutron--get-child-indexes (&optional file-path)
+  "Return a list of absolute paths to immediate child indexes.
+FILE-PATH is where to start looking (defaults to buffer file name).
+Returns nil if the file is not found or is outside neutron-dir."
+  (let* ((buffer-dir
+          (f-dirname
+           (or file-path (buffer-file-name)))))
+    (when (file-in-directory-p buffer-dir neutron-dir)
+      (mapcar #'expand-file-name
+              (f-glob "*/index.org" buffer-dir)))))
 
 (provide 'neutron-fs)
