@@ -187,6 +187,27 @@ the summary is locked and won't be replaced."
                 (insert (org-element-interpret-data index-node)))
               (save-buffer))))))))
 
+(defun neutron--is-local-index (file-path)
+  "Return non-nil if FILE-PATH is the local index for its directory.
+FILE-PATH can be absolute or relative to neutron-dir."
+  ;; Neutron dir may be relative, so make it absolute.
+  (let* ((neutr-dir (expand-file-name neutron-dir)))
+    ;; Both paths must invariably be within neutron-dir.
+    ;; Outside paths are irrelevant to neutron.
+    (when (and (file-in-directory-p (expand-file-name file-path) neutr-dir)
+               (file-in-directory-p (expand-file-name (buffer-file-name)) neutr-dir))
+
+      (let* ((relative-path (f-relative file-path neutr-dir))
+             ;; Get the relative directory path from the buffer.
+             ;; For example: project1/project2/
+             (local-dir (f-relative
+                         (file-name-directory (buffer-file-name))
+                         neutron-dir))
+             ;; Now, we need a sentinel value to compare to. This
+             ;; is the path we expect the local index file to exist.
+             (index-path (f-join local-dir "index.org")))
+        (string= relative-path index-path)))))
+
 (defun neutron--remove-index-link (file-path id)
   "Remove links by org-roam ID from the index in FILE-PATH.
 FILE-PATH is the target index file.
@@ -201,9 +222,9 @@ ID is the org-roam ID to remove."
             (let ((found-items (neutron--find-items-by-id index-node id)))
               ;; The same ID might appear in multiple headings, so find which lists contain our items and update all of them.
               (let ((parent-lists (delete-dups
-                                  (mapcar (lambda (item)
-                                            (org-element-property :parent item))
-                                          found-items))))
+                                   (mapcar (lambda (item)
+                                             (org-element-property :parent item))
+                                           found-items))))
                 ;; Remove matched items from each parent list.
                 (dolist (list-node parent-lists)
                   (org-element-set-contents
