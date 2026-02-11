@@ -4,9 +4,10 @@
   "Extract the #+title: value from the current buffer."
   (cadr (assoc "TITLE" (org-collect-keywords '("TITLE")))))
 
-(defun neutron--get-summary ()
-  "Extract text content under the * summary heading, or nil if absent/empty."
-  (let* ((tree (org-element-parse-buffer))
+(defun neutron--get-summary (&optional ast)
+  "Extract text content under the * summary heading, or nil if absent/empty.
+AST is an optional pre-parsed org-element tree."
+  (let* ((tree (or ast (org-element-parse-buffer)))
          ;; Find the summary heading in the parse tree.
          (summary (org-element-map tree 'headline
                     (lambda (hl)
@@ -23,11 +24,21 @@
         (when (not (string-empty-p text))
           text)))))
 
-(defun neutron--get-id ()
-  "Extract the :ID: property from the :PROPERTIES: drawer, or nil if absent."
-  (let ((tree (org-element-parse-buffer)))
+(defun neutron--get-id (&optional ast)
+  "Extract the :ID: property from the :PROPERTIES: drawer, or nil if absent.
+AST is an optional pre-parsed org-element tree."
+  (let ((tree (or ast (org-element-parse-buffer))))
     ;; The document node is the root; get its :ID: property.
     (org-element-property :ID tree)))
+
+(defun neutron--get-index-related-props (&optional ast)
+  "Return a plist of index-related properties from the current buffer.
+AST is an optional pre-parsed org-element tree.
+Returns (:title TITLE :summary SUMMARY :id ID)."
+  (let ((tree (or ast (org-element-parse-buffer))))
+    (list :title (neutron--get-title)
+          :summary (neutron--get-summary tree)
+          :id (neutron--get-id tree))))
 
 (defun neutron--ensure-heading (file-path heading &optional parent)
   "Ensure HEADING exists in FILE-PATH.
@@ -218,5 +229,27 @@ ID is the org-roam ID to remove."
               (goto-char beg)
               (insert (org-element-interpret-data index-node)))
             (save-buffer)))))))
+
+(defun neutron--sync-index-links (&optional file-path)
+  "Synchronize index links for FILE-PATH based on its type.
+If FILE-PATH is an index, add it to parent index.
+If FILE-PATH is a sibling, add it to local index.
+FILE-PATH defaults to the buffer file name."
+  (let* ((file (or file-path (buffer-file-name)))
+         (title (neutron--get-title))
+         (summary (neutron--get-summary))
+         (id (neutron--get-id))
+         (file-type (neutron--file-type file)))
+    (pcase file-type
+      ('index
+       (when-let ((parent-index (neutron--get-parent-index file)))
+         (neutron--upsert-index-link parent-index "project" id title summary))
+       (dolist (child-index (neutron--get-child-indexes file))
+         (neutron--sync-index-links child-index)))
+      ('sibling
+       (let ((local-index (f-join (f-dirname file) "index.org")))
+         (neutron--upsert-index-link local-index "project" id title summary)))
+      (type
+       (error "Unknown file type: %s" type)))))
 
 (provide 'neutron-org)
