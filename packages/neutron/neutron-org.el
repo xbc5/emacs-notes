@@ -187,4 +187,36 @@ the summary is locked and won't be replaced."
                 (insert (org-element-interpret-data index-node)))
               (save-buffer))))))))
 
+(defun neutron--remove-index-link (file-path id)
+  "Remove links by org-roam ID from the index in FILE-PATH.
+FILE-PATH is the target index file.
+ID is the org-roam ID to remove."
+  (let ((buf (find-file-noselect file-path)))
+    (with-current-buffer buf
+      (save-excursion
+        (let* ((ast (org-element-parse-buffer))
+               (index-node (neutron--find-heading-in-ast ast "index")))
+          (when index-node
+            ;; Find all items with this ID.
+            (let ((found-items (neutron--find-items-by-id index-node id)))
+              ;; The same ID might appear in multiple headings, so find which lists contain our items and update all of them.
+              (let ((parent-lists (delete-dups
+                                  (mapcar (lambda (item)
+                                            (org-element-property :parent item))
+                                          found-items))))
+                ;; Remove matched items from each parent list.
+                (dolist (list-node parent-lists)
+                  (org-element-set-contents
+                   list-node
+                   (seq-filter (lambda (child)
+                                 (not (memq child found-items)))
+                               (org-element-contents list-node))))))
+            ;; Write back the index subtree.
+            (let ((beg (org-element-property :begin index-node))
+                  (end (org-element-property :end index-node)))
+              (delete-region beg end)
+              (goto-char beg)
+              (insert (org-element-interpret-data index-node)))
+            (save-buffer)))))))
+
 (provide 'neutron-org)
