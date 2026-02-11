@@ -68,7 +68,7 @@ PARENT, if given, inserts HEADING as a subheading under PARENT."
                 (beginning-of-line)
               (goto-char (point-max)))
             ;; No heading found, so insert one in the "empty" file.
-            (insert "* " heading "\n")))
+            (insert "\n* " heading "\n")))
         (save-buffer)))))
 
 (defun neutron--ensure-index-structure (file-path)
