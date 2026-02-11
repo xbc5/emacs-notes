@@ -93,9 +93,8 @@ LOCKED, if non-nil, preserves OLD-SUMMARY and adds ! to the link."
 (defun neutron--extract-old-summary (item-text)
   "Extract summary from ITEM-TEXT if locked (has !), else return nil.
 ITEM-TEXT is the raw text of the list item."
-  (when (string-match "\\]\\]!:" item-text)
-    (and (string-match "]: \\(.+\\)$" item-text)
-         (match-string 1 item-text))))
+  (when (string-match "\\]\\]!: " item-text)
+    (substring item-text (match-end 0))))
 
 (defun neutron--update-item (item new-content)
   "Replace ITEM's content with NEW-CONTENT.
