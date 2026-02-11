@@ -264,7 +264,18 @@ FILE-PATH defaults to the buffer file name."
                                        (plist-get child-props :title)
                                        (plist-get child-props :summary))
            ;; Insert the local index link into the child.
-           (neutron--upsert-index-link child-index "project" id title summary))))
+           (neutron--upsert-index-link child-index "project" id title summary)))
+       ;; Create a two-way link relationship with siblings.
+       (dolist (sibling (neutron--get-siblings file))
+         (let ((sib-props (with-current-buffer (find-file-noselect sibling)
+                            (neutron--get-index-related-props))))
+           ;; Insert sibling link into this index.
+           (neutron--upsert-index-link file "project"
+                                       (plist-get sib-props :id)
+                                       (plist-get sib-props :title)
+                                       (plist-get sib-props :summary))
+           ;; Insert this index link into the sibling.
+           (neutron--upsert-index-link sibling "project" id title summary))))
       ;; If the current file is a sibling.
       ('sibling
        ;; Create a two-way link relationship with the local index.
