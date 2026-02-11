@@ -232,20 +232,35 @@ ID is the org-roam ID to remove."
 
 (defun neutron--sync-index-links (&optional file-path)
   "Synchronize index links for FILE-PATH based on its type.
-If FILE-PATH is an index, add it to parent index.
+If FILE-PATH is an index, add it to parent index and add all children to it.
 If FILE-PATH is a sibling, add it to local index.
 FILE-PATH defaults to the buffer file name."
   (let* ((file (or file-path (buffer-file-name)))
-         (title (neutron--get-title))
-         (summary (neutron--get-summary))
-         (id (neutron--get-id))
+         (props (neutron--get-index-related-props))
+         (title (plist-get props :title))
+         (summary (plist-get props :summary))
+         (id (plist-get props :id))
          (file-type (neutron--file-type file)))
     (pcase file-type
       ('index
+       ;; Add this index to parent, and parent to this index.
        (when-let ((parent-index (neutron--get-parent-index file)))
-         (neutron--upsert-index-link parent-index "project" id title summary))
+         (neutron--upsert-index-link parent-index "project" id title summary)
+         (let ((parent-props (with-current-buffer (find-file-noselect parent-index)
+                               (neutron--get-index-related-props))))
+           (neutron--upsert-index-link file "project"
+                                       (plist-get parent-props :id)
+                                       (plist-get parent-props :title)
+                                       (plist-get parent-props :summary))))
+       ;; Add each child to this index, and this index to each child.
        (dolist (child-index (neutron--get-child-indexes file))
-         (neutron--sync-index-links child-index)))
+         (let ((child-props (with-current-buffer (find-file-noselect child-index)
+                              (neutron--get-index-related-props))))
+           (neutron--upsert-index-link file "project"
+                                       (plist-get child-props :id)
+                                       (plist-get child-props :title)
+                                       (plist-get child-props :summary))
+           (neutron--upsert-index-link child-index "project" id title summary))))
       ('sibling
        (let ((local-index (f-join (f-dirname file) "index.org")))
          (neutron--upsert-index-link local-index "project" id title summary)))
