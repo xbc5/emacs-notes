@@ -112,7 +112,9 @@ TITLE is the link display text.
 SUMMARY is the optional description after the link.
 LOCKED, if non-nil, adds ! to preserve the summary."
   (let* ((lock-char (if locked "!" ""))
-         (text (format "[[id:%s][%s]]%s: %s" id title lock-char (or summary ""))))
+         ;; Only append ": summary" when a summary exists.
+         (suffix (if summary (format "%s: %s" lock-char summary) ""))
+         (text (format "[[id:%s][%s]]%s" id title suffix)))
     (org-element-create 'item '(:bullet "- " :pre-blank 0)
                         (org-element-create 'paragraph nil text))))
 
