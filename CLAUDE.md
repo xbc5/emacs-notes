@@ -13,6 +13,10 @@ Write comments as cause-and-effect: state the reason first, then the consequence
 
 Example: "The same ID might appear in multiple headings, so find which lists contain our items and update all of them."
 
+### File system
+
+Prefer `f-*` functions over built-in Emacs functions.
+
 ## Org mode
 
 ### Modifying buffers
