@@ -267,8 +267,15 @@ FILE-PATH defaults to the buffer file name."
            (neutron--upsert-index-link child-index "project" id title summary))))
       ;; If the current file is a sibling.
       ('sibling
-       (let ((local-index (f-join (f-dirname file) "index.org")))
-         (neutron--upsert-index-link local-index "project" id title summary)))
+       ;; Create a two-way link relationship with the local index.
+       (when-let ((local-index (neutron--get-local-index file)))
+         (neutron--upsert-index-link local-index "project" id title summary)
+         (let ((index-props (with-current-buffer (find-file-noselect local-index)
+                              (neutron--get-index-related-props))))
+           (neutron--upsert-index-link file "project"
+                                       (plist-get index-props :id)
+                                       (plist-get index-props :title)
+                                       (plist-get index-props :summary)))))
       (type
        (error "Unknown file type: %s" type)))))
 
