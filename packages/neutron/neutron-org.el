@@ -1,4 +1,5 @@
 ;; -*- lexical-binding: t; -*-
+(require 'neutron-fs)
 
 (defun neutron--get-title ()
   "Extract the #+title: value from the current buffer."
