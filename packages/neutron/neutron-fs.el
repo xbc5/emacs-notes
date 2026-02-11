@@ -95,47 +95,19 @@ INCLUDE-ROOT adds the root directory as an option."
         (when confirm
           (neutron--move-dir project new-path))))))
 
-(defun neutron--is-local-index (file-path)
-  "Return non-nil if FILE-PATH is the local index for its directory.
-FILE-PATH can be absolute or relative to neutron-dir."
-  ;; Neutron dir may be relative, so make it absolute.
-  (let* ((neutr-dir (expand-file-name neutron-dir)))
-    ;; Both paths must invariably be within neutron-dir.
-    ;; Outside paths are irrelevant to neutron.
-    (when (and (file-in-directory-p (expand-file-name file-path) neutr-dir)
-               (file-in-directory-p (expand-file-name (buffer-file-name)) neutr-dir))
+(defun neutron--is-index (&optional file-path)
+  "Return non-nil if FILE-PATH is an index file (index.org) within neutron-dir.
+FILE-PATH is optional and defaults to the buffer file name."
+  (let ((file (or file-path (buffer-file-name))))
+    (and (file-in-directory-p file neutron-dir)
+         (string= (f-filename file) "index.org"))))
 
-      (let* ((relative-path (f-relative file-path neutr-dir))
-             ;; Get the relative directory path from the buffer.
-             ;; For example: project1/project2/
-             (local-dir (f-relative
-                         (file-name-directory (buffer-file-name))
-                         neutron-dir))
-             ;; Now, we need a sentinel value to compare to. This
-             ;; is the path we expect the local index file to exist.
-             (index-path (f-join local-dir "index.org")))
-        (string= relative-path index-path)))))
-
-(defun neutron--is-local-sibling (file-path)
-  "Return non-nil if FILE-PATH is a sibling in the buffer's directory.
-A sibling is a non-index file in the same directory as the buffer.
-FILE-PATH can be absolute or relative to neutron-dir."
-  ;; Neutron dir may be relative, so make it absolute.
-  (let* ((neutr-dir (expand-file-name neutron-dir)))
-    ;; Both paths must invariably be within neutron-dir.
-    ;; Outside paths are irrelevant to neutron.
-    (when (and (file-in-directory-p (expand-file-name file-path) neutr-dir)
-               (file-in-directory-p (expand-file-name (buffer-file-name)) neutr-dir))
-      ;; Get relative paths.
-      (let* ((file-rel (f-relative file-path neutr-dir))
-             (buffer-rel (f-relative (buffer-file-name) neutr-dir))
-             ;; Extract directories.
-             (file-dir (f-dirname file-rel))
-             (buffer-dir (f-dirname buffer-rel))
-             ;; A sibling is in the same directory and is not an index.
-             (is-same-dir (string= file-dir buffer-dir))
-             (is-not-index (not (string= (f-filename file-path) "index.org"))))
-        (and is-same-dir is-not-index)))))
+(defun neutron--is-sibling (&optional file-path)
+  "Return non-nil if FILE-PATH is a sibling (non-index file) within neutron-dir.
+FILE-PATH is optional and defaults to the buffer file name."
+  (let ((file (or file-path (buffer-file-name))))
+    (and (file-in-directory-p file neutron-dir)
+         (not (string= (f-filename file) "index.org")))))
 
 (defun neutron--get-parent-index (&optional file-path)
   "Return the path to the parent index.
