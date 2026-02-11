@@ -37,16 +37,22 @@ PARENT, if given, inserts HEADING as a subheading under PARENT."
   (let ((buf (find-file-noselect file-path)))
     (with-current-buffer buf
       (save-excursion
+        ;; Skip if heading already exists.
         (unless (org-find-exact-headline-in-buffer heading)
           (if parent
+              ;; If given a parent, APPEND a subheading, so we
+              ;; don't clobber existing headings.
               (progn
                 (goto-char (org-find-exact-headline-in-buffer parent))
-                (forward-line)
-                (insert "** " heading "\n"))
+                (org-end-of-subtree t)
+                (insert "\n** " heading "\n"))
+            ;; Othrwise, insert a top-level heading.
             (goto-char (point-min))
             (if (re-search-forward "^\\*" nil t)
+                ;; We found a random heading, so Insert before it.
                 (beginning-of-line)
               (goto-char (point-max)))
+            ;; No heading found, so insert one in the "empty" file.
             (insert "* " heading "\n")))
         (save-buffer)))))
 
@@ -56,16 +62,22 @@ FILE-PATH is the target file."
   (neutron--ensure-heading file-path "index")
   (neutron--ensure-heading file-path "project" "index"))
 
-(defun neutron--find-heading-node (heading)
+(defun neutron--find-heading-node (heading &optional file-path)
   "Find and return the AST heading node, or error if not found.
-HEADING is the heading name to search for."
+HEADING is the heading name to search for.
+FILE-PATH is only needed to make error messages more useful."
   (let ((tree (org-element-parse-buffer)))
-    (or (org-element-map tree 'headline
-          (lambda (hl)
-            (when (string= (org-element-property :raw-value hl) heading)
-              hl))
-          nil t)
-        (error "Heading \"%s\" not found" heading))))
+    (let ((node (org-element-map tree 'headline
+                  (lambda (hl)
+                    (when (string= (org-element-property :raw-value hl) heading)
+                      hl))
+                  nil t)))
+      (unless node
+        (message
+         "neutron: target heading (\"%s\") not found. Cannot insert index item%s"
+         heading
+         (or (concat " in " file-path) ""))) ;; More readable error message.
+      node)))
 
 (defun neutron--find-item-by-id (items id)
   "Search ITEMS for one with matching org-roam ID. Return item or nil.
@@ -115,7 +127,7 @@ SUMMARY is the description after the link."
   (if (org-in-item-p)
       (org-insert-item)
     (insert "- "))
-  (insert (format "[[id:%s][%s]]: %s\n" id title (or summary ""))))
+  (insert (format "[[id:%s][%s]]: %s" id title (or summary ""))))
 
 (defun neutron--upsert-index-link (file-path heading id title &optional summary insert)
   "Insert or update a link under HEADING in FILE-PATH by org-roam ID.
@@ -133,29 +145,33 @@ the summary is locked and won't be replaced."
   (let ((buf (find-file-noselect file-path)))
     (with-current-buffer buf
       (save-excursion
-        (let* ((heading-node (neutron--find-heading-node heading))
-               (contents (org-element-contents heading-node))
-               (items (org-element-map contents 'item (lambda (item) item)))
-               (found-item (neutron--find-item-by-id items id)))
-          (if found-item
-              ;; Update.
-              (let* ((item-text (buffer-substring
-                                 (org-element-property :contents-begin found-item)
-                                 (org-element-property :contents-end found-item)))
-                     (locked (string-match "\\]\\]!:" item-text))
-                     (old-summary (neutron--extract-old-summary item-text))
-                     (new-content (neutron--build-link-content id title old-summary summary locked)))
-                (neutron--update-item found-item new-content))
-            ;; Insert.
-            (let ((insert-pos (or (if insert
-                                      (org-element-property :contents-begin heading-node)
-                                    (org-element-property :contents-end heading-node))
-                                  ;; Empty heading: position after heading line.
-                                  (save-excursion
-                                    (goto-char (org-element-property :begin heading-node))
-                                    (forward-line)
-                                    (point)))))
-              (neutron--insert-new-item insert-pos id title summary)))))
-      (save-buffer))))
+        (let ((heading-node (neutron--find-heading-node heading file-path)))
+          (unless heading-node
+            (neutron--ensure-index-structure file-path)
+            (setq heading-node (neutron--find-heading-node heading file-path)))
+          (when heading-node
+            (let* ((contents (org-element-contents heading-node))
+                   (items (org-element-map contents 'item (lambda (item) item)))
+                   (found-item (neutron--find-item-by-id items id)))
+              (if found-item
+                  ;; Update.
+                  (let* ((item-text (buffer-substring
+                                     (org-element-property :contents-begin found-item)
+                                     (org-element-property :contents-end found-item)))
+                         (locked (string-match "\\]\\]!:" item-text))
+                         (old-summary (neutron--extract-old-summary item-text))
+                         (new-content (neutron--build-link-content id title old-summary summary locked)))
+                    (neutron--update-item found-item new-content))
+                ;; Insert.
+                (let ((insert-pos (or (if insert
+                                          (org-element-property :contents-begin heading-node)
+                                        (org-element-property :contents-end heading-node))
+                                      ;; Empty heading: position after heading line.
+                                      (save-excursion
+                                        (goto-char (org-element-property :begin heading-node))
+                                        (forward-line)
+                                        (point)))))
+                  (neutron--insert-new-item insert-pos id title summary))))
+            (save-buffer)))))))
 
 (provide 'neutron-org)
