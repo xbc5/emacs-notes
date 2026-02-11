@@ -7,6 +7,12 @@
 - Comment on conditionals, with short, concise descriptions.
 - Create doc strings, and put each parameter on a separate line.
 
+### Comments
+
+Write comments as cause-and-effect: state the reason first, then the consequence with "so".
+
+Example: "The same ID might appear in multiple headings, so find which lists contain our items and update all of them."
+
 ## Org mode
 
 ### Modifying buffers
