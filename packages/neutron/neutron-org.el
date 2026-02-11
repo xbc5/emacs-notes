@@ -57,8 +57,10 @@ PARENT, if given, inserts HEADING as a subheading under PARENT."
               ;; don't clobber existing headings.
               (progn
                 (goto-char (org-find-exact-headline-in-buffer parent))
-                (org-end-of-subtree t)
-                (insert "\n** " heading "\n"))
+                ;; Derive the child level from the parent, so headings nest correctly.
+                (let ((child-stars (make-string (1+ (org-outline-level)) ?*)))
+                  (org-end-of-subtree t)
+                  (insert "\n" child-stars " " heading "\n")))
             ;; Othrwise, insert a top-level heading.
             (goto-char (point-min))
             (if (re-search-forward "^\\*" nil t)
@@ -182,7 +184,7 @@ the summary is locked and won't be replaced."
                 (let ((heading-node (neutron--find-heading-in-ast index-node heading)))
                   ;; If index heading is missing, create it and re-parse.
                   (unless heading-node
-                    (neutron--ensure-heading file-path heading "index")
+                    (neutron--ensure-heading file-path heading "project")
                     (setq ast (org-element-parse-buffer))
                     (setq index-node (neutron--find-heading-in-ast ast "index"))
                     (setq heading-node (neutron--find-heading-in-ast index-node heading)))
@@ -246,10 +248,12 @@ FILE-PATH defaults to the buffer file name."
       ('index
        ;; Create a two-way link relationship with the parent index.
        (when-let ((parent-index (neutron--get-parent-index file)))
-         (neutron--upsert-index-link parent-index "project" id title summary)
+         ;; Insert link into the parent.
+         (neutron--upsert-index-link parent-index "children" id title summary)
          (let ((parent-props (with-current-buffer (find-file-noselect parent-index)
                                (neutron--get-index-related-props))))
-           (neutron--upsert-index-link file "project"
+           ;; Insert parent link into the current file.
+           (neutron--upsert-index-link file "parent"
                                        (plist-get parent-props :id)
                                        (plist-get parent-props :title)
                                        (plist-get parent-props :summary))))
@@ -259,31 +263,33 @@ FILE-PATH defaults to the buffer file name."
          (let ((child-props (with-current-buffer (find-file-noselect child-index)
                               (neutron--get-index-related-props))))
            ;; Insert child links into the local index file.
-           (neutron--upsert-index-link file "project"
+           (neutron--upsert-index-link file "children"
                                        (plist-get child-props :id)
                                        (plist-get child-props :title)
                                        (plist-get child-props :summary))
            ;; Insert the local index link into the child.
-           (neutron--upsert-index-link child-index "project" id title summary)))
+           (neutron--upsert-index-link child-index "parent" id title summary)))
        ;; Create a two-way link relationship with siblings.
        (dolist (sibling (neutron--get-siblings file))
          (let ((sib-props (with-current-buffer (find-file-noselect sibling)
                             (neutron--get-index-related-props))))
            ;; Insert sibling link into this index.
-           (neutron--upsert-index-link file "project"
+           (neutron--upsert-index-link file "siblings"
                                        (plist-get sib-props :id)
                                        (plist-get sib-props :title)
                                        (plist-get sib-props :summary))
            ;; Insert this index link into the sibling.
-           (neutron--upsert-index-link sibling "project" id title summary))))
+           (neutron--upsert-index-link sibling "home" id title summary))))
       ;; If the current file is a sibling.
       ('sibling
        ;; Create a two-way link relationship with the local index.
        (when-let ((local-index (neutron--get-local-index file)))
-         (neutron--upsert-index-link local-index "project" id title summary)
+         ;; Insert a backlink into the local index.
+         (neutron--upsert-index-link local-index "siblings" id title summary)
          (let ((index-props (with-current-buffer (find-file-noselect local-index)
                               (neutron--get-index-related-props))))
-           (neutron--upsert-index-link file "project"
+           ;; Insert a local index link into this file.
+           (neutron--upsert-index-link file "home"
                                        (plist-get index-props :id)
                                        (plist-get index-props :title)
                                        (plist-get index-props :summary)))))
