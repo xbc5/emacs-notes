@@ -140,4 +140,26 @@ Returns nil if the file is not found or is outside neutron-dir."
       (mapcar #'expand-file-name
               (f-glob "*/index.org" buffer-dir)))))
 
+(defun neutron--get-local-index (&optional file-path)
+  "Return the path to the local index (index.org in the same directory).
+FILE-PATH is where to start looking (defaults to buffer file name).
+Returns nil if the file is not found or is outside neutron-dir."
+  (let* ((local-dir (f-dirname (or file-path (buffer-file-name))))
+         (local-index (f-join local-dir "index.org")))
+    (when (and (f-exists-p local-index)
+               (f-ancestor-of-p neutron-dir local-index))
+      local-index)))
+
+(defun neutron--get-siblings (&optional file-path)
+  "Return a list of absolute paths to sibling files in the same directory.
+FILE-PATH is where to start looking (defaults to buffer file name).
+Returns nil if the file is not found or is outside neutron-dir."
+  (let* ((file (or file-path (buffer-file-name)))
+         (local-dir (f-dirname file)))
+    (when (file-in-directory-p local-dir neutron-dir)
+      (seq-filter (lambda (f)
+                    (and (not (f-same-p f file))
+                         (not (string= (f-filename f) "index.org"))))
+                  (f-files local-dir (lambda (f) (f-ext-p f "org")))))))
+
 (provide 'neutron-fs)
