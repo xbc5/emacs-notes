@@ -1,6 +1,5 @@
 ;; -*- lexical-binding: t; -*-
 (require 'neutron-constants)
-(require 'neutron-init)
 (require 'neutron-ui)
 (require 'neutron-org-roam)
 
