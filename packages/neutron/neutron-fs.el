@@ -161,4 +161,12 @@ Returns nil if the file is not found or is outside neutron-dir."
                          (not (string= (f-filename f) "index.org"))))
                   (f-files local-dir (lambda (f) (f-ext-p f "org")))))))
 
+(defun neutron--save-modified-buffers ()
+  "Save all modified buffers visiting files under `neutron-dir'."
+  (dolist (buf (buffer-list))
+    (when (and (buffer-file-name buf)
+               (buffer-modified-p buf)
+               (f-ancestor-of-p neutron-dir (buffer-file-name buf)))
+      (with-current-buffer buf (save-buffer)))))
+
 (provide 'neutron-fs)

@@ -69,8 +69,7 @@ PARENT, if given, inserts HEADING as a subheading under PARENT."
                 (beginning-of-line)
               (goto-char (point-max)))
             ;; No heading found, so insert one in the "empty" file.
-            (insert "\n* " heading "\n")))
-        (save-buffer)))))
+            (insert "\n* " heading "\n")))))))
 
 (defun neutron--ensure-index-structure (file-path)
   "Ensure both * index and ** project headings exist in FILE-PATH.
@@ -200,8 +199,7 @@ the summary is locked and won't be replaced."
                     (end (org-element-property :end index-node)))
                 (delete-region beg end)
                 (goto-char beg)
-                (insert (org-element-interpret-data index-node)))
-              (save-buffer))))))))
+                (insert (org-element-interpret-data index-node))))))))))
 
 (defun neutron--remove-index-link (file-path id &optional ast)
   "Remove links by org-roam ID from index.project in FILE-PATH, at any depth.
@@ -264,8 +262,7 @@ AST is an optional pre-parsed org-element tree."
                     (end (org-element-property :end index-node)))
                 (delete-region beg end)
                 (goto-char beg)
-                (insert (org-element-interpret-data index-node)))
-              (save-buffer))))))))
+                (insert (org-element-interpret-data index-node))))))))))
 
 (defun neutron--sync-index-links (&optional file-path)
   "Synchronize index links for FILE-PATH based on its type.
@@ -329,7 +326,9 @@ FILE-PATH defaults to the buffer file name."
                                        (plist-get index-props :title)
                                        (plist-get index-props :summary)))))
       (type
-       (error "Unknown file type: %s" type)))))
+       (error "Unknown file type: %s" type)))
+    ;; Save at the end, so intermediate saves don't trigger hooks on incomplete state.
+    (neutron--save-modified-buffers)))
 
 (defun neutron--delete-index-links-related-to (&optional file-path)
   "Remove all index links to FILE-PATH from related files.
@@ -356,6 +355,8 @@ FILE-PATH defaults to the buffer file name."
        (when-let ((local-index (neutron--get-local-index file)))
          (neutron--remove-index-link local-index id)))
       (type
-       (error "Unknown file type: %s" type)))))
+       (error "Unknown file type: %s" type)))
+    ;; Save at the end, so intermediate saves don't trigger hooks on incomplete state.
+    (neutron--save-modified-buffers)))
 
 (provide 'neutron-org)
