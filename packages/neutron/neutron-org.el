@@ -299,4 +299,31 @@ FILE-PATH defaults to the buffer file name."
       (type
        (error "Unknown file type: %s" type)))))
 
+(defun neutron--delete-index-links-related-to (&optional file-path)
+  "Remove all index links to FILE-PATH from related files.
+If FILE-PATH is an index, remove it from parent, children, and siblings.
+If FILE-PATH is a sibling, remove it from the local index.
+FILE-PATH defaults to the buffer file name."
+  (let* ((file (or file-path (buffer-file-name)))
+         (props (neutron--get-index-related-props))
+         (id (plist-get props :id))
+         (file-type (neutron--file-type file)))
+    (pcase file-type
+      ('index
+       ;; Remove this index from parent's children list.
+       (when-let ((parent-index (neutron--get-parent-index file)))
+         (neutron--remove-index-link parent-index id))
+       ;; Remove this index from each child's parent link.
+       (dolist (child-index (neutron--get-child-indexes file))
+         (neutron--remove-index-link child-index id))
+       ;; Remove this index from each sibling's home link.
+       (dolist (sibling (neutron--get-siblings file))
+         (neutron--remove-index-link sibling id)))
+      ('sibling
+       ;; Remove this sibling from the local index.
+       (when-let ((local-index (neutron--get-local-index file)))
+         (neutron--remove-index-link local-index id)))
+      (type
+       (error "Unknown file type: %s" type)))))
+
 (provide 'neutron-org)
