@@ -203,37 +203,69 @@ the summary is locked and won't be replaced."
                 (insert (org-element-interpret-data index-node)))
               (save-buffer))))))))
 
-(defun neutron--remove-index-link (file-path id)
-  "Remove links by org-roam ID from the index in FILE-PATH.
+(defun neutron--remove-index-link (file-path id &optional ast)
+  "Remove links by org-roam ID from index.project in FILE-PATH, at any depth.
+Ignores index.project.related.
 FILE-PATH is the target index file.
-ID is the org-roam ID to remove."
+ID is the org-roam ID to remove.
+AST is an optional pre-parsed org-element tree."
   (let ((buf (find-file-noselect file-path)))
     (with-current-buffer buf
       (save-excursion
-        (let* ((ast (org-element-parse-buffer))
-               (index-node (neutron--find-heading-in-ast ast "index")))
-          (when index-node
-            ;; Find all items with this ID.
-            (let ((found-items (neutron--find-items-by-id index-node id)))
-              ;; The same ID might appear in multiple headings, so find which lists contain our items and update all of them.
-              (let ((parent-lists (delete-dups
-                                   (mapcar (lambda (item)
-                                             (org-element-property :parent item))
-                                           found-items))))
-                ;; Remove matched items from each parent list.
-                (dolist (list-node parent-lists)
-                  (org-element-set-contents
-                   list-node
-                   (seq-filter (lambda (child)
-                                 (not (memq child found-items)))
-                               (org-element-contents list-node))))))
+        (let* ((tree (or ast (org-element-parse-buffer)))
+               (index-node (neutron--find-heading-in-ast tree "index"))
+               (project-node (and index-node (neutron--find-heading-in-ast index-node "project")))
+               (related-node (and project-node (neutron--find-heading-in-ast project-node "related"))))
+          (when project-node
+            ;; Find items with the target ID under index.project.
+            (let ((found-items (neutron--find-items-by-id project-node id)))
+              ;; Exclude items under "related", because those are manually managed.
+              (when related-node
+                (let ((related-items (neutron--find-items-by-id related-node id)))
+                  (setq found-items
+                        (seq-remove (lambda (item) (memq item related-items))
+                                    found-items))))
+              ;; In the AST, bullet-list items are wrapped in an invisible plain-list node:
+              ;;
+              ;;   * index
+              ;;   ** project
+              ;;   *** children
+              ;;       - [[id:abc][Child A]]: summary
+              ;;       - [[id:def][Child B]]: summary
+              ;;   *** siblings
+              ;;       - [[id:ghi][Sibling]]: summary
+              ;;
+              ;;   headline "children"
+              ;;     └── plain-list        <-- :parent returns this
+              ;;         ├── item "Child A"
+              ;;         └── item "Child B"
+              ;;
+              ;; If we want to remove Child A, we get the plain-list that
+              ;; wraps it, then filter Child A out of that plain-list's contents.
+              (dolist (item found-items)
+                (let* ((bullet-list (org-element-property :parent item))
+                       (remaining (seq-remove (lambda (child) (eq child item))
+                                              (org-element-contents bullet-list))))
+                  (if remaining
+                      (org-element-set-contents bullet-list remaining)
+                    ;; Empty plain-lists crash org-element-interpret-data,
+                    ;; so remove the entire plain-list from its containing section.
+                    ;;
+                    ;; Get the section node that contains the bullet-list (one level up).
+                    (let ((section (org-element-property :parent bullet-list)))
+                      ;; Replace the section's children with everything except the empty bullet-list.
+                      (org-element-set-contents
+                       section
+                       (seq-remove (lambda (child) (eq child bullet-list))
+                                   (org-element-contents section))))))))
             ;; Write back the index subtree.
-            (let ((beg (org-element-property :begin index-node))
-                  (end (org-element-property :end index-node)))
-              (delete-region beg end)
-              (goto-char beg)
-              (insert (org-element-interpret-data index-node)))
-            (save-buffer)))))))
+            (when index-node
+              (let ((beg (org-element-property :begin index-node))
+                    (end (org-element-property :end index-node)))
+                (delete-region beg end)
+                (goto-char beg)
+                (insert (org-element-interpret-data index-node)))
+              (save-buffer))))))))
 
 (defun neutron--sync-index-links (&optional file-path)
   "Synchronize index links for FILE-PATH based on its type.
