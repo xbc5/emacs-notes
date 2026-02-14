@@ -2,6 +2,8 @@
 (require 'neutron-constants)
 (require 'neutron-ui)
 (require 'neutron-org-roam)
+(require 'neutron-org)
+(require 'f)
 
 ;; Create the root project directory
 (defun neutron--create-root-dir ()
@@ -66,7 +68,9 @@ INCLUDE-ROOT adds the root directory as an option."
          (full-path (f-join parent dir-name))
          (index-path (f-join full-path "index.org")))
     (mkdir full-path t)
-    (neutron--create-roam-node index-path project-title)))
+    (neutron--create-roam-node index-path project-title)
+    (when-let ((buf (find-buffer-visiting index-path)))
+      (with-current-buffer buf (save-buffer)))))
 
 (defun neutron-delete-project ()
   "Delete a neutron project."
@@ -92,7 +96,12 @@ INCLUDE-ROOT adds the root directory as an option."
                                        (neutron--format-path project)
                                        (neutron--format-path new-path)))))
         (when confirm
-          (neutron--move-dir project new-path))))))
+          ;; Disconnect removes bidirectional index links from the node and its
+          ;; parent/local-index, so it can be re-synced into the new location fresh.
+          (neutron--disconnect-node project)
+          (neutron--move-dir project new-path)
+          (when-let ((buf (find-buffer-visiting (f-join new-path "index.org"))))
+            (with-current-buffer buf (save-buffer))))))))
 
 (defun neutron--is-index (&optional file-path)
   "Return non-nil if FILE-PATH is an index file (index.org) within neutron-dir.
