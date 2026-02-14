@@ -76,11 +76,17 @@ INCLUDE-ROOT adds the root directory as an option."
   "Delete a neutron project."
   (interactive)
   (let* ((project (neutron--pick-project-dir "DELETE project: " t))
+         (index-path (f-join project "index.org"))
          (confirm (y-or-n-p (format "Delete %s? " (neutron--format-path project)))))
     (when confirm
-      (dolist (file (directory-files-recursively project "\\.org$"))
-        (when-let ((buf (find-buffer-visiting file)))
-          (kill-buffer buf)))
+      ;; Disconnect removes bidirectional index links from the node and its
+      ;; parent/local-index, so the index doesn't have dangling links.
+      (neutron--disconnect-node project)
+      ;; Force kill the index buffer.
+      (when-let ((buf (find-buffer-visiting index-path)))
+        (with-current-buffer buf (set-buffer-modified-p nil))
+        (kill-buffer buf))
+      ;; Delete the directory after disconnecting.
       (delete-directory project t))))
 
 (defun neutron-move-project ()
@@ -177,5 +183,43 @@ Returns nil if the file is not found or is outside neutron-dir."
                (buffer-modified-p buf)
                (f-ancestor-of-p neutron-dir (buffer-file-name buf)))
       (with-current-buffer buf (save-buffer)))))
+
+(defun neutron--save-related-files (&optional types file-path)
+  "Save files related to FILE-PATH.
+TYPES is a list of symbols: 'parent-index, 'local-index, 'siblings,
+'children, or 'all. Defaults to '(all).
+FILE-PATH is optional and defaults to the current buffer."
+  (let ((anchor-file (or file-path (buffer-file-name)))
+        (files-to-save))
+    ;; Collect files to save based on types.
+    (cl-loop for type in (or types '(all)) do
+             (pcase type
+               ('parent-index
+                (when-let ((parent (neutron--get-parent-index anchor-file)))
+                  (push parent files-to-save)))
+               ('local-index
+                (when-let ((local (neutron--get-local-index anchor-file)))
+                  (push local files-to-save)))
+               ('siblings
+                (dolist (sib (neutron--get-siblings anchor-file))
+                  (push sib files-to-save)))
+               ('children
+                (dolist (child (neutron--get-child-indexes anchor-file))
+                  (push child files-to-save)))
+               ('all
+                (when-let ((parent (neutron--get-parent-index anchor-file)))
+                  (push parent files-to-save))
+                (when-let ((local (neutron--get-local-index anchor-file)))
+                  (push local files-to-save))
+                (dolist (sib (neutron--get-siblings anchor-file))
+                  (push sib files-to-save))
+                (dolist (child (neutron--get-child-indexes anchor-file))
+                  (push child files-to-save))
+                ;; All types collected, so stop iterating.
+                (cl-return))))
+    ;; Save buffers for collected files.
+    (dolist (path files-to-save)
+      (when-let ((buf (find-buffer-visiting path)))
+        (with-current-buffer buf (save-buffer))))))
 
 (provide 'neutron-fs)
