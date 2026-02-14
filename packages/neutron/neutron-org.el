@@ -32,6 +32,19 @@ AST is an optional pre-parsed org-element tree."
     ;; The document node is the root; get its :ID: property.
     (org-element-property :ID tree)))
 
+(defun neutron--get-id-from-file-path (path)
+  "Extract the org-roam ID from the file at PATH.
+PATH is the file path to read."
+  (with-current-buffer (find-file-noselect path)
+    (neutron--get-id)))
+
+(defun neutron--get-props-from-file-path (path)
+  "Extract index-related properties from the file at PATH.
+PATH is the file path to read.
+Returns (:title TITLE :summary SUMMARY :id ID)."
+  (with-current-buffer (find-file-noselect path)
+    (neutron--get-index-related-props)))
+
 (defun neutron--get-index-related-props (&optional ast)
   "Return a plist of index-related properties from the current buffer.
 AST is an optional pre-parsed org-element tree.
@@ -329,33 +342,64 @@ FILE-PATH defaults to the buffer file name."
        (error "Unknown file type: %s" type)))
     nil))
 
-(defun neutron--disconnect-node (&optional path)
+(defun neutron--delete-two-way-parent-link (node-file-path node-id parent-file-path node-ast)
+  "Delete a bidirectional link between NODE-FILE-PATH and its parent.
+NODE-FILE-PATH is the target node's index file path.
+NODE-ID is the node's org-roam ID.
+PARENT-FILE-PATH is the parent index file path.
+NODE-AST is a pre-parsed org-element tree for the node's index file."
+  ;; Parse parent once, so both calls reuse the same AST.
+  (let* ((parent-buf (find-file-noselect parent-file-path))
+         (parent-ast (with-current-buffer parent-buf
+                       (org-element-parse-buffer)))
+         (parent-props (with-current-buffer parent-buf
+                         (neutron--get-index-related-props parent-ast))))
+    ;; Remove the node from the parent's list.
+    (neutron--remove-index-link parent-file-path node-id parent-ast)
+    ;; Remove the parent link from the node.
+    (neutron--remove-index-link node-file-path (plist-get parent-props :id) node-ast)))
+
+(defun neutron--disconnect-node (&optional path ast)
   "Disconnect the node at PATH from the graph.
 PATH must be a file or directory under `neutron-dir'. If PATH is a
 directory, it must contain an index.org file. If not provided, PATH
 defaults to the directory of the current file.
+AST is an optional pre-parsed org-element tree for the node's index file.
 Return t on success, nil on error."
+  ;; AST without a path is unusable, because we need the path for remove-index-link.
+  (when (and ast (not path))
+    (error "neutron--disconnect-node: AST provided without a path"))
   ;; Normalize path: if it's a file, get its directory; if it's a directory, use it as-is.
   (let* ((default-dir (file-name-directory (buffer-file-name)))
          (input-dir (or path default-dir))
-         ;; If path is a dir, use that, otherwise get the dir from file path.
          (normalized-dir (if (file-directory-p input-dir) input-dir
                            (file-name-directory input-dir)))
-         (index-file (expand-file-name "index.org" normalized-dir)))
-    ;; Check the directory is a node (has an index.org file in it).
+         (index-file-path (expand-file-name "index.org" normalized-dir)))
+    ;; The directory must be a node (has an index.org within neutron-dir).
     (if (not (and (file-in-directory-p normalized-dir neutron-dir)
-                  (file-exists-p index-file)))
+                  (file-exists-p index-file-path)))
         (progn
           (message (concat "neutron--disconnect-node: path is not a Neutron node: '%s'."
                            "Must have an index.org file within it.")
                    normalized-dir)
           nil)
-      ;; Get the ID of the node's index.org, and remove it from the parent.
-      (let* ((id (with-current-buffer (find-file-noselect index-file)
-                   (neutron--get-id)))
-             (parent-index (neutron--get-parent-index index-file)))
-        (if parent-index
-            (progn (neutron--remove-index-link parent-index id) t)
-          nil)))))
+      ;; Parse the node's index file once, so we can reuse the AST.
+      (let* ((tree (or ast (with-current-buffer (find-file-noselect index-file-path)
+                             (org-element-parse-buffer))))
+             (id (neutron--get-id tree))
+             (file-type (neutron--file-type index-file-path)))
+        ;; Remove parent reference depending on node type.
+        (pcase file-type
+          ('index
+           (when-let ((parent-index (neutron--get-parent-index index-file-path)))
+             (neutron--delete-two-way-parent-link index-file-path id parent-index tree))
+           t)
+          ('sibling
+           (when-let ((local-index (neutron--get-local-index index-file-path)))
+             (neutron--delete-two-way-parent-link index-file-path id local-index tree))
+           t)
+          (type
+           (message "neutron--disconnect-node: unknown file type: %s" type)
+           nil))))))
 
 (provide 'neutron-org)
