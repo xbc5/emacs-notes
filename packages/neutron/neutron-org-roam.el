@@ -1,5 +1,7 @@
 ;; -*- lexical-binding: t; -*-
 (require 'neutron-constants)
+(require 'org-id)
+(require 'org-roam-db)
 
 (defun neutron--create-roam-node (file-path title)
   "Create an org-roam node for FILE-PATH with TITLE.
@@ -23,3 +25,4 @@ TITLE is the display title for the node."
     (org-roam-db-update-file file-path)))
 
 (provide 'neutron-org-roam)
+;;; neutron-org-roam.el ends here.

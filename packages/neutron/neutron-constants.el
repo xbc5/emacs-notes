@@ -8,3 +8,4 @@
 (defvar neutron--syncing nil "Prevent the index sync hook from recursing on save. t when a sync is in progress.")
 
 (provide 'neutron-constants)
+;;; neutron-constants.el ends here.

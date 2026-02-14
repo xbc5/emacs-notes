@@ -75,3 +75,4 @@
 (when neutron-auto-index (neutron--setup-auto-index))
 
 (provide 'neutron)
+;;; neutron.el ends here.
