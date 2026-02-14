@@ -30,3 +30,4 @@ Prefer `f-*` functions over built-in Emacs functions.
 - Copy nodes when using local (partial) parsers, but when building a full parse tree, you can modify the AST in place.
 - Use the appropriate options to make rendering the AST as similar as possible to the source.
 - If you must split the code into smaller functions, consider initialising the AST in the composite function, and injecting it as a dependency.
+- Never parse a file into an AST more than once. Accept an optional AST parameter where necessary, but always pass the AST down through function calls where possible.
