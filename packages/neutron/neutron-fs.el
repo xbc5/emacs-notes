@@ -37,7 +37,8 @@ INCLUDE-ROOT adds the root directory as an option."
   (file-relative-name path neutron-dir))
 
 (defun neutron--slugify (str)
-  "Lowercase, trim, and replace whitespace with dashes."
+  "Lowercase, trim, and replace whitespace with dashes.
+STR: The string to slugify."
   (replace-regexp-in-string "\\s-+" "-" (downcase (string-trim str))))
 
 (defun neutron--touch (path)
