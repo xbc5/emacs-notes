@@ -104,12 +104,16 @@ INCLUDE-ROOT adds the root directory as an option."
                                        (neutron--format-path project)
                                        (neutron--format-path new-path)))))
         (when confirm
-          ;; Disconnect removes bidirectional index links from the node and its
-          ;; parent/local-index, so it can be re-synced into the new location fresh.
-          (neutron--disconnect-node project)
-          (neutron--move-dir project new-path)
-          (when-let ((buf (find-buffer-visiting (f-join new-path "index.org"))))
-            (with-current-buffer buf (save-buffer))))))))
+          (let ((old-index (f-join project "index.org"))
+                (new-index (f-join new-path "index.org")))
+            ;; Disconnect removes bidirectional index links from the node and its
+            ;; parent/local-index, so it can be re-synced into the new location fresh.
+            (neutron--disconnect-node project)
+            ;; Save the old parent so disconnect's changes are persisted.
+            (neutron--save-related-files '(parent-index) old-index)
+            (neutron--move-dir project new-path)
+            ;; Save the new index and parent so the re-synced links are persisted.
+            (neutron--save-related-files '(local-index parent-index) new-index)))))))
 
 (defun neutron--is-index (&optional file-path)
   "Return non-nil if FILE-PATH is an index file (index.org) within neutron-dir.
