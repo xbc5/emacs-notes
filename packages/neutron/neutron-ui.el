@@ -5,3 +5,4 @@
   (read-string message))
 
 (provide 'neutron-ui)
+;;; neutron-ui.el ends here.
