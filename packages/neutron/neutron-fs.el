@@ -70,8 +70,8 @@ STR: The string to slugify."
          (index-path (f-join full-path "index.org")))
     (mkdir full-path t)
     (neutron--create-roam-node index-path project-title)
-    (when-let ((buf (find-buffer-visiting index-path)))
-      (with-current-buffer buf (save-buffer)))))
+    ;; Save the new index and parent so the synced links are persisted.
+    (neutron--save-related-files '(local-index parent-index) index-path)))
 
 (defun neutron-delete-project ()
   "Delete a neutron project."
