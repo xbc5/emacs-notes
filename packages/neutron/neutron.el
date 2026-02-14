@@ -59,6 +59,62 @@
 (require 'neutron-org-roam)
 (require 'neutron-ui)
 
+(defun neutron-create-project ()
+  "Create a new neutron project."
+  (interactive)
+  (let* ((parent (neutron--pick-project-dir "DESTINATION directory: " t t))
+         (project-title (neutron--prompt "Project TITLE: "))
+         (dir-name (neutron--slugify project-title))
+         (full-path (f-join parent dir-name))
+         (index-path (f-join full-path "index.org")))
+    (mkdir full-path t)
+    (neutron--create-roam-node index-path project-title)
+    ;; Save the new index and parent so the synced links are persisted.
+    (neutron--save-related-files '(local-index parent-index) index-path)))
+
+(defun neutron-delete-project ()
+  "Delete a neutron project."
+  (interactive)
+  (let* ((project (neutron--pick-project-dir "DELETE project: " t))
+         (index-path (f-join project "index.org"))
+         (confirm (y-or-n-p (format "Delete %s? " (neutron--format-path project)))))
+    (when confirm
+      ;; Disconnect removes bidirectional index links from the node and its
+      ;; parent/local-index, so the index doesn't have dangling links.
+      (neutron--disconnect-node project)
+      ;; Force kill the index buffer.
+      (when-let ((buf (find-buffer-visiting index-path)))
+        (with-current-buffer buf (set-buffer-modified-p nil))
+        (kill-buffer buf))
+      ;; Delete the directory after disconnecting.
+      (delete-directory project t)
+      ;; Save the parent so disconnect's changes are persisted.
+      (neutron--save-related-files '(parent-index) index-path))))
+
+(defun neutron-move-project ()
+  "Move a neutron project to another directory."
+  (interactive)
+  (let* ((project (neutron--pick-project-dir "SOURCE project: " t))
+         (destination (neutron--pick-project-dir "DESTINATION directory: " t t))
+         (project-name (file-name-nondirectory project))
+         (new-path (f-join destination project-name)))
+    (if (file-exists-p new-path)
+        (message "Collision: \"%s\" already exists in \"%s\"." project-name (neutron--format-path destination))
+      (let ((confirm (y-or-n-p (format "Move %s to %s? "
+                                       (neutron--format-path project)
+                                       (neutron--format-path new-path)))))
+        (when confirm
+          (let ((old-index (f-join project "index.org"))
+                (new-index (f-join new-path "index.org")))
+            ;; Disconnect removes bidirectional index links from the node and its
+            ;; parent/local-index, so it can be re-synced fresh at the new location.
+            (neutron--disconnect-node project)
+            ;; Save the old parent so disconnect's changes are persisted.
+            (neutron--save-related-files '(parent-index) old-index)
+            (neutron--move-dir project new-path)
+            ;; Save the new index and parent so the re-synced links are persisted.
+            (neutron--save-related-files '(local-index parent-index) new-index)))))))
+
 (mkdir neutron-dir t)
 
 (defun neutron--setup-auto-index ()
@@ -73,6 +129,7 @@
                   (neutron--sync-index-links))))))
 
 (when neutron-auto-index (neutron--setup-auto-index))
+
 
 (provide 'neutron)
 ;;; neutron.el ends here.
