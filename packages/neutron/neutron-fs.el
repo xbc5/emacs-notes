@@ -87,7 +87,9 @@ INCLUDE-ROOT adds the root directory as an option."
         (with-current-buffer buf (set-buffer-modified-p nil))
         (kill-buffer buf))
       ;; Delete the directory after disconnecting.
-      (delete-directory project t))))
+      (delete-directory project t)
+      ;; Save the parent so disconnect's changes are persisted.
+      (neutron--save-related-files '(parent-index) index-path))))
 
 (defun neutron-move-project ()
   "Move a neutron project to another directory."
