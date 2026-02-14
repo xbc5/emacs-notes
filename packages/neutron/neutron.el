@@ -27,21 +27,20 @@
 ;;; index.org file (its sibling index.org).
 ;;;
 ;;; Index.org files are special. They're the main hub for a project (or
-;;; sub-project). They contain a relevant Org Agenda to-do list.
+;;; sub-project). They contain an Org Agenda to-do list.
 ;;;
 ;;;
 ;;; USING PROJECTS
 ;;;
-;;; Neutron's project system is hierarchical, with possibly unlimited nested
+;;; Neutron's project system is hierarchical, with arbitrarily nested
 ;;; projects. Start by creating one parent project (e.g., a software app), then
 ;;; create sub-projects for focused work (like a Git branch). If you find a
 ;;; sub-project requires significant work, you can further create nested
 ;;; sub-projects to divide and conquer.
 ;;;
-;;; Project contents are temporary. While the data may last for years, they're
-;;; not permanent notes. Use notes outside of projects for facts that don't
-;;; belong to them. The general idea is that projects function as a working memory
-;;; for your work.
+;;; Project contents are temporary. While the data may last for years, it's not
+;;; permanent. Use notes outside of projects for facts that don't belong to them.
+;;; The general idea is that projects function as a working memory.
 ;;;
 ;;; One of the primary features of Neutron is project management, and so you can
 ;;; easily create, move, and delete projects. There are three functions to

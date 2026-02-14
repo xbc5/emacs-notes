@@ -6,7 +6,7 @@
   (cadr (assoc "TITLE" (org-collect-keywords '("TITLE")))))
 
 (defun neutron--get-summary (&optional ast)
-  "Extract text content under the * summary heading, or nil if absent/empty.
+  "Extract text under the * summary heading. Return nil if absent or empty.
 AST is an optional pre-parsed org-element tree."
   (let* ((tree (or ast (org-element-parse-buffer)))
          ;; Find the summary heading in the parse tree.
@@ -78,10 +78,10 @@ PARENT, if given, inserts HEADING as a subheading under PARENT."
             ;; Otherwise, insert a top-level heading.
             (goto-char (point-min))
             (if (re-search-forward "^\\*" nil t)
-                ;; We found a random heading, so insert before it.
+                ;; An existing heading was found, so insert before it.
                 (beginning-of-line)
               (goto-char (point-max)))
-            ;; No heading found, so insert one in the "empty" file.
+            ;; Insert the new top-level heading.
             (insert "\n* " heading "\n")))))))
 
 (defun neutron--ensure-index-structure (file-path)
@@ -150,7 +150,7 @@ ITEM is the item AST node to insert.
 PREPEND, if non-nil, inserts at the beginning of the list."
   (let ((plain-list (org-element-map heading-node 'plain-list #'identity nil t)))
     (unless plain-list
-      ;; No list exists — create one and adopt into the heading.
+      ;; No list exists, so create one and attach it to the heading.
       (setq plain-list (org-element-create 'plain-list '(:type unordered)))
       (org-element-adopt-elements heading-node plain-list))
     ;; Insert item into the list.
@@ -180,9 +180,9 @@ the summary is locked and won't be replaced."
         ;; Create the AST.
         (let* ((ast (org-element-parse-buffer))
                (index-node (neutron--find-heading-in-ast ast "index")))
-          ;; Get and use an existing index node.
+          ;; Process the index node if it exists.
           (when index-node
-            ;; Search for identical links.
+            ;; Search for existing links with the same ID.
             (let ((found-items (neutron--find-items-by-id index-node id)))
               (if found-items
                   ;; Update all matching links in the AST.
@@ -195,7 +195,7 @@ the summary is locked and won't be replaced."
                        ;; …by replacing it.
                        item (neutron--build-item id title
                                                  (if locked old-summary summary) locked))))
-                ;; Existing links not found. Instead, insert new link under specified heading.
+                ;; No existing link found, so insert a new one under the specified heading.
                 (let ((heading-node (neutron--find-heading-in-ast index-node heading)))
                   ;; If index heading is missing, create it and re-parse.
                   (unless heading-node

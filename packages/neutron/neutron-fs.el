@@ -108,7 +108,7 @@ STR: The string to slugify."
           (let ((old-index (f-join project "index.org"))
                 (new-index (f-join new-path "index.org")))
             ;; Disconnect removes bidirectional index links from the node and its
-            ;; parent/local-index, so it can be re-synced into the new location fresh.
+            ;; parent/local-index, so it can be re-synced fresh at the new location.
             (neutron--disconnect-node project)
             ;; Save the old parent so disconnect's changes are persisted.
             (neutron--save-related-files '(parent-index) old-index)
