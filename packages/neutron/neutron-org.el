@@ -54,18 +54,18 @@ PARENT, if given, inserts HEADING as a subheading under PARENT."
         ;; Skip if heading already exists.
         (unless (org-find-exact-headline-in-buffer heading)
           (if parent
-              ;; If given a parent, APPEND a subheading, so we
-              ;; don't clobber existing headings.
+              ;; If given a parent, append a subheading to avoid
+              ;; clobbering existing headings.
               (progn
                 (goto-char (org-find-exact-headline-in-buffer parent))
-                ;; Derive the child level from the parent, so headings nest correctly.
+                ;; Derive the child level from the parent so headings nest correctly.
                 (let ((child-stars (make-string (1+ (org-outline-level)) ?*)))
                   (org-end-of-subtree t)
                   (insert "\n" child-stars " " heading "\n")))
-            ;; Othrwise, insert a top-level heading.
+            ;; Otherwise, insert a top-level heading.
             (goto-char (point-min))
             (if (re-search-forward "^\\*" nil t)
-                ;; We found a random heading, so Insert before it.
+                ;; We found a random heading, so insert before it.
                 (beginning-of-line)
               (goto-char (point-max)))
             ;; No heading found, so insert one in the "empty" file.
@@ -164,7 +164,7 @@ the summary is locked and won't be replaced."
         ;; Ensure the document contains an index heading before starting.
         (neutron--ensure-index-structure file-path)
 
-        ;; Create the AST
+        ;; Create the AST.
         (let* ((ast (org-element-parse-buffer))
                (index-node (neutron--find-heading-in-ast ast "index")))
           ;; Get and use an existing index node.
@@ -175,14 +175,14 @@ the summary is locked and won't be replaced."
                   ;; Update all matching links in the AST.
                   (dolist (item found-items)
                     (let* ((item-text (org-element-interpret-data item))
-                           (locked (string-match "\\]\\]!:" item-text)) ;; [link]! is gets ignored.
+                           (locked (string-match "\\]\\]!:" item-text)) ;; Detect locked items (marked with !).
                            (old-summary (neutron--extract-old-summary item-text)))
                       ;; Change the existing item…
                       (neutron--update-item
                        ;; …by replacing it.
                        item (neutron--build-item id title
                                                  (if locked old-summary summary) locked))))
-                ;; Exiting links not found. Instead, insert new link under specified heading.
+                ;; Existing links not found. Instead, insert new link under specified heading.
                 (let ((heading-node (neutron--find-heading-in-ast index-node heading)))
                   ;; If index heading is missing, create it and re-parse.
                   (unless heading-node
@@ -327,36 +327,35 @@ FILE-PATH defaults to the buffer file name."
                                        (plist-get index-props :summary)))))
       (type
        (error "Unknown file type: %s" type)))
-    ;; Save at the end, so intermediate saves don't trigger hooks on incomplete state.
-    (neutron--save-modified-buffers)))
+    nil))
 
-(defun neutron--delete-index-links-related-to (&optional file-path)
-  "Remove all index links to FILE-PATH from related files.
-If FILE-PATH is an index, remove it from parent, children, and siblings.
-If FILE-PATH is a sibling, remove it from the local index.
-FILE-PATH defaults to the buffer file name."
-  (let* ((file (or file-path (buffer-file-name)))
-         (props (neutron--get-index-related-props))
-         (id (plist-get props :id))
-         (file-type (neutron--file-type file)))
-    (pcase file-type
-      ('index
-       ;; Remove this index from parent's children list.
-       (when-let ((parent-index (neutron--get-parent-index file)))
-         (neutron--remove-index-link parent-index id))
-       ;; Remove this index from each child's parent link.
-       (dolist (child-index (neutron--get-child-indexes file))
-         (neutron--remove-index-link child-index id))
-       ;; Remove this index from each sibling's home link.
-       (dolist (sibling (neutron--get-siblings file))
-         (neutron--remove-index-link sibling id)))
-      ('sibling
-       ;; Remove this sibling from the local index.
-       (when-let ((local-index (neutron--get-local-index file)))
-         (neutron--remove-index-link local-index id)))
-      (type
-       (error "Unknown file type: %s" type)))
-    ;; Save at the end, so intermediate saves don't trigger hooks on incomplete state.
-    (neutron--save-modified-buffers)))
+(defun neutron--disconnect-node (&optional path)
+  "Disconnect the node at PATH from the graph.
+PATH must be a file or directory under `neutron-dir'. If PATH is a
+directory, it must contain an index.org file. If not provided, PATH
+defaults to the directory of the current file.
+Return t on success, nil on error."
+  ;; Normalize path: if it's a file, get its directory; if it's a directory, use it as-is.
+  (let* ((default-dir (file-name-directory (buffer-file-name)))
+         (input-dir (or path default-dir))
+         ;; If path is a dir, use that, otherwise get the dir from file path.
+         (normalized-dir (if (file-directory-p input-dir) input-dir
+                           (file-name-directory input-dir)))
+         (index-file (expand-file-name "index.org" normalized-dir)))
+    ;; Check the directory is a node (has an index.org file in it).
+    (if (not (and (file-in-directory-p normalized-dir neutron-dir)
+                  (file-exists-p index-file)))
+        (progn
+          (message (concat "neutron--disconnect-node: path is not a Neutron node: '%s'."
+                           "Must have an index.org file within it.")
+                   normalized-dir)
+          nil)
+      ;; Get the ID of the node's index.org, and remove it from the parent.
+      (let* ((id (with-current-buffer (find-file-noselect index-file)
+                   (neutron--get-id)))
+             (parent-index (neutron--get-parent-index index-file)))
+        (if parent-index
+            (progn (neutron--remove-index-link parent-index id) t)
+          nil)))))
 
 (provide 'neutron-org)
