@@ -368,8 +368,11 @@ FILE-PATH is optional and defaults to the current buffer."
         (sorted-statuses (sort (copy-sequence neutron-project-statuses) #'string<)))
     (with-current-buffer (find-file-noselect file)
       (let ((status (completing-read "Status: " sorted-statuses nil t)))
-        (org-entry-put nil "NEUTRON_PROJECT_STATUS" status)
-        (message "Status: %s" status)))))
+        ;; Apply to file-level :PROPERTIES: drawer, not the closest heading.
+        (org-entry-put (point-min) "NEUTRON_PROJECT_STATUS" status)
+        ;; We want to save buffer here because the user calls this directly.
+        (save-buffer)
+        nil))))
 
 (defun neutron--disconnect-node (&optional path ast)
   "Disconnect the node at PATH from the graph.

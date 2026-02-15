@@ -58,6 +58,7 @@
 (require 'neutron-org)
 (require 'neutron-org-roam)
 (require 'neutron-ui)
+(require 'neutron-agenda)
 
 (defun neutron-create-project ()
   "Create a new neutron project."
@@ -129,7 +130,7 @@
                   (neutron--sync-index-links))))))
 
 (when neutron-auto-index (neutron--setup-auto-index))
-
+(neutron--setup-agenda)
 
 (provide 'neutron)
 ;;; neutron.el ends here.
