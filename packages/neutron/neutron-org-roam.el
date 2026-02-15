@@ -12,6 +12,7 @@ TITLE is the display title for the node."
     (with-temp-file file-path
       (insert (concat ":PROPERTIES:\n"
                       ":ID: " id "\n"
+                      ":NEUTRON_PROJECT_STATUS: inactive\n"
                       ":END:\n"
                       "#+title: " title "\n\n"
                       "* summary\n\n"

@@ -1,4 +1,5 @@
 ;; -*- lexical-binding: t; -*-
+(require 'neutron-constants)
 (require 'neutron-fs)
 
 (defun neutron--get-title ()
@@ -358,6 +359,17 @@ NODE-AST is a pre-parsed org-element tree for the node's index file."
     (neutron--remove-index-link parent-file-path node-id parent-ast)
     ;; Remove the parent link from the node.
     (neutron--remove-index-link node-file-path (plist-get parent-props :id) node-ast)))
+
+(defun neutron-set-project-status (&optional file-path)
+  "Set project status via selection.
+FILE-PATH is optional and defaults to the current buffer."
+  (interactive)
+  (let ((file (or file-path (buffer-file-name)))
+        (sorted-statuses (sort (copy-sequence neutron-project-statuses) #'string<)))
+    (with-current-buffer (find-file-noselect file)
+      (let ((status (completing-read "Status: " sorted-statuses nil t)))
+        (org-entry-put nil "NEUTRON_PROJECT_STATUS" status)
+        (message "Status: %s" status)))))
 
 (defun neutron--disconnect-node (&optional path ast)
   "Disconnect the node at PATH from the graph.
