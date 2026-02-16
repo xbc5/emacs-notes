@@ -8,11 +8,12 @@
 
 FILE-PATH is the absolute path to the org file.
 TITLE is the display title for the node."
-  (let ((id (org-id-new)))
+  (let ((id (org-id-new))
+        (default-status (or (car neutron-project-statuses) "inactive")))
     (with-temp-file file-path
       (insert (concat ":PROPERTIES:\n"
                       ":ID: " id "\n"
-                      ":NEUTRON_PROJECT_STATUS: inactive\n"
+                      ":NEUTRON_PROJECT_STATUS: " default-status "\n"
                       ":END:\n"
                       "#+title: " title "\n\n"
                       "* summary\n\n"
