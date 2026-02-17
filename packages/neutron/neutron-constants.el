@@ -5,6 +5,18 @@
 (defvar neutron-auto-index t "Automatically populate indexes with project links.")
 (defvar neutron-project-statuses '("inactive" "incubating" "active" "tickler") "List of valid project statuses. The first is the default.")
 
+;; Node structure shared by synchronous creation and org-roam capture.
+(defvar neutron--node-headings
+  (concat "* summary\n\n"
+          "* index\n\n"
+          "* tasks\n\n"
+          "* progress\n\n"
+          "* spec\n\n"
+          "* data\n\n"
+          "* thoughts\n\n"
+          "* ideas\n")
+  "Default heading structure for new neutron nodes.")
+
 ;; Global state. Do not modify these.
 (defvar neutron--syncing nil "Prevent the index sync hook from recursing on save. t when a sync is in progress.")
 (defvar neutron--last-selected-project-index nil "Last selected project index file path, so the finder can pre-select it.")
