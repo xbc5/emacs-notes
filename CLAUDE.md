@@ -19,6 +19,16 @@ Prefer `f-*` functions over built-in Emacs functions.
 
 ## Org mode
 
+### Before writing any Org mode code
+
+**Read the documentation first.** Never make assumptions about how Org mode functions work. Consult https://orgmode.org/worg/doc.html before implementing any Org mode code. This must be done at the start of each session.
+
+### Prefer builtins over custom logic
+
+- Use built-in Org mode functions and Emacs APIs when available.
+- Only write custom functions where built-ins do not suffice.
+- If you find yourself writing custom logic, consider using the AST (Org Element API) instead.
+
 ### Modifying buffers
 
 #### Use the Org Element API (AST)
