@@ -9,10 +9,17 @@
   "Create the neutron root directory with parent directories as needed."
   (mkdir neutron-dir t))
 
-(defun neutron--get-dirs (root)
-  "Return all non-hidden directories recursively under ROOT."
-  (seq-filter #'file-directory-p
-              (directory-files-recursively root "^[^.]" t)))
+(defun neutron--get-dirs (root &optional missing-index-ok)
+  "Return all non-hidden directories recursively under ROOT.
+MISSING-INDEX-OK, if nil (default), filters to directories with an index.org.
+If t, returns all directories regardless."
+  ;; Start with all non-hidden directories.
+  (let ((all-dirs (seq-filter #'file-directory-p
+                              (directory-files-recursively root "^[^.]" t))))
+    ;; Filter out directories without an index.org, unless missing-index-ok is t.
+    (if missing-index-ok
+        all-dirs
+      (seq-filter (lambda (d) (f-exists-p (f-join d "index.org"))) all-dirs))))
 
 (defun neutron--pick-project-dir (message &optional require-match include-root)
   "Let user pick a project directory from available subdirectories.
@@ -113,6 +120,19 @@ Returns nil if the file is not found or is outside neutron-dir."
     (when (and (f-exists-p local-index)
                (f-ancestor-of-p neutron-dir local-index))
       local-index)))
+
+(defun neutron--get-project-index (&optional file-path)
+  "Return the index.org for the current file's neutron project.
+FILE-PATH defaults to the buffer file name.
+If FILE-PATH is an index, return it. If a sibling, return its local index.
+Returns nil if not in a neutron project."
+  ;; Index files are already the project entry point, so return as-is.
+  ;; Siblings belong to a project, so return their local index.
+  (let ((file (or file-path (buffer-file-name))))
+    (when file
+      (pcase (neutron--file-type file)
+        ('index file)
+        ('sibling (neutron--get-local-index file))))))
 
 (defun neutron--get-siblings (&optional file-path)
   "Return a list of absolute paths to sibling files in the same directory.

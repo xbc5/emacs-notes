@@ -374,6 +374,48 @@ FILE-PATH is optional and defaults to the current buffer."
         (save-buffer)
         nil))))
 
+(defun neutron--find-project ()
+  "Select a neutron project, returning its index.org path.
+Pre-selects the current project or last selected project."
+  ;; Get only directories with an index.org, since those are actual projects.
+  (let* ((project-dirs (neutron--get-dirs neutron-dir))
+         ;; Display relative paths, so the user sees "foo/bar" not full paths.
+         (choices (mapcar (lambda (d) (f-relative d neutron-dir)) project-dirs))
+         ;; The user may be inside a project already, so pre-select it.
+         ;; Fall back to the last selection for repeated task creation.
+         (preselected-file (or neutron--last-selected-project-index
+                               (ignore-errors (neutron--get-project-index))))
+         (preselected (when preselected-file
+                        (f-relative (f-dirname preselected-file) neutron-dir)))
+         (choice (completing-read "Project: " choices nil t preselected)))
+    (when choice
+      (let ((file (f-join neutron-dir choice "index.org")))
+        ;; Remember the selection, so repeated calls don't re-prompt from scratch.
+        (setq neutron--last-selected-project-index file)
+        file))))
+
+(defun neutron-create-task (&optional current-project)
+  "Create a new task in a neutron project's index.org.
+CURRENT-PROJECT, if non-nil, skips the finder and uses the current project.
+Opens a capture buffer with TODO [#C] format."
+  (interactive)
+  ;; Use current project directly, or show the finder.
+  (let ((target-file (if current-project
+                         (or (ignore-errors (neutron--get-project-index))
+                             neutron--last-selected-project-index)
+                       (neutron--find-project))))
+    (when target-file
+      ;; Ensure the tasks heading exists before capturing.
+      (save-excursion
+        (neutron--ensure-heading target-file "tasks"))
+      ;; Dynamically bind a temporary capture template.
+      (let ((org-capture-templates
+             `(("t" "Task" entry
+                (file+headline ,target-file "tasks")
+                "** TODO [#C] %?"
+                :prepend nil))))
+        (org-capture nil "t")))))
+
 (defun neutron--disconnect-node (&optional path ast)
   "Disconnect the node at PATH from the graph.
 PATH must be a file or directory under `neutron-dir'. If PATH is a

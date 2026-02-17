@@ -7,6 +7,7 @@
 
 ;; Global state. Do not modify these.
 (defvar neutron--syncing nil "Prevent the index sync hook from recursing on save. t when a sync is in progress.")
+(defvar neutron--last-selected-project-index nil "Last selected project index file path, so the finder can pre-select it.")
 
 (provide 'neutron-constants)
 ;;; neutron-constants.el ends here.
