@@ -118,6 +118,30 @@
 
 (mkdir neutron-dir t)
 
+(defun neutron-rename-project ()
+  "Rename the current buffer's project directory and title.
+Updates the directory name (slug-based), the #+title: keyword,
+and refreshes all bidirectional index links.
+Signals an error if a project with the new name already exists."
+  (interactive)
+  (let* ((index-path (or (neutron--get-project-index)
+                         (user-error "Not in a Neutron project")))
+         (new-title (neutron--prompt "New project name: "))
+         (new-slug (neutron--slugify new-title))
+         (project-dir (f-parent index-path))
+         (new-dir (f-join (f-parent project-dir) new-slug))
+         (new-index (f-join new-dir "index.org")))
+    (if (f-exists-p new-dir)
+        (message "Project '%s' already exists." new-slug)
+      ;; Rename the directory and update visiting buffers.
+      (neutron--move-dir project-dir new-dir)
+      ;; Update the #+title: in the index file.
+      (neutron--set-title new-title new-index)
+      ;; Refresh all bidirectional links so the new title propagates.
+      (neutron--sync-index-links new-index)
+      ;; Save the new index and all related files.
+      (neutron--save-related-files '(all) new-index))))
+
 (defun neutron--setup-auto-index ()
   "Wire `neutron--sync-index-links' to `before-save-hook' for org-roam files."
   (add-hook 'before-save-hook

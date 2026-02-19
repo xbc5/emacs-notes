@@ -6,6 +6,19 @@
   "Extract the #+title: value from the current buffer."
   (cadr (assoc "TITLE" (org-collect-keywords '("TITLE")))))
 
+(defun neutron--set-title (title &optional file-path)
+  "Replace #+title: with TITLE in FILE-PATH.
+TITLE is the new title.
+FILE-PATH is optional and defaults to the current buffer's file."
+  (let ((buf (find-file-noselect (or file-path (buffer-file-name)))))
+    (with-current-buffer buf
+      (save-excursion
+        (goto-char (point-min))
+        ;; Find and replace the title keyword (case-insensitive match).
+        (let ((case-fold-search t))
+          (when (re-search-forward "^#\\+title:.*$" nil t)
+            (replace-match (format "#+title: %s" title))))))))
+
 (defun neutron--get-summary (&optional ast)
   "Extract text under the * summary heading. Return nil if absent or empty.
 AST is an optional pre-parsed org-element tree."
