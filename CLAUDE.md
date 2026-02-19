@@ -4,6 +4,7 @@
 
 - Use small, single-purpose functions (aka atomic functions).
 - Use composite functions to execute atomic functions. Prioritise readability: clear naming, logical call ordering, and clean layout.
+- For functions: make file paths optional and default to `buffer-file-name`.
 
 ## Comments
 
@@ -24,7 +25,7 @@ Write comments...
 
 - If your solution is large and error-prone, you should find an existing solution instead.
 
-## Org mode
+## Org mode / Org-roam
 
 ### Session start
 
@@ -46,3 +47,17 @@ Once the session starts, and if you haven't already:
   - Copy nodes when using local (partial) parsers, but when building a full parse tree, you can modify the AST in place.
   - Use the appropriate options to make rendering the AST as similar as possible to the source.
   - NEVER parse a file into an AST more than once. Accept an optional AST parameter where necessary, but always pass the AST down through function calls where possible.
+
+### API
+
+When we discover the most appropriate function for an action, I will ask you to record its signature in this section, with a concise description of what it does. For example:
+
+```markdown
+Always consider these functions when making the relevant changes:
+
+- `(foo bar &optional baz`: Use this to create foo bar.
+```
+
+Always consider these functions when making the relevant changes:
+
+- ...
