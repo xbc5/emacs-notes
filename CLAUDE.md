@@ -9,6 +9,7 @@
 ## Comments
 
 - Create docstrings, and put each parameter on a separate line.
+- In docstrings, escape quoted symbols with a backtick: `` `'() `` not `'()`.
 
 Write comments...
 
