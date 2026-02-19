@@ -59,6 +59,8 @@
 (require 'neutron-org-roam)
 (require 'neutron-ui)
 (require 'neutron-agenda)
+(require 'f)
+(require 'org-roam)
 
 (defun neutron-create-project ()
   "Create a new neutron project."
@@ -141,6 +143,47 @@ Signals an error if a project with the new name already exists."
       (neutron--sync-index-links new-index)
       ;; Save the new index and all related files.
       (neutron--save-related-files '(all) new-index))))
+
+(defun neutron-create-sibling ()
+  "Find or create an org-roam node, scoped to the current project directory.
+Saving the file triggers an index sync."
+  (interactive)
+  (let* ((current-dir (f-dirname (buffer-file-name)))
+         (templates `(("s" "sibling" plain
+                       ;; Cursor starts in summary.
+                       ,(string-replace "* summary\n" "* summary\n%?\n" neutron--node-headings)
+                       :target (file+head ,(concat current-dir "/${slug}.org")
+                                          ,(concat (neutron--properties-drawer)
+                                                   "#+title: ${title}\n"))
+                       :empty-lines 1 ;; Newline before/after the capture body (headings).
+                       :unnarrowed t))))
+    (org-roam-node-find nil nil
+                        (lambda (comp-candidate)
+                          (when-let ((file (org-roam-node-file (cdr comp-candidate))))
+                            (f-same-p (f-dirname file) current-dir)))
+                        nil :templates templates)))
+
+(defun neutron-create-task (&optional current-project)
+  "Create a new task in a neutron project's index.org.
+CURRENT-PROJECT, if non-nil, skips the finder and uses the current project.
+Opens a capture buffer with TODO [#C] format."
+  (interactive)
+  ;; Use current project directly, or show the finder.
+  (let ((target-file (if current-project
+                         (or (ignore-errors (neutron--get-project-index))
+                             neutron--last-selected-project-index)
+                       (neutron--find-project))))
+    (when target-file
+      ;; Ensure the tasks heading exists before capturing.
+      (save-excursion
+        (neutron--ensure-heading target-file "tasks"))
+      ;; Dynamically bind a temporary capture template.
+      (let ((org-capture-templates
+             `(("t" "Task" entry
+                (file+headline ,target-file "tasks")
+                "** TODO [#C] %?"
+                :prepend nil))))
+        (org-capture nil "t")))))
 
 (defun neutron--setup-auto-index ()
   "Wire `neutron--sync-index-links' to `before-save-hook' for org-roam files."

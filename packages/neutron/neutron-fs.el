@@ -1,8 +1,8 @@
 ;; -*- lexical-binding: t; -*-
 (require 'neutron-constants)
 (require 'neutron-ui)
-(require 'neutron-org-roam)
 (require 'f)
+(require 'seq)
 
 ;; Create the root project directory
 (defun neutron--create-root-dir ()
