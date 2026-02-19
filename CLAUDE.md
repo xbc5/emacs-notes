@@ -21,6 +21,10 @@ Write comments...
 - There is probably a function that does what you need. If not, only then should you write a fully custom solution. Eliminate third-party packages and provided built-ins first.
 - Prefer `f-*` functions over built-in Emacs functions.
 
+## Neutron
+
+- Only top-level, composite functions should save changes. Atomic functions must never save buffers, because saving triggers auto-indexing.
+
 ## Smells
 
 - If your solution is large and error-prone, you should find an existing solution instead.
