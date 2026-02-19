@@ -66,6 +66,13 @@ STR: The string to slugify."
         (when (featurep 'org-roam)
           (ignore-errors (org-roam-db-autosync--rename-file-a old-file new-file)))))))
 
+(defun neutron--is-neutron-file-p (file)
+  "Return non-nil if FILE is a neutron org file.
+FILE must be a string with .org extension within neutron-dir."
+  (and (stringp file)
+       (f-ext-p file "org")
+       (file-in-directory-p file neutron-dir)))
+
 (defun neutron--is-index (&optional file-path)
   "Return non-nil if FILE-PATH is an index file (index.org) within neutron-dir.
 FILE-PATH is optional and defaults to the buffer file name."
@@ -81,7 +88,7 @@ FILE-PATH is optional and defaults to the buffer file name."
          (not (string= (f-filename file) "index.org")))))
 
 (defun neutron--file-type (&optional file-path)
-  "Return 'index or 'sibling for FILE-PATH within neutron-dir.
+  "Return `'index or `'sibling for FILE-PATH within neutron-dir.
 FILE-PATH defaults to the buffer file name."
   (if (neutron--is-index file-path)
       'index
@@ -156,8 +163,8 @@ Returns nil if the file is not found or is outside neutron-dir."
 
 (defun neutron--save-related-files (&optional types file-path)
   "Save files related to FILE-PATH.
-TYPES is a list of symbols: 'parent-index, 'local-index, 'siblings,
-'children, or 'all. Defaults to '(all).
+TYPES is a list of symbols: `'parent-index, `'local-index, `'siblings,
+`'children, or `'all. Defaults to `'(all).
 FILE-PATH is optional and defaults to the current buffer."
   (let ((anchor-file (or file-path (buffer-file-name)))
         (files-to-save))

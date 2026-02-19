@@ -179,7 +179,7 @@ PREPEND, if non-nil, inserts at the beginning of the list."
 The format of the link index item is: - [[id:UUID][Title]]: Summary.
 
 FILE-PATH is the target file.
-HEADING is the subheading of 'index' to insert under.
+HEADING is the subheading of `'index to insert under.
 ID is the org-roam ID to match and use.
 TITLE is the link display text.
 SUMMARY is the description after the link.
