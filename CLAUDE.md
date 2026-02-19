@@ -4,40 +4,45 @@
 
 - Use small, single-purpose functions (aka atomic functions).
 - Use composite functions to execute atomic functions. Prioritise readability: clear naming, logical call ordering, and clean layout.
-- Comment on conditionals, with short, concise descriptions.
-- Create doc strings, and put each parameter on a separate line.
 
-### Comments
+## Comments
 
-Write comments as cause-and-effect: state the reason first, then the consequence with "so".
+- Create docstrings, and put each parameter on a separate line.
 
-Example: "The same ID might appear in multiple headings, so find which lists contain our items and update all of them."
+Write comments...
 
-### File system
+- to explain conditional branches, with short, concise descriptions. I use comments to understand the code, so DO NOT skip this.
+- as cause-and-effect: state the reason first, then the consequence with "so". Example: "The same ID might appear in multiple headings, so find which lists contain our items and update all of them."
 
-Prefer `f-*` functions over built-in Emacs functions.
+## Rules
+
+- Always consider third-party packages first. MELPA is a great resource; search for the packages on Google with "site:melpa.org".
+- There is probably a function that does what you need. If not, only then should you write a fully custom solution. Eliminate third-party packages and provided built-ins first.
+- Prefer `f-*` functions over built-in Emacs functions.
+
+## Smells
+
+- If your solution is large and error-prone, you should find an existing solution instead.
 
 ## Org mode
 
-### Before writing any Org mode code
+### Session start
 
-**Read the documentation first.** Never make assumptions about how Org mode functions work. Consult https://orgmode.org/worg/doc.html before implementing any Org mode code. This must be done at the start of each session.
+Once the session starts, and if you haven't already:
 
-### Prefer builtins over custom logic
+- Before writing any Org mode code, you MUST read the [documentation](https://orgmode.org/worg/doc.html) first.
+- Before writing any Org-roam code, you MUST read the [documentation](https://www.orgroam.com/manual.html) first.
 
-- Use built-in Org mode functions and Emacs APIs when available.
-- Only write custom functions where built-ins do not suffice.
-- If you find yourself writing custom logic, consider using the AST (Org Element API) instead.
+### Editing Org files
 
-### Modifying buffers
-
-#### Use the Org Element API (AST)
-
-##### Rules
-
-- For more than minor changes, use an AST.
-- If you need to use the API, read the [official documentation](https://orgmode.org/worg/dev/org-element-api.html) first. Project docs (CLAUDE.md, MEMORY.md) take precedence when they conflict.
-- Copy nodes when using local (partial) parsers, but when building a full parse tree, you can modify the AST in place.
-- Use the appropriate options to make rendering the AST as similar as possible to the source.
-- If you must split the code into smaller functions, consider initialising the AST in the composite function, and injecting it as a dependency.
-- Never parse a file into an AST more than once. Accept an optional AST parameter where necessary, but always pass the AST down through function calls where possible.
+- Do NOT reinvent the wheel:
+  - Create idiomatic solutions and NEVER make assumptions about how Org mode or Org-roam functions work. Always consult the documentation.
+  - Use built-in Org mode and Org-roam functions for most things.
+  - For complex, multi-line solutions, use the AST (Org Element API) instead.
+  - For Org file edits, when the solution is 1-2 lines, use the correct, lightweight Org function for the job.
+- If you use an AST:
+  - NEVER parse a file into an AST more than once. Initialise it in the composite function, and inject it as a dependency, which should be an optional "ast" argument.
+  - Read the [official documentation](https://orgmode.org/worg/dev/org-element-api.html) first.
+  - Copy nodes when using local (partial) parsers, but when building a full parse tree, you can modify the AST in place.
+  - Use the appropriate options to make rendering the AST as similar as possible to the source.
+  - NEVER parse a file into an AST more than once. Accept an optional AST parameter where necessary, but always pass the AST down through function calls where possible.
