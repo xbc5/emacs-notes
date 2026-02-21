@@ -26,6 +26,10 @@ Write comments...
 
 - Only top-level, composite functions should save changes. Atomic functions must never save buffers, because saving triggers auto-indexing.
 
+## Rules
+
+- MUST NOT abuse `catch/throw` — exceptions are for halting execution, not signalling. Use flag variables instead.
+
 ## Smells
 
 - If your solution is large and error-prone, you should find an existing solution instead.
