@@ -453,7 +453,7 @@ Return t on success, nil on error."
            nil))))))
 
 (defun neutron--heading-path (hl tasks-node)
-  "Return the ancestor heading names of HL up to TASKS-NODE as a \" > \"-joined string.
+  "Return the ancestor heading names of HL up to TASKS-NODE.
 HL is the headline node.
 TASKS-NODE is the boundary node to stop at."
   (let ((node (org-element-property :parent hl))
@@ -468,6 +468,7 @@ TASKS-NODE is the boundary node to stop at."
 
 (defun neutron--subtree-has-todo-keyword-p (hl tasks-node)
   "Return non-nil if HL or any ancestor up to TASKS-NODE has a TODO keyword.
+Use this in the AST to filter headings with TODO-related keywords.
 HL is the headline node to check.
 TASKS-NODE is the boundary node to stop at."
   (let ((node hl)
@@ -485,16 +486,19 @@ FILE-PATH is the target org file."
   (neutron--ensure-heading file-path "tasks"))
 
 (defun neutron--get-task-targets ()
-  "Return org-refile targets for headings under * tasks in all neutron project dirs.
-Resolves the target file per dir using `neutron-task-files'.
+  "Return neutron refile targets.
+Resolves to the first suitable tasks file specified by `neutron-task-files'.
 Excludes headings with TODO keywords and their descendants."
   (let (targets)
     (dolist (dir (neutron--get-dirs neutron-dir))
+      ;; Find the first available file in `neutron-task-files'. These are
+      ;; files configured to store tasks.
       (when-let ((file (seq-find #'f-exists-p
                                  (mapcar (lambda (name)
                                            (f-join dir (concat name ".org")))
                                          neutron-task-files))))
         (with-current-buffer (find-file-noselect file)
+          ;; These files should always have a "tasks" heading.
           (neutron--ensure-tasks-heading file)
           (let* ((ast (org-element-parse-buffer))
                  (tasks-node (neutron--find-heading-in-ast ast "tasks")))
