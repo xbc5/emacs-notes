@@ -21,8 +21,10 @@ TITLE is the display title for the node."
   (with-temp-file file-path
     (insert (concat (neutron--properties-drawer)
                     "#+title: " title "\n\n"
-                    neutron--node-headings))
-    (org-roam-db-update-file file-path)))
+                    neutron--node-headings)))
+  ;; Update the db after the file is written, because with-temp-file
+  ;; flushes to disk only after the body completes.
+  (org-roam-db-update-file file-path))
 
 (defun neutron--delete-relevant-index-links (&optional file)
   "Remove all index links relevant to FILE.
