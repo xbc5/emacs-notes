@@ -452,5 +452,82 @@ Return t on success, nil on error."
            (message "neutron--disconnect-node: unknown file type: %s" type)
            nil))))))
 
+(defun neutron--heading-path (hl tasks-node)
+  "Return the ancestor heading names of HL up to TASKS-NODE as a \" > \"-joined string.
+HL is the headline node.
+TASKS-NODE is the boundary node to stop at."
+  (let ((node (org-element-property :parent hl))
+        parts)
+    ;; Walk up collecting ancestor names, stopping at tasks-node.
+    (while (and node (not (eq node tasks-node)))
+      (when (eq (org-element-type node) 'headline)
+        (push (org-element-property :raw-value node) parts))
+      (setq node (org-element-property :parent node)))
+    (push (org-element-property :raw-value hl) parts)
+    (string-join parts " > ")))
+
+(defun neutron--subtree-has-todo-keyword-p (hl tasks-node)
+  "Return non-nil if HL or any ancestor up to TASKS-NODE has a TODO keyword.
+HL is the headline node to check.
+TASKS-NODE is the boundary node to stop at."
+  (let ((node hl)
+        (keywords '("TODO" "NEXT" "WAIT" "DONE" "DROP"))
+        (found nil))
+    (while (and node (not (eq node tasks-node)) (not found))
+      (when (member (org-element-property :todo-keyword node) keywords)
+        (setq found t))
+      (setq node (org-element-property :parent node)))
+    found))
+
+(defun neutron--ensure-tasks-heading (file-path)
+  "Ensure a * tasks heading exists in FILE-PATH, creating it if absent.
+FILE-PATH is the target org file."
+  (neutron--ensure-heading file-path "tasks"))
+
+(defun neutron--get-task-targets ()
+  "Return org-refile targets for headings under * tasks in all neutron project dirs.
+Resolves the target file per dir using `neutron-task-files'.
+Excludes headings with TODO keywords and their descendants."
+  (let (targets)
+    (dolist (dir (neutron--get-dirs neutron-dir))
+      (when-let ((file (seq-find #'f-exists-p
+                                 (mapcar (lambda (name)
+                                           (f-join dir (concat name ".org")))
+                                         neutron-task-files))))
+        (with-current-buffer (find-file-noselect file)
+          (neutron--ensure-tasks-heading file)
+          (let* ((ast (org-element-parse-buffer))
+                 (tasks-node (neutron--find-heading-in-ast ast "tasks")))
+            ;; Always include the tasks heading itself as a target.
+            (push (list (neutron--format-path dir)
+                        file nil
+                        (org-element-property :begin tasks-node))
+                  targets)
+            ;; Include valid sub-headings under tasks.
+            (org-element-map (org-element-contents tasks-node) 'headline
+              (lambda (hl)
+                (unless (neutron--subtree-has-todo-keyword-p hl tasks-node)
+                  (push (list (concat (neutron--format-path dir) " > "
+                                      (neutron--heading-path hl tasks-node))
+                              file nil
+                              (org-element-property :begin hl))
+                        targets))))))))
+    (nreverse targets)))
+
+(defun neutron--validate-refile-region ()
+  "Abort with an error if the active region violates org-refile's level constraint.
+org-refile behaves unexpectedly if any heading in the region is above the first,
+so validate upfront to avoid corrupting notes."
+  (when (use-region-p)
+    (save-restriction
+      (narrow-to-region (region-beginning) (region-end))
+      (let* ((ast (org-element-parse-buffer))
+             (headings (org-element-map ast 'headline #'identity))
+             (top-level (and headings (org-element-property :level (car headings)))))
+        (when top-level
+          (dolist (hl headings)
+            (when (< (org-element-property :level hl) top-level)
+              (user-error "First selected heading must be at the top level"))))))))
+
 (provide 'neutron-org)
 ;;; neutron-org.el ends here.

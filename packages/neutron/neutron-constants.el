@@ -17,6 +17,10 @@
           "* ideas\n")
   "Default heading structure for new neutron nodes.")
 
+(defvar neutron-task-files '("index")
+  "Ordered list of filenames (without extension) to search for a tasks heading.
+The first file found in a project dir is used as the refile target.")
+
 ;; Global state. Do not modify these.
 (defvar neutron--syncing nil "Prevent the index sync hook from recursing on save. t when a sync is in progress.")
 (defvar neutron--last-selected-project-index nil "Last selected project index file path, so the finder can pre-select it.")

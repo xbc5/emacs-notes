@@ -186,5 +186,18 @@ Opens a capture buffer with TODO [#C] format."
                 :prepend nil))))
         (org-capture nil "t")))))
 
+(defun neutron-refile-tasks ()
+  "Refile selected headings to a target under * tasks in a neutron index.
+Uses the active region if set; otherwise uses the heading at point."
+  (interactive)
+  (neutron--validate-refile-region)
+  (let* ((targets (neutron--get-task-targets))
+         (choice (completing-read "Refile to: " (mapcar #'car targets) nil t))
+         (rfloc (seq-find (lambda (target) (string= (car target) choice)) targets)))
+    ;; org-refile handles the active region natively.
+    (org-refile nil nil rfloc)
+    ;; Save all modified neutron buffers once at the end.
+    (neutron--save-modified-buffers)))
+
 (provide 'neutron)
 ;;; neutron.el ends here.
