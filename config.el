@@ -6,7 +6,6 @@
   (normal-top-level-add-subdirs-to-load-path))
 
 (require 'ht)
-(require 'vulpea)
 (require 'f)
 (require 'neutron)
 
@@ -33,7 +32,6 @@
 (load! "lib/roam")
 (load! "lib/img")
 (load! "lib/xlicense")
-(load! "lib/xvulpea")
 (load! "lib/xname")
 (load! "lib/xtime")
 (load! "lib/xdrill")
@@ -47,7 +45,6 @@
 (load! "conf/refs") ; slow boot
 (load! "conf/org-roam")
 (load! "conf/org-drill")
-(load! "conf/vulpea")
 (load! "conf/org-ql")
 (load! "conf/org-fancy-priorities")
 (load! "conf/nursery")
