@@ -17,6 +17,7 @@
 
 (defun neutron--query-index-nodes ()
   "Return (FILE PROPERTIES) pairs for index.org files under `neutron-dir'."
+  ;; We need to use this function to determine `'NEUTRON_PROJECT_STATUS'.
   ;; Org-roam stores absolute paths and :PROPERTIES: entries in the nodes table.
   ;; Use a prefix-only "like" (e.g., "/home/user/org/neutron/%") so SQLite can
   ;; use an index on the file column, avoiding a full table scan.
