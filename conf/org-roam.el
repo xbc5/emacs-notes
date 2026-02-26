@@ -1,9 +1,12 @@
 (setq my/roam-templates
-      ;; WARN: use Vulpea instead; 1 template max here -- literature notes. Org-ref
-      ;; will default to this without asking. We don't need special Vulpea features
-      ;; for lit notes anyway.
-      '(("l" "literature" plain "\n* conclusions\n* summary\n* notes\n%?\n* ideas\n* thoughts\n"
+      '(("n" "note" plain "\n* summary\n* index\n* conclusion\n* details\n%?\n* ideas\n* thoughts\n"
          :unnarrowed t
+         :empty-lines 1
+         :target (file+head "notes/%<%Y%m%d%H%M%S>.org"
+                            ":PROPERTIES:\n:END:\n#+title: ${title}\n"))
+        ("l" "literature" plain "\n* conclusions\n* summary\n* notes\n%?\n* ideas\n* thoughts\n"
+         :unnarrowed t
+         :empty-lines 1
          :target (file+head "lit/%<%Y%m%d%H%M%S>.org"
                             ":PROPERTIES:\n:ROAM_REFS: cite:${citekey}\n:AUTHORS: ${author}\n:END:\n#+title: ${title}\n"))))
 
