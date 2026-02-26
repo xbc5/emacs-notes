@@ -3,6 +3,8 @@
 (require 'neutron-org-roam)
 (require 'neutron-hooks)
 
+(mkdir neutron-dir t)
+
 (defun neutron--setup-auto-index ()
   "Wire `neutron--sync-index-links' to `before-save-hook' for org-roam files."
   (add-hook 'before-save-hook

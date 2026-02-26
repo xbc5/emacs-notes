@@ -119,8 +119,6 @@
             ;; Save the new index and parent so the re-synced links are persisted.
             (neutron--save-related-files '(local-index parent-index) new-index)))))))
 
-(mkdir neutron-dir t)
-
 (defun neutron-rename-project ()
   "Rename the current buffer's project directory and title.
 Updates the directory name (slug-based), the #+title: keyword,
