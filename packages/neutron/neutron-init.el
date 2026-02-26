@@ -18,6 +18,7 @@
 
 (when neutron-auto-index (neutron--setup-auto-index))
 (neutron--setup-agenda)
+(neutron--register-agenda-commands)
 
 (advice-add 'delete-file :after #'neutron--on-delete-file)
 

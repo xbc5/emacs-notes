@@ -12,6 +12,7 @@
 ;;;
 (require 'neutron-constants)
 (require 'org-roam-db)
+(require 'org-super-agenda)
 (require 'f)
 (require 'seq)
 
@@ -66,9 +67,19 @@ Existing non-neutron entries are preserved."
          (neutron-files (neutron--get-agenda-files)))
     (setq org-agenda-files (append non-neutron neutron-files))))
 
+(defun neutron--register-agenda-commands ()
+  "Remove existing neutron keys from `org-agenda-custom-commands' and re-register them.
+Prevents duplicate entries on repeated init file loads."
+  (dolist (cmd neutron-agenda-commands)
+    (setq org-agenda-custom-commands
+          (assoc-delete-all (car cmd) org-agenda-custom-commands)))
+  (setq org-agenda-custom-commands
+        (append neutron-agenda-commands org-agenda-custom-commands)))
+
 (defun neutron--setup-agenda ()
   "Advise `org-agenda' to refresh neutron agenda files before building."
-  (advice-add 'org-agenda :before #'neutron--refresh-agenda-files))
+  (advice-add 'org-agenda :before #'neutron--refresh-agenda-files)
+  (org-super-agenda-mode 1))
 
 (provide 'neutron-agenda)
 ;;; neutron-agenda.el ends here.
