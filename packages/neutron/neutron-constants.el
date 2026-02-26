@@ -31,10 +31,8 @@ The first file found in a project dir is used as the refile target.")
                      (:discard (:anything t))))))
       (alltodo "" ((org-agenda-overriding-header "")
                    (org-super-agenda-groups
-                    '((:name "Waiting"   :todo "WAIT")
-                      (:name "Priority A" :and (:todo "NEXT" :priority "A"))
-                      (:name "Priority B" :and (:todo "NEXT" :priority "B"))
-                      (:name "Priority C" :and (:todo "NEXT" :priority "C"))
+                    '((:name "Waiting" :todo "WAIT")
+                      (:name "Tasks"   :todo "NEXT")
                       (:discard (:anything t)))))))))
   "Neutron org-agenda custom commands.")
 
