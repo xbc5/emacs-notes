@@ -17,15 +17,20 @@
                 (let ((neutron--syncing t))
                   (neutron--sync-index-links))))))
 
-(when neutron-auto-index (neutron--setup-auto-index))
-(neutron--setup-agenda)
-(neutron--setup-todo-keywords)
-(neutron--register-agenda-commands)
+(with-eval-after-load 'org
+  (neutron--setup-agenda)
+  (neutron--setup-todo-keywords)
+  (setq org-priority-faces '((?A . "red")
+                             (?B . "yellow")
+                             (?C . "green"))))
 
-(setq org-priority-faces '((?A . "red")
-                           (?B . "yellow")
-                           (?C . "green")))
+(with-eval-after-load 'org-roam
+  (when neutron-auto-index (neutron--setup-auto-index))
 
-(advice-add 'delete-file :after #'neutron--on-delete-file)
+  ;; For now, this function does index-related operations, which depend on
+  ;; org-roam. It's best to load this here, but that may not be the case in the
+  ;; future.
+  (advice-add 'delete-file :after #'neutron--on-delete-file))
+
 
 (provide 'neutron-init)

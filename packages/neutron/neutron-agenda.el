@@ -64,8 +64,11 @@ Existing non-neutron entries are preserved."
                        (lambda (f) (string-prefix-p prefix (expand-file-name f)))
                        org-agenda-files))
          ;; Set new ones.
-         (neutron-files (neutron--get-agenda-files)))
-    (setq org-agenda-files (append non-neutron neutron-files))))
+         (neutron-files (neutron--get-agenda-files))
+         (habits-file (f-join neutron-dir "habits.org"))
+         ;; Include habits.org if it exists.
+         (extra (when (f-exists-p habits-file) (list habits-file))))
+    (setq org-agenda-files (append non-neutron neutron-files extra))))
 
 (defun neutron--setup-todo-keywords ()
   "Configure org todo keywords and faces for neutron.
@@ -82,19 +85,23 @@ Appends to existing configuration rather than replacing it."
           (assoc-delete-all (car face) org-todo-keyword-faces))
     (add-to-list 'org-todo-keyword-faces face)))
 
-(defun neutron--register-agenda-commands ()
-  "Remove existing neutron keys from `org-agenda-custom-commands' and re-register them.
-Prevents duplicate entries on repeated init file loads."
+(defun neutron--setup-agenda ()
+  "Configure neutron `'org-agenda' integration.
+Registers agenda commands, enables org-habit and org-super-agenda,
+and advises `org-agenda' to refresh agenda files before building."
+  (add-to-list 'org-modules 'org-habit)
+  (require 'org-habit)
+  (advice-add 'org-agenda :before #'neutron--refresh-agenda-files)
+  ;; org-super-agenda-mode is a global minor mode; without it,
+  ;; :org-super-agenda-groups is ignored.
+  (org-super-agenda-mode 1)
+  ;; Remove agenda commands before re-adding to prevent duplicates on repeated
+  ;; loads.
   (dolist (cmd neutron-agenda-commands)
     (setq org-agenda-custom-commands
           (assoc-delete-all (car cmd) org-agenda-custom-commands)))
   (setq org-agenda-custom-commands
         (append neutron-agenda-commands org-agenda-custom-commands)))
-
-(defun neutron--setup-agenda ()
-  "Advise `org-agenda' to refresh neutron agenda files before building."
-  (advice-add 'org-agenda :before #'neutron--refresh-agenda-files)
-  (org-super-agenda-mode 1))
 
 (provide 'neutron-agenda)
 ;;; neutron-agenda.el ends here.
