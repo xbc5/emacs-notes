@@ -22,6 +22,10 @@
 (neutron--setup-todo-keywords)
 (neutron--register-agenda-commands)
 
+(setq org-priority-faces '((?A . "red")
+                           (?B . "yellow")
+                           (?C . "green")))
+
 (advice-add 'delete-file :after #'neutron--on-delete-file)
 
 (provide 'neutron-init)
