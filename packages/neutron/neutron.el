@@ -130,6 +130,30 @@ Opens a capture buffer with TODO [#C] format."
                 :prepend nil))))
         (org-capture nil "t")))))
 
+(defun neutron-create-habit ()
+  "Create a new habit in habits.org at the root of `neutron-dir'."
+  (interactive)
+  (let ((target-file (f-join neutron-dir "habits.org")))
+    (unless (f-exists-p target-file)
+      (neutron--create-roam-node target-file "habits"))
+    (neutron--ensure-heading target-file "habits")
+    (let ((schedule (neutron--pick-schedule)))
+      (letrec ((hook (lambda ()
+                       (remove-hook 'org-capture-after-finalize-hook hook)
+                       (when org-capture-last-stored-marker
+                         (with-current-buffer (marker-buffer org-capture-last-stored-marker)
+                           (save-excursion
+                             (goto-char org-capture-last-stored-marker)
+                             (neutron--set-org-properties '(("STYLE" . "habit")))
+                             (org-schedule nil schedule)))))))
+        (add-hook 'org-capture-after-finalize-hook hook))
+      (let ((org-capture-templates
+             `(("h" "Habit" entry
+                (file+headline ,target-file "habits")
+                "** TODO %?"
+                :prepend nil))))
+        (org-capture nil "h")))))
+
 (defun neutron-refile-tasks ()
   "Refile selected headings to a target under * tasks in a neutron index.
 Uses the active region if set; otherwise uses the heading at point."

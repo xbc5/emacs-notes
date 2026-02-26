@@ -21,6 +21,12 @@ FILE-PATH is optional and defaults to the current buffer's file."
           (when (re-search-forward "^#\\+title:.*$" nil t)
             (replace-match (format "#+title: %s" title))))))))
 
+(defun neutron--set-org-properties (properties)
+  "Set each property in PROPERTIES on the heading at point.
+PROPERTIES is an alist of (KEY . VALUE) pairs."
+  (dolist (prop properties)
+    (org-set-property (car prop) (cdr prop))))
+
 (defun neutron--get-summary (&optional ast)
   "Extract text under the * summary heading. Return nil if absent or empty.
 AST is an optional pre-parsed org-element tree."
