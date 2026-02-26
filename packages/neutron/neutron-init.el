@@ -2,6 +2,7 @@
 (require 'neutron-constants)
 (require 'neutron-org-roam)
 (require 'neutron-hooks)
+(require 'neutron-agenda)
 
 (mkdir neutron-dir t)
 
@@ -18,6 +19,7 @@
 
 (when neutron-auto-index (neutron--setup-auto-index))
 (neutron--setup-agenda)
+(neutron--setup-todo-keywords)
 (neutron--register-agenda-commands)
 
 (advice-add 'delete-file :after #'neutron--on-delete-file)

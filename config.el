@@ -48,6 +48,7 @@
 (load! "conf/org-ql")
 (load! "conf/org-fancy-priorities")
 (load! "conf/nursery")
+(require 'neutron-config)
 (when (string= (getenv "EMACS_MODE") "email")
   (load! "conf/mu4e"))
 ;; (load! "conf/org-roam-server")

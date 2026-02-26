@@ -67,6 +67,21 @@ Existing non-neutron entries are preserved."
          (neutron-files (neutron--get-agenda-files)))
     (setq org-agenda-files (append non-neutron neutron-files))))
 
+(defun neutron--setup-todo-keywords ()
+  "Configure org todo keywords and faces for neutron.
+Appends to existing configuration rather than replacing it."
+  (add-to-list 'org-todo-keywords
+               '(sequence "NEXT" "TODO" "WAIT" "|" "DONE" "DROP"))
+  (dolist (face '(("NEXT" . "magenta")
+                  ("TODO" . "cyan1")
+                  ("WAIT" . "brown")
+                  ("DONE" . "grey")
+                  ("DROP" . "grey")))
+    ;; Remove any existing entry for this keyword before adding, so reloads don't duplicate.
+    (setq org-todo-keyword-faces
+          (assoc-delete-all (car face) org-todo-keyword-faces))
+    (add-to-list 'org-todo-keyword-faces face)))
+
 (defun neutron--register-agenda-commands ()
   "Remove existing neutron keys from `org-agenda-custom-commands' and re-register them.
 Prevents duplicate entries on repeated init file loads."
