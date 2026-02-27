@@ -33,7 +33,7 @@
 ;; (require 'ht)
 ;; (require 'f)
 
-;; (load! "conf/neutron-config")
+;; (load! "conf/neutron")
 ;; (require 'neutron)
 
 ;; UTIL --------------------------------------------------------------

@@ -17,6 +17,3 @@
       :desc "Move project"        "m" #'neutron-move-project
       :desc "Refile tasks"        "k" #'neutron-refile-tasks
       :desc "Rename project"      "R" #'neutron-rename-project)
-
-(provide 'neutron-config)
-;;; neutron-config.el ends here.
