@@ -3,6 +3,7 @@
 ;; ----- GLOBAL SETTINGS ----------------------------------------------
 ;; Used universally by multiple packages.
 (setq org-directory "~/org")
+(require 'org) ;; Central to everyhing I do.
 
 ;; - EMOJIS -
 ;; The following code will display emojis (e.g., in mu4e) by setting
