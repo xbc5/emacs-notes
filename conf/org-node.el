@@ -31,7 +31,9 @@ CURSOR-PLACEHOLDER: Include a %? under the details heading."
 ;; roam format, so we preserve slug style, timestamps, and capture behaviour.
 (after! org-node
   (setq org-node-creation-fn         #'org-capture
-        org-node-file-timestamp-format "%Y%m%d%H%M%S-")
+        org-node-file-timestamp-format "%Y%m%d%H%M%S-"
+        org-node-alter-candidates t
+        org-node-affixation-fn #'org-node-prepend-olp-append-tags-use-frame-width)
   (org-node-cache-mode)
   ;; Reuse the org-roam backlinks buffer, since notes are already in roam format.
   (org-node-roam-accelerator-mode)
