@@ -37,13 +37,14 @@ CURSOR-PLACEHOLDER: Include a %? under the details heading."
   (org-node-cache-mode)
   ;; Reuse the org-roam backlinks buffer, since notes are already in roam format.
   (org-node-roam-accelerator-mode)
+  ;; Prompt for filetags on new nodes created via capture.
+  (add-hook 'org-node-creation-hook #'org-node-add-tags)
 
   (setq org-capture-templates
         '(("n" "Note"
            plain (function org-node-capture-target)
            (function my/org-capture-template-with-placeholder)
            :empty-lines 1
-           :immediate-finish t
            :jump-to-captured t)
 
           ("s" "Stub"
