@@ -35,13 +35,16 @@ CURSOR-PLACEHOLDER: Include a %? under the details heading."
   (org-node-cache-mode)
   ;; Reuse the org-roam backlinks buffer, since notes are already in roam format.
   (org-node-roam-accelerator-mode)
+
   (setq org-capture-templates
         '(("n" "Note"
-           entry (function org-node-capture-target)
+           plain (function org-node-capture-target)
            (function my/org-capture-template-with-placeholder)
-           :empty-lines 1)
+           :empty-lines 1
+           :immediate-finish t
+           :jump-to-captured t)
 
-          ("q" "Quick"
+          ("s" "Stub"
            plain (function org-node-capture-target)
            (function my/org-capture-template)
            :empty-lines 1
