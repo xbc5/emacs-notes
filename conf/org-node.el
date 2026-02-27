@@ -2,6 +2,15 @@
 
 ;; ----- HELPERS ------------------------------------------------------
 ;;
+(defun my/org-node-completion-tags (node)
+  "Return a styled tag string for NODE, including an implicit @section tag.
+Derives @section from the first path segment of NODE's file relative to
+`org-directory', then merges with real tags into a single `:tag1:tag2:' string.
+NODE: an org-mem node."
+  (let* ((path-tag (concat "@" (car (f-split (f-relative (org-mem-entry-file node) org-directory)))))
+         (all (cons path-tag (org-mem-tags node))))
+    (propertize (concat ":" (string-join all ":") ":") 'face 'org-node-tag)))
+
 (defun my/org-node-affixation-fn (node title)
   "Prepend NODE outline path to TITLE, put tags and ID at frame edge."
   ;; Build the ancestor path (file > heading > foo) as a styled string
@@ -12,19 +21,17 @@
                          (dolist (anc (org-mem-olpath-with-file-title node) (nreverse parts))
                            (push (propertize anc 'face 'org-node-parent) parts)
                            (push " > " parts))))))
-         ;; Style the tags, so they're visually distinct.
-         (tags (when-let* ((ts (org-mem-tags node)))
-                 (propertize (concat ":" (string-join ts ":") ":") 'face 'org-node-tag)))
-         ;; Collapse the ID to zero width, so it's matchable but invisible.
+         (tags (my/org-node-completion-tags node))
+         ;; Collapse the ID to zero-width, so it's matchable but invisible.
          (id  (propertize (org-mem-id node) 'display ""))
-         ;; Push tags to the frame edge by padding with spaces, excluding the
-         ;; zero-width ID so it doesn't affect the calculation.
+         ;; Push tags and ID to the frame edge by padding with spaces, excluding
+         ;; the zero-width ID so it doesn't affect the calculation.
          ;; ?\s is the integer character code for space (32), because `make-string'
          ;; requires an integer.
          (pad (make-string (max 2 (- (frame-width)
                                      (string-width title)
                                      (if olp (string-width olp) 0)
-                                     (if tags (string-width tags) 0)
+                                     (string-width tags)
                                      (fringe-columns 'right)
                                      (fringe-columns 'left)))
                            ?\s)))
