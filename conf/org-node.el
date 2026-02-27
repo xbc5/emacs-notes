@@ -1,5 +1,9 @@
 ;; -*- lexical-binding: t; -*-
 
+(map! "M-n" org-node-global-prefix-map
+      :map org-mode-map
+      "M-n" org-node-org-prefix-map)
+
 (after! org-mem
   ;; The indexing backend for org-node.
   ;; Sync with org-id so existing roam IDs are recognised.
@@ -15,8 +19,4 @@
         org-node-file-timestamp-format "%Y%m%d%H%M%S-")
   (org-node-cache-mode)
   ;; Reuse the org-roam backlinks buffer, since notes are already in roam format.
-  (org-node-roam-accelerator-mode)
-  (map! "M-o n" org-node-global-prefix-map)
-  (after! org
-    (map! :map org-mode-map
-          "M-o n" org-node-org-prefix-map)))
+  (org-node-roam-accelerator-mode))
