@@ -12,7 +12,6 @@
             (lambda ()
               ;; "neutron--syncing" guards against recursive calls.
               (when (and (not neutron--syncing)
-                         (derived-mode-p 'org-mode)
                          (neutron--roam-like-file-p))
                 (let ((neutron--syncing t))
                   (neutron--sync-index-links))))))

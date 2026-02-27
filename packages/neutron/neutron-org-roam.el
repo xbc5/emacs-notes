@@ -8,7 +8,7 @@
   "Return t if FILE is indexed by org-mem, nil otherwise.
 FILE defaults to the current buffer's file path."
   (when-let ((path (or file (buffer-file-name (buffer-base-buffer)))))
-    (not (null (gethash path org-mem--truename<>metadata)))))
+    (not (null (gethash (file-truename path) org-mem--truename<>metadata)))))
 
 (defun neutron--roam-like-file-p (&optional file)
   "Return t if FILE is tracked by the active note-taking backend.
@@ -64,10 +64,12 @@ For org-roam, syncs its SQLite DB."
 (defun neutron--roam-like-db-update-file (file-path)
   "Update the node database for FILE-PATH.
 FILE-PATH is the absolute path to the org file to index.
-For org-node, this is a no-op because `org-mem-updater-mode' indexes
-automatically. For org-roam, syncs its SQLite DB."
+For org-node, triggers `org-mem-updater-update' so the new file is indexed
+before the save hook runs. For org-roam, syncs its SQLite DB."
   (cond
-   ((eq neutron-note-platform 'org-node) nil)
+   ((eq neutron-note-platform 'org-node)
+    (require 'org-mem-updater)
+    (org-mem-updater-update))
    ((eq neutron-note-platform 'org-roam)
     (require 'org-roam-db)
     (org-roam-db-update-file file-path))))
