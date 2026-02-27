@@ -13,7 +13,7 @@
               ;; "neutron--syncing" guards against recursive calls.
               (when (and (not neutron--syncing)
                          (derived-mode-p 'org-mode)
-                         (org-roam-file-p))
+                         (neutron--roam-like-file-p))
                 (let ((neutron--syncing t))
                   (neutron--sync-index-links))))))
 
@@ -24,12 +24,9 @@
                              (?B . "yellow")
                              (?C . "green"))))
 
-(with-eval-after-load 'org-roam
+;; Run setup after the roam-like backend loads.
+(with-eval-after-load neutron-note-platform ; 'org-roam or 'org-node
   (when neutron-auto-index (neutron--setup-auto-index))
-
-  ;; For now, this function does index-related operations, which depend on
-  ;; org-roam. It's best to load this here, but that may not be the case in the
-  ;; future.
   (advice-add 'delete-file :after #'neutron--on-delete-file))
 
 

@@ -6,7 +6,6 @@
 (require 'neutron-ui)
 (require 'neutron-agenda)
 (require 'f)
-(require 'org-roam)
 (require 'neutron-init)
 
 (defun neutron-create-project ()
@@ -97,16 +96,12 @@ Saving the file triggers an index sync."
          (templates `(("s" "sibling" plain
                        ;; Cursor starts in summary.
                        ,(string-replace "* summary\n" "* summary\n%?\n" neutron--node-headings)
-                       :target (file+head ,(concat current-dir "/${slug}.org")
+                       :target (file+head ,(concat current-dir "/%<%Y%m%d%H%M%S>-${slug}.org")
                                           ,(concat (neutron--properties-drawer)
                                                    "#+title: ${title}\n"))
                        :empty-lines 1 ;; Newline before/after the capture body (headings).
                        :unnarrowed t))))
-    (org-roam-node-find nil nil
-                        (lambda (comp-candidate)
-                          (when-let ((file (org-roam-node-file (cdr comp-candidate))))
-                            (f-same-p (f-dirname file) current-dir)))
-                        nil :templates templates)))
+    (neutron--roam-like-node-find current-dir templates)))
 
 (defun neutron-create-task (&optional current-project)
   "Create a new task in a neutron project's index.org.

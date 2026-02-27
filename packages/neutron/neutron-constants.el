@@ -36,6 +36,10 @@ The first file found in a project dir is used as the refile target.")
                       (:discard (:anything t)))))))))
   "Neutron org-agenda custom commands.")
 
+(defvar neutron-note-platform 'org-roam
+  "The active note-taking backend. One of `org-node' or `org-roam'.
+Set this before loading Neutron to select your backend.")
+
 ;; Global state. Do not modify these.
 (defvar neutron--syncing nil "Prevent the index sync hook from recursing on save. t when a sync is in progress.")
 (defvar neutron--last-selected-project-index nil "Last selected project index file path, so the finder can pre-select it.")

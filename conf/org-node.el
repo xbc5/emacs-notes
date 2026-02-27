@@ -62,6 +62,8 @@ CURSOR-PLACEHOLDER: Include a %? under the details heading."
       "M-n" org-node-org-prefix-map)
 
 ;; - CONFIG -
+(setq neutron-note-platform 'org-node)
+
 (after! org-mem
   ;; The indexing backend for org-node.
   ;; Sync with org-id so existing roam IDs are recognised.

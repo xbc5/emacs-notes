@@ -34,8 +34,8 @@
 ;; (require 'ht)
 ;; (require 'f)
 
-;; (load! "conf/neutron")
-;; (require 'neutron)
+(load! "conf/neutron")
+(require 'neutron)
 
 ;; UTIL --------------------------------------------------------------
 ;; (load! "conf/global")

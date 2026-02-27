@@ -62,9 +62,7 @@ STR: The string to slugify."
         (when-let ((buf (find-buffer-visiting old-file)))
           (with-current-buffer buf
             (set-visited-file-name new-file t t)))
-        ;; Sync org-roam DB.
-        (when (featurep 'org-roam)
-          (ignore-errors (org-roam-db-autosync--rename-file-a old-file new-file)))))))
+        (ignore-errors (neutron--roam-like-db-rename-file old-file new-file))))))
 
 (defun neutron--is-neutron-file-p (file)
   "Return non-nil if FILE is a neutron org file.

@@ -11,31 +11,10 @@
 ;;; projects.
 ;;;
 (require 'neutron-constants)
-(require 'org-roam-db)
 (require 'org-super-agenda)
 (require 'f)
 (require 'seq)
-
-(defun neutron--query-index-nodes ()
-  "Return (FILE PROPERTIES) pairs for index.org files under `neutron-dir'."
-  ;; We need to use this function to determine `'NEUTRON_PROJECT_STATUS'.
-  ;; Org-roam stores absolute paths and :PROPERTIES: entries in the nodes table.
-  ;; Use a prefix-only "like" (e.g., "/home/user/org/neutron/%") so SQLite can
-  ;; use an index on the file column, avoiding a full table scan.
-  (let* ((dir (file-name-as-directory (expand-file-name neutron-dir)))
-         (rows (org-roam-db-query
-                [:select [file properties]
-                 :from nodes
-                 :where (and (= level 0) ;; Level 0 == root nodes (not heading-based nodes)
-                             (like file $s1))]
-                (concat dir "%"))))
-    ;; Filtering for index.org in SQL would require a wildcard-prefixed "like"
-    ;; (e.g., "%/index.org"), which prevents SQLite from using an index. We
-    ;; therefore cannot filter index.org files in the SQL command, so we do it
-    ;; here instead.
-    (seq-filter
-     (lambda (row) (string= (f-filename (car row)) "index.org"))
-     rows)))
+(require 'neutron-org-roam)
 
 (defun neutron--get-agenda-files ()
   "Return index.org paths with active or tickler project status."
