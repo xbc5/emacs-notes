@@ -5,7 +5,10 @@
   (package! org-fancy-priorities)
   (package! org-ql)
   (package! org-drill)
-  (package! plantuml-mode))
+  (package! plantuml-mode)
+  (package! llama)
+  (package! org-mem)
+  (package! org-node))
 
 ;; when re-pinning to module, remember to stop using the
 ;; org-roam-bibtex recipe, use the package from MELPA intead.
