@@ -1,16 +1,7 @@
 ;; -*- lexical-binding: t; -*-
 
-(map! "M-n" org-node-global-prefix-map
-      :map org-mode-map
-      "M-n" org-node-org-prefix-map)
-
-(after! org-mem
-  ;; The indexing backend for org-node.
-  ;; Sync with org-id so existing roam IDs are recognised.
-  (setq org-mem-do-sync-with-org-id t
-        org-mem-watch-dirs (list org-directory))
-  (org-mem-updater-mode))
-
+;; ----- HELPERS ------------------------------------------------------
+;;
 (defun my/org-node-affixation-fn (node title)
   "Prepend NODE outline path to TITLE, put tags and ID at frame edge."
   ;; Build the ancestor path (file > heading > foo) as a styled string
@@ -55,6 +46,22 @@ CURSOR-PLACEHOLDER: Include a %? under the details heading."
 
 (defun my/org-capture-template-with-placeholder ()
   (my/org-capture-template t))
+
+;; ----- CONFIGURATION ------------------------------------------------
+;;
+;; - KEYMAPS -
+(map! "M-n" org-node-global-prefix-map
+      :map org-mode-map
+      "M-n" org-node-org-prefix-map)
+
+;; - CONFIG -
+(after! org-mem
+  ;; The indexing backend for org-node.
+  ;; Sync with org-id so existing roam IDs are recognised.
+  (setq org-mem-do-sync-with-org-id t
+        org-mem-watch-dirs (list org-directory))
+  (org-mem-updater-mode))
+
 
 ;; Configure org-node with org-roam-compatible defaults, because notes are in
 ;; roam format, so we preserve slug style, timestamps, and capture behaviour.
