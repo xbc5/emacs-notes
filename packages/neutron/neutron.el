@@ -158,6 +158,15 @@ Opens a capture buffer with TODO [#C] format."
                 :prepend nil))))
         (org-capture nil "h")))))
 
+(defun neutron-sync-all-indexes ()
+  "Sync index links for all index.org files under `neutron-dir'."
+  (interactive)
+  (dolist (dir (neutron--get-dirs neutron-dir))
+    (let* ((index (f-join dir "index.org"))
+           (auto-close (not (find-buffer-visiting index))))
+      (neutron--sync-index-links index)
+      (neutron--save-buffer index auto-close))))
+
 (defun neutron-refile-tasks ()
   "Refile selected headings to a target under * tasks in a neutron index.
 Uses the active region if set; otherwise uses the heading at point."
