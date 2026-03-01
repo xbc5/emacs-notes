@@ -23,10 +23,16 @@
                              (?B . "yellow")
                              (?C . "green"))))
 
-;; Run setup after the roam-like backend loads.
-(with-eval-after-load neutron-note-platform ; 'org-roam or 'org-node
+(defun neutron--setup-roam-like-backend ()
+  "Set up hooks and advice that depend on the active note-taking backend."
   (when neutron-auto-index (neutron--setup-auto-index))
   (advice-add 'delete-file :after #'neutron--on-delete-file))
+
+;; Run immediately if the backend is already loaded, otherwise defer.
+(if (featurep neutron-note-platform)
+    (neutron--setup-roam-like-backend)
+  (with-eval-after-load (symbol-name neutron-note-platform)
+    (neutron--setup-roam-like-backend)))
 
 
 (provide 'neutron-init)

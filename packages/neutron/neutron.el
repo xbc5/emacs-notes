@@ -18,8 +18,9 @@
          (index-path (f-join full-path "index.org")))
     (mkdir full-path t)
     (neutron--create-roam-node index-path project-title)
-    ;; Open the new index so it exists as a buffer for the save hook to fire.
     (find-file index-path)
+    ;; Mark modified so save-related-files triggers a real save, firing the hook.
+    (set-buffer-modified-p t)
     ;; Save the new index and parent so the synced links are persisted.
     (neutron--save-related-files '(local-index parent-index) index-path)))
 

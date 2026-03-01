@@ -34,12 +34,12 @@ TEMPLATES is the org-roam capture templates list."
              (f-same-p (f-dirname (org-mem-entry-file node)) current-dir)))
           (org-node-creation-fn
            (lambda ()
-             (neutron--create-roam-node
-              (f-join current-dir
-                      (concat (format-time-string org-node-file-timestamp-format)
-                              (neutron--slugify org-node-proposed-title)
-                              ".org"))
-              org-node-proposed-title))))
+             (let ((file-path (f-join current-dir
+                                      (concat (format-time-string org-node-file-timestamp-format)
+                                              (neutron--slugify org-node-proposed-title)
+                                              ".org"))))
+               (neutron--create-roam-node file-path org-node-proposed-title)))))
+
       (org-node-find)))
    ((eq neutron-note-platform 'org-roam)
     (require 'org-roam)
@@ -69,7 +69,8 @@ before the save hook runs. For org-roam, syncs its SQLite DB."
   (cond
    ((eq neutron-note-platform 'org-node)
     (require 'org-mem-updater)
-    (org-mem-updater-update))
+    (let ((inhibit-message t))
+      (org-mem-updater-update t)))
    ((eq neutron-note-platform 'org-roam)
     (require 'org-roam-db)
     (org-roam-db-update-file file-path))))
@@ -87,12 +88,12 @@ STATUS is the status value (e.g., \"inactive\")."
 
 FILE-PATH is the absolute path to the org file.
 TITLE is the display title for the node."
+  ;; Create a physical file first, then we'll index it.
   (with-temp-file file-path
     (insert (concat (neutron--properties-drawer)
                     "#+title: " title "\n\n"
                     neutron--node-headings)))
-  ;; Update the db after the file is written, because with-temp-file
-  ;; flushes to disk only after the body completes.
+  ;; Update the db after the file is written.
   (neutron--roam-like-db-update-file file-path))
 
 (defun neutron--delete-relevant-index-links (&optional file)
