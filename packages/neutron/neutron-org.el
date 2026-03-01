@@ -299,6 +299,26 @@ AST is an optional pre-parsed org-element tree."
                 (goto-char beg)
                 (insert (org-element-interpret-data index-node))))))))))
 
+(defun neutron--upsert-bidirectional-links (anchor neighbour neighbour-heading anchor-heading id title summary)
+  "Upsert bidirectional links between ANCHOR and NEIGHBOUR, then save NEIGHBOUR.
+ANCHOR is the anchor file.
+NEIGHBOUR is the neighbour file.
+NEIGHBOUR-HEADING is the heading in NEIGHBOUR to insert the anchor link under.
+ANCHOR-HEADING is the heading in ANCHOR to insert the neighbour link under.
+ID, TITLE, SUMMARY are the anchor's properties."
+  ;; Track open state before opening, so we can close it afterward if we opened it.
+  (let ((was-open (find-buffer-visiting neighbour))
+        (neighbour-props (with-current-buffer (find-file-noselect neighbour)
+                           (neutron--get-index-related-props))))
+    (neutron--upsert-index-link neighbour neighbour-heading id title summary)
+    (neutron--upsert-index-link anchor anchor-heading
+                                (plist-get neighbour-props :id)
+                                (plist-get neighbour-props :title)
+                                (plist-get neighbour-props :summary))
+    (let ((buf (find-file-noselect neighbour)))
+      (with-current-buffer buf (save-buffer))
+      (unless was-open (kill-buffer buf)))))
+
 (defun neutron--sync-index-links (&optional file-path)
   "Synchronize index links for FILE-PATH based on its type.
 If FILE-PATH is an index, add it to parent index and add all children to it.
@@ -310,58 +330,22 @@ FILE-PATH defaults to the buffer file name."
          (summary (plist-get props :summary))
          (id (plist-get props :id))
          (file-type (neutron--file-type file)))
-    (pcase file-type
-      ;; If the current file is an index.org file.
-      ('index
-       ;; Create a two-way link relationship with the parent index.
-       (when-let ((parent-index (neutron--get-parent-index file)))
-         ;; Insert link into the parent.
-         (neutron--upsert-index-link parent-index "children" id title summary)
-         (let ((parent-props (with-current-buffer (find-file-noselect parent-index)
-                               (neutron--get-index-related-props))))
-           ;; Insert parent link into the current file.
-           (neutron--upsert-index-link file "parent"
-                                       (plist-get parent-props :id)
-                                       (plist-get parent-props :title)
-                                       (plist-get parent-props :summary))))
-       ;; Create a two-way link relationship with child indexes.
-       (dolist (child-index (neutron--get-child-indexes file))
-         ;; Open the child and get its props.
-         (let ((child-props (with-current-buffer (find-file-noselect child-index)
-                              (neutron--get-index-related-props))))
-           ;; Insert child links into the local index file.
-           (neutron--upsert-index-link file "children"
-                                       (plist-get child-props :id)
-                                       (plist-get child-props :title)
-                                       (plist-get child-props :summary))
-           ;; Insert the local index link into the child.
-           (neutron--upsert-index-link child-index "parent" id title summary)))
-       ;; Create a two-way link relationship with siblings.
-       (dolist (sibling (neutron--get-siblings file))
-         (let ((sib-props (with-current-buffer (find-file-noselect sibling)
-                            (neutron--get-index-related-props))))
-           ;; Insert sibling link into this index.
-           (neutron--upsert-index-link file "siblings"
-                                       (plist-get sib-props :id)
-                                       (plist-get sib-props :title)
-                                       (plist-get sib-props :summary))
-           ;; Insert this index link into the sibling.
-           (neutron--upsert-index-link sibling "home" id title summary))))
-      ;; If the current file is a sibling.
-      ('sibling
-       ;; Create a two-way link relationship with the local index.
-       (when-let ((local-index (neutron--get-local-index file)))
-         ;; Insert a backlink into the local index.
-         (neutron--upsert-index-link local-index "siblings" id title summary)
-         (let ((index-props (with-current-buffer (find-file-noselect local-index)
-                              (neutron--get-index-related-props))))
-           ;; Insert a local index link into this file.
-           (neutron--upsert-index-link file "home"
-                                       (plist-get index-props :id)
-                                       (plist-get index-props :title)
-                                       (plist-get index-props :summary)))))
-      (type
-       (error "Unknown file type: %s" type)))
+    ;; Guard against re-entry from saves triggered on neighbour files.
+    (let ((neutron--syncing t))
+      (pcase file-type
+        ;; If the current file is an index.org file.
+        ('index
+         (when-let ((parent-index (neutron--get-parent-index file)))
+           (neutron--upsert-bidirectional-links file parent-index "children" "parent" id title summary))
+         (dolist (child-index (neutron--get-child-indexes file))
+           (neutron--upsert-bidirectional-links file child-index "parent" "children" id title summary))
+         (dolist (sibling (neutron--get-siblings file))
+           (neutron--upsert-bidirectional-links file sibling "home" "siblings" id title summary)))
+        ('sibling
+         (when-let ((local-index (neutron--get-local-index file)))
+           (neutron--upsert-bidirectional-links file local-index "siblings" "home" id title summary)))
+        (type
+         (error "Unknown file type: %s" type))))
     nil))
 
 (defun neutron--delete-two-way-parent-link (node-file-path node-id parent-file-path node-ast)
