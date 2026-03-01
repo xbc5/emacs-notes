@@ -42,6 +42,8 @@ Once the session starts, and if you haven't already:
 
 - Before writing any Org mode code, you MUST read the [documentation](https://orgmode.org/worg/doc.html) first.
 - Before writing any Org-roam code, you MUST read the [documentation](https://www.orgroam.com/manual.html) first.
+- When working on org-node code, you MUST load your context with `~/git/clones/org-node/{*.el,README.md}` and `~/git/clones/org-mem/{*.el,README.md}`.
+- When working on Neutron code, you MUST load your context with `<rootDir>/packages/neutron/**/{*.el,README}`.
 
 ### Editing Org files
 
