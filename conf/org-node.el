@@ -54,12 +54,43 @@ CURSOR-PLACEHOLDER: Include a %? under the details heading."
 (defun my/org-capture-template-with-placeholder ()
   (my/org-capture-template t))
 
+(defun my/org-node-context-follow-mode ()
+  "Toggle all follow modes."
+  (interactive)
+  (if (or org-node-context-follow-mode org-node-context-follow-mode)
+      ;; If any are enabled, disable them all.
+      (progn
+        (org-node-context-follow-mode -1) ; Context follows between buffers.
+        (org-node-context-follow-local-mode -1)) ; Context follows between buffer-level nodes.
+    (progn
+      ;; If they're all disabled, then enable them all.
+      (org-node-context-follow-mode 1)
+      (org-node-context-follow-local-mode 1))))
+
+(defun my/org-node-disable-context-buffer ()
+  "Force disable the context buffer without."
+  (interactive)
+  ;; I got this code from `'org-node-context-toggle'.
+  (if-let* ((win (get-buffer-window org-node-context-main-buffer 'visible)))
+      (quit-window nil win)))
+
 ;; ----- CONFIGURATION ------------------------------------------------
 ;;
 ;; - KEYMAPS -
-(map! "M-n" org-node-global-prefix-map
+(map! "M-n" #'org-node-find
+
+      :leader
+      "n" #'org-node-global-prefix-map ; Org commands for any buffer.
+
       :map org-mode-map
-      "M-n" org-node-org-prefix-map)
+      "n"   org-node-org-prefix-map)   ; Org commands for Org buffers (extends previous).
+
+;; Maps without leader.
+(map! :map org-mode-map
+      "M-b" #'org-node-context-dwim              ; Backlinks buffer.
+      "M-B" #'my/org-node-disable-context-buffer ; Force disable the backlinks buffer.
+      "M-f" #'my/org-node-context-follow-mode    ; Make backlinks buffer follow note at cursor position.
+      "M-I" #'org-node-insert-link)
 
 ;; - CONFIG -
 (setq neutron-note-platform 'org-node)
