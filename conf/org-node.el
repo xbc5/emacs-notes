@@ -88,7 +88,12 @@ CURSOR-PLACEHOLDER: Include a %? under the details heading."
   (setq org-id-locations-file (f-join org-directory ".orgids")
         org-mem-do-sync-with-org-id t
         org-mem-watch-dirs (list org-directory))
+
   :config
+  ;; My custom affixation function (below) ensures completions can have
+  ;; duplicated candidates. I want duplicates.
+  (setq org-mem-do-warn-title-collisions nil)
+
   (require 'org-id)
   (org-id-locations-load) ; Load org IDs from file, so the indexer finds them.
   (org-mem-updater-mode) ;; Enable with `org-node-cache-mode'
