@@ -22,6 +22,7 @@ NODE: an org-mem node."
                          (dolist (anc (org-mem-olpath-with-file-title node) (nreverse parts))
                            (push (propertize anc 'face 'org-node-parent) parts)
                            (push " > " parts))))))
+
          (tags (my/org-node-completion-tags node))
          ;; Collapse the ID to zero-width, so it's matchable but invisible.
          (id  (propertize (org-mem-id node) 'display ""))
@@ -105,11 +106,15 @@ CURSOR-PLACEHOLDER: Include a %? under the details heading."
         "n"   org-node-org-prefix-map)   ; Org commands for Org buffers (extends previous).
 
   :config
-  (map! :map org-mode-map
-        "M-b" #'org-node-context-dwim              ; Backlinks buffer.
-        "M-B" #'my/org-node-disable-context-buffer ; Force disable the backlinks buffer.
-        "M-f" #'my/org-node-context-follow-mode    ; Make backlinks buffer follow note at cursor position.
-        "M-I" #'org-node-insert-link)
+  (map!
+   ;; Since the backlinks buffer is not Org mode, map this outside of
+   ;; `org-mode-map'. That allows us to disable it while it's selected.
+   "M-B" #'my/org-node-disable-context-buffer
+   "M-b" #'org-node-context-dwim ; Same with this (backlinks buffer).
+
+   :map org-mode-map
+   "M-f" #'my/org-node-context-follow-mode    ; Make backlinks buffer follow note at cursor position.
+   "M-I" #'org-node-insert-link)
 
   (setq org-node-creation-fn         #'org-capture
         org-node-file-timestamp-format "%Y%m%d%H%M%S-"
