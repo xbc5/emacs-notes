@@ -20,8 +20,9 @@
   (set-fontset-font t 'emoji "Noto Color Emoji" nil 'prepend))
 
 ;; ----- CONFIG -------------------------------------------------------
-(load! "conf/org")
-(load! "conf/org-node")
+(when t
+  (load! "conf/org")
+  (load! "conf/org-node"))
 
 (when (string= (getenv "EMACS_MODE") "email")
   (load! "conf/mu4e"))

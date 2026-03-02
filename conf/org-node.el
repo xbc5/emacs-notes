@@ -1,4 +1,5 @@
 ;; -*- lexical-binding: t; -*-
+(require 'f)
 
 ;; ----- HELPERS ------------------------------------------------------
 ;;
@@ -76,36 +77,40 @@ CURSOR-PLACEHOLDER: Include a %? under the details heading."
 
 ;; ----- CONFIGURATION ------------------------------------------------
 ;;
-;; - KEYMAPS -
-(map! "M-n" #'org-node-find
+(use-package! org-mem
+  :defer (not (string= (getenv "EMACS_MODE") "notes"))
+  :init
+  (unless (bound-and-true-p org-directory)
+    (setq org-directory "~/org"))
 
-      :leader
-      "n" #'org-node-global-prefix-map ; Org commands for any buffer.
-
-      :map org-mode-map
-      "n"   org-node-org-prefix-map)   ; Org commands for Org buffers (extends previous).
-
-;; Maps without leader.
-(map! :map org-mode-map
-      "M-b" #'org-node-context-dwim              ; Backlinks buffer.
-      "M-B" #'my/org-node-disable-context-buffer ; Force disable the backlinks buffer.
-      "M-f" #'my/org-node-context-follow-mode    ; Make backlinks buffer follow note at cursor position.
-      "M-I" #'org-node-insert-link)
-
-;; - CONFIG -
-(setq neutron-note-platform 'org-node)
-
-(after! org-mem
-  ;; The indexing backend for org-node.
-  ;; Sync with org-id so existing roam IDs are recognised.
-  (setq org-mem-do-sync-with-org-id t
+  ;; A special file that caches all org-ids, used by the indexer.
+  (setq org-id-locations-file (f-join org-directory ".orgids")
+        org-mem-do-sync-with-org-id t
         org-mem-watch-dirs (list org-directory))
-  (org-mem-updater-mode))
-
+  :config
+  (require 'org-id)
+  (org-id-locations-load) ; Load org IDs from file, so the indexer finds them.
+  (org-mem-updater-mode) ;; Enable with `org-node-cache-mode'
+  (org-node-cache-mode)) ;; Enable with `org-mem-updater-mode'
 
 ;; Configure org-node with org-roam-compatible defaults, because notes are in
 ;; roam format, so we preserve slug style, timestamps, and capture behaviour.
-(after! org-node
+(use-package! org-node
+  :init
+  (setq neutron-note-platform 'org-node)
+  (map! "M-n" #'org-node-find
+        :leader
+        "n" #'org-node-global-prefix-map ; Org commands for any buffer.
+        :map org-mode-map
+        "n"   org-node-org-prefix-map)   ; Org commands for Org buffers (extends previous).
+
+  :config
+  (map! :map org-mode-map
+        "M-b" #'org-node-context-dwim              ; Backlinks buffer.
+        "M-B" #'my/org-node-disable-context-buffer ; Force disable the backlinks buffer.
+        "M-f" #'my/org-node-context-follow-mode    ; Make backlinks buffer follow note at cursor position.
+        "M-I" #'org-node-insert-link)
+
   (setq org-node-creation-fn         #'org-capture
         org-node-file-timestamp-format "%Y%m%d%H%M%S-"
         ;; Change the completion candidates to include more unique data.
@@ -113,6 +118,7 @@ CURSOR-PLACEHOLDER: Include a %? under the details heading."
         ;; Without this, completion functions collapse identical results.
         org-node-alter-candidates t
         org-node-affixation-fn #'my/org-node-affixation-fn)
+
   (org-node-cache-mode)
   ;; Reuse the org-roam backlinks buffer, since notes are already in roam format.
   (org-node-roam-accelerator-mode)
