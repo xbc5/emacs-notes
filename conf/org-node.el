@@ -79,7 +79,7 @@ CURSOR-PLACEHOLDER: Include a %? under the details heading."
 ;; ----- CONFIGURATION ------------------------------------------------
 ;;
 (use-package! org-mem
-  :defer (not (string= (getenv "EMACS_MODE") "notes"))
+  :defer (not (string= (getenv "EMACS_MODE") "notes")) ; Defer only when not explicitly notes.
   :init
   (unless (bound-and-true-p org-directory)
     (setq org-directory "~/org"))
