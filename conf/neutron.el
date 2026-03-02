@@ -1,8 +1,6 @@
 ;; -*- lexical-binding: t; -*-
 (require 'neutron)
-
-;; Clear default org todo keywords so neutron's are the only ones.
-(setq org-todo-keywords nil)
+(neutron--setup-todo-keywords)
 
 
 (map! "M-t" (cmd! (neutron-create-task t))

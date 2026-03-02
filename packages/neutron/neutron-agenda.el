@@ -49,20 +49,36 @@ Existing non-neutron entries are preserved."
          (extra (when (f-exists-p habits-file) (list habits-file))))
     (setq org-agenda-files (append non-neutron neutron-files extra))))
 
-(defun neutron--setup-todo-keywords ()
+(defvar neutron-required-todo-keywords '("NEXT" "TODO" "WAIT" "DONE" "DROP")
+  "Keywords that must be present in any custom todo keyword list.")
+
+(defun neutron--setup-todo-keywords (&optional keywords faces)
   "Configure org todo keywords and faces for neutron.
-Appends to existing configuration rather than replacing it."
-  (add-to-list 'org-todo-keywords
-               '(sequence "NEXT" "TODO" "WAIT" "|" "DONE" "DROP"))
-  (dolist (face '(("NEXT" . "magenta")
-                  ("TODO" . "cyan1")
-                  ("WAIT" . "brown")
-                  ("DONE" . "grey")
-                  ("DROP" . "grey")))
-    ;; Remove any existing entry for this keyword before adding, so reloads don't duplicate.
-    (setq org-todo-keyword-faces
-          (assoc-delete-all (car face) org-todo-keyword-faces))
-    (add-to-list 'org-todo-keyword-faces face)))
+Resets `org-todo-keywords' before setting the new sequence.
+KEYWORDS: an optional list like \\='(\"NEXT\" \"TODO\" \"|\" \"DONE\"), used
+  verbatim as the sequence. Defaults to the standard neutron sequence.
+  Must contain all entries in `neutron-required-todo-keywords'.
+FACES: an optional alist of (KEYWORD . COLOR) pairs. Defaults to the
+  standard neutron faces."
+  (let* ((kws (or keywords '("NEXT" "TODO" "WAIT" "|" "DONE" "DROP")))
+         (fcs (or faces '(("NEXT" . "magenta")
+                          ("TODO" . "cyan1")
+                          ("WAIT" . "brown")
+                          ("DONE" . "grey")
+                          ("DROP" . "grey"))))
+         (missing (when keywords
+                    (seq-remove (lambda (k) (member k keywords))
+                                neutron-required-todo-keywords))))
+    (if missing
+        (message "neutron: missing required todo keywords: %s" missing)
+      ;; Reset before setting, so existing keywords don't bleed through.
+      (setq org-todo-keywords nil)
+      (add-to-list 'org-todo-keywords (apply #'list 'sequence kws))
+      (dolist (face fcs)
+        ;; Remove any existing entry before adding, so reloads don't duplicate.
+        (setq org-todo-keyword-faces
+              (assoc-delete-all (car face) org-todo-keyword-faces))
+        (add-to-list 'org-todo-keyword-faces face)))))
 
 (defun neutron--setup-agenda ()
   "Configure neutron `'org-agenda' integration.

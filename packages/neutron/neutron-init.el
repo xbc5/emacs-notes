@@ -18,7 +18,6 @@
 
 (with-eval-after-load 'org
   (neutron--setup-agenda)
-  (neutron--setup-todo-keywords)
   (setq org-priority-faces '((?A . "red")
                              (?B . "yellow")
                              (?C . "green"))))
