@@ -2,7 +2,7 @@
 (require 'neutron)
 (neutron--setup-todo-keywords)
 
-(map! "M-t" (cmd! (neutron-create-task t))
+(map! "M-t" (cmd! (org-agenda nil "d")) ; Open daily agenda
       :leader
       :prefix "j"
       :desc "Create global task"         "T" #'neutron-create-task
