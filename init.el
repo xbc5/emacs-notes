@@ -1,12 +1,4 @@
 ;;; init.el -*- lexical-binding: t; -*-
-(defun xorg--write-file ()
-  (advice-add 'write-file
-              :override (lambda (fname &optional confirm)
-                          (print (format "CUSTOM WRITE: %s" fname))
-                          (write-file fname confirm))))
-
-(add-hook 'org-mode-hook #'xorg--write-file)
-
 (setq org-roam-v2-ack t)
 
 ;; This file controls what Doom modules are enabled and what order they load
