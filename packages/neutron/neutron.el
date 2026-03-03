@@ -32,7 +32,11 @@ FILE-PATH: optional project directory; index.org is appended automatically.
   (interactive)
   ;; If select-project, prompt for a project. If file-path is given, treat it
   ;; as a project directory, so append index.org. Otherwise, use buffer-file-name.
-  (let ((file (cond (select-project (neutron--find-project))
+  (let ((file (cond (select-project
+                   (let* ((dirs (neutron--get-all-project-dirs))
+                          (choices (mapcar (lambda (d) (f-relative d neutron-dir)) dirs))
+                          (choice (completing-read "Project: " choices nil t)))
+                     (f-join neutron-dir choice "index.org")))
                     (file-path (f-join file-path "index.org"))
                     (t (buffer-file-name))))
         (sorted-statuses (sort (copy-sequence neutron-project-statuses) #'string<)))

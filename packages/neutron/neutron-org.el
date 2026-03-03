@@ -378,7 +378,7 @@ NODE-AST is a pre-parsed org-element tree for the node's index file."
   "Select a neutron project, returning its index.org path.
 Pre-selects the current project or last selected project."
   ;; Get only directories with an index.org, since those are actual projects.
-  (let* ((project-dirs (neutron--get-dirs neutron-dir))
+  (let* ((project-dirs (neutron--get-all-project-dirs))
          ;; Display relative paths, so the user sees "foo/bar" not full paths.
          (choices (mapcar (lambda (d) (f-relative d neutron-dir)) project-dirs))
          ;; The user may be inside a project already, so pre-select it.

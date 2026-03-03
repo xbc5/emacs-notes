@@ -21,6 +21,10 @@ If t, returns all directories regardless."
         all-dirs
       (seq-filter (lambda (d) (f-exists-p (f-join d "index.org"))) all-dirs))))
 
+(defun neutron--get-all-project-dirs ()
+  "Return all directories under `neutron-dir' that contain an index.org."
+  (mapcar #'f-dirname (directory-files-recursively neutron-dir "^index\\.org$")))
+
 (defun neutron--pick-project-dir (message &optional require-match include-root)
   "Let user pick a project directory from available subdirectories.
 
