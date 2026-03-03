@@ -374,20 +374,6 @@ NODE-AST is a pre-parsed org-element tree for the node's index file."
     ;; Remove the parent link from the node.
     (neutron--remove-index-link node-file-path (plist-get parent-props :id) node-ast)))
 
-(defun neutron-set-project-status (&optional file-path)
-  "Set project status via selection.
-FILE-PATH is optional and defaults to the current buffer."
-  (interactive)
-  (let ((file (or file-path (buffer-file-name)))
-        (sorted-statuses (sort (copy-sequence neutron-project-statuses) #'string<)))
-    (with-current-buffer (find-file-noselect file)
-      (let ((status (completing-read "Status: " sorted-statuses nil t)))
-        ;; Apply to file-level :PROPERTIES: drawer, not the closest heading.
-        (org-entry-put (point-min) "NEUTRON_PROJECT_STATUS" status)
-        ;; We want to save buffer here because the user calls this directly.
-        (save-buffer)
-        nil))))
-
 (defun neutron--find-project ()
   "Select a neutron project, returning its index.org path.
 Pre-selects the current project or last selected project."

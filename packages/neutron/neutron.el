@@ -24,6 +24,26 @@
     ;; Save the new index and parent so the synced links are persisted.
     (neutron--save-related-files '(local-index parent-index) index-path)))
 
+(defun neutron-set-project-status (&optional select-project file-path)
+  "Set project status via selection.
+SELECT-PROJECT: if non-nil, prompt to pick a project and use its index.org.
+FILE-PATH: optional project directory; index.org is appended automatically.
+  Defaults to the current buffer's file."
+  (interactive)
+  ;; If select-project, prompt for a project. If file-path is given, treat it
+  ;; as a project directory, so append index.org. Otherwise, use buffer-file-name.
+  (let ((file (cond (select-project (neutron--find-project))
+                    (file-path (f-join file-path "index.org"))
+                    (t (buffer-file-name))))
+        (sorted-statuses (sort (copy-sequence neutron-project-statuses) #'string<)))
+    (with-current-buffer (find-file-noselect file)
+      (let ((status (completing-read "Status: " sorted-statuses nil t)))
+        ;; Apply to file-level :PROPERTIES: drawer, not the closest heading.
+        (org-entry-put (point-min) neutron--project-status-property-name status)
+        ;; We want to save buffer here because the user calls this directly.
+        (save-buffer)
+        nil))))
+
 (defun neutron-delete-project ()
   "Delete a neutron project."
   (interactive)
