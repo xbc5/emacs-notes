@@ -9,6 +9,8 @@
       :desc "Create habit"        "h" #'neutron-create-habit
       :desc "Create project"      "c" #'neutron-create-project
       :desc "Create sibling"      "s" #'neutron-create-sibling
+      :desc "Set project status"  "l" #'neutron-set-project-status
+      :desc "Set project status"  "L" (cmd! (neutron-set-project-status t))
       :desc "Create global task"  "T" #'neutron-create-task
       :desc "Create local task"   "t" (cmd! (neutron-create-task t))
       :desc "Delete project"      "d" #'neutron-delete-project
