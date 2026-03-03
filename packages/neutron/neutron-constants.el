@@ -4,6 +4,11 @@
 (defvar neutron-dir "~/org/neutron" "The root directory where all neutron projects live.")
 (defvar neutron-auto-index t "Automatically populate indexes with project links.")
 (defvar neutron-project-statuses '("inactive" "incubating" "active" "tickler") "List of valid project statuses. The first is the default.")
+(defvar neutron-default-project-status "inactive"
+  "Default status for index nodes with no project status property set.")
+
+(defvar neutron--project-status-property-name "NEUTRON_PROJECT_STATUS")
+
 
 ;; Node structure shared by synchronous creation and org-roam capture.
 (defvar neutron--node-headings

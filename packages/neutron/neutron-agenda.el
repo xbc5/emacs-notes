@@ -18,19 +18,12 @@
 
 (defun neutron--get-agenda-files ()
   "Return index.org paths with active or tickler project status."
-  ;; Org-roam stores properties as a serialized alist in the DB, so we can't
-  ;; reliably match on NEUTRON_PROJECT_STATUS in SQL. Even with thousands of
-  ;; index nodes, an elisp filter processes them in milliseconds, so filtering
-  ;; here is preferable to a complex SQL query.
-  (let ((rows (neutron--query-index-nodes)))
-    ;; Filter for "active" or "tickler" status, then extract file paths.
-    (mapcar #'car
-            ;; Select only rows with active or tickler status.
-            (seq-filter
-             (lambda (row)
-               (member (cdr (assoc "NEUTRON_PROJECT_STATUS" (cadr row)))
-                       '("active" "tickler")))
-             rows))))
+  (mapcar #'neutron-index-node-full-file-path
+          (seq-filter
+           (lambda (node)
+             (member (neutron-index-node-project-status node)
+                     '("active" "tickler")))
+           (neutron--query-index-nodes))))
 
 (defun neutron--refresh-agenda-files (&rest _)
   "Refresh `org-agenda-files' with active neutron index files.

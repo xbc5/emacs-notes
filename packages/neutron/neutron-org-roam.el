@@ -116,32 +116,51 @@ Returns the file type (`'index or `'sibling), or nil if not a Neutron file."
              (neutron--remove-index-link sibling id))))
         file-type))))
 
-(defun neutron--query-index-nodes ()
-  "Return (FILE PROPERTIES) pairs for index.org files under `neutron-dir'."
-  (let ((dir (file-name-as-directory (expand-file-name neutron-dir))))
-    (cond
-     ((eq neutron-note-platform 'org-node)
-      (require 'org-mem)
-      (seq-filter
-       (lambda (row) (string= (f-filename (car row)) "index.org"))
-       (mapcar (lambda (entry)
-                 (list (org-mem-entry-file entry)
-                       (org-mem-entry-properties entry)))
-               (seq-filter
-                (lambda (entry)
-                  (and (= (org-mem-entry-level entry) 0)
-                       (string-prefix-p dir (org-mem-entry-file entry))))
-                (org-mem-all-id-nodes)))))
-     ((eq neutron-note-platform 'org-roam)
-      (require 'org-roam-db)
-      (seq-filter
-       (lambda (row) (string= (f-filename (car row)) "index.org"))
-       (org-roam-db-query
-        [:select [file properties]
-         :from nodes
-         :where (and (= level 0)
-                     (like file $s1))]
-        (concat dir "%")))))))
+(cl-defstruct neutron-index-node
+  "Represents a Neutron index node."
+  (relative-file-path nil :documentation "Path to the file, relative to `neutron-dir'.")
+  (full-file-path     nil :documentation "Absolute path to the file.")
+  (project-status     nil :documentation "Value of NEUTRON_PROJECT_STATUS, or `neutron-default-project-status' if absent.")
+  (title              nil :documentation "The #+title of the file."))
+
+(defun neutron--query-index-nodes (&optional project-status)
+  "Return a list of `neutron-index-node' structs for index.org files under `neutron-dir'.
+PROJECT-STATUS filters by status string; nil returns all statuses.
+A node with no NEUTRON_PROJECT_STATUS property is treated as `neutron-default-project-status'."
+  (cond
+   ((eq neutron-note-platform 'org-node)
+    (require 'org-mem)
+    (cl-loop for entry in (org-mem-all-id-nodes)
+             for file = (org-mem-entry-file entry)
+             for level = (org-mem-entry-level entry)
+             ;; Fall back to the default status when the property is absent.
+             for status = (or (cdr (assoc neutron--project-status-property-name
+                                          (org-mem-entry-properties-local entry)))
+                              neutron-default-project-status)
+             ;; Skip subheadings, files outside neutron-dir, non-index files,
+             ;; and entries that don't match the requested status.
+             when (and (= level 0)
+                       (f-ancestor-of-p neutron-dir file)
+                       (string= (f-filename file) "index.org")
+                       (or (null project-status) (equal status project-status)))
+             collect (make-neutron-index-node
+                      :relative-file-path (f-relative file neutron-dir)
+                      :full-file-path file
+                      :project-status status
+                      :title (org-mem-entry-title-maybe entry))))
+   ((eq neutron-note-platform 'org-roam)
+    (error "Not implemented yet: The node query backend for org-roam doesn't exist")
+    ;; TODO: Re-implement this using the neutron-index-node struct.
+    ;; (require 'org-roam-db)
+    ;; (seq-filter
+    ;;  (lambda (row) (string= (f-filename (car row)) "index.org"))
+    ;;  (org-roam-db-query
+    ;;   [:select [file properties]
+    ;;    :from nodes
+    ;;    :where (and (= level 0)
+    ;;                (like file $s1))]
+    ;;   (concat dir "%")))
+    )))
 
 (provide 'neutron-org-roam)
 ;;; neutron-org-roam.el ends here.
