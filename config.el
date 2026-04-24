@@ -24,13 +24,15 @@
   (load! "conf/org")
   (load! "conf/org-node"))
 
-(when (string= (getenv "EMACS_MODE") "email")
-  (load! "conf/mu4e"))
+(pcase (getenv "EMACS_MODE")
+  ("email" (load! "conf/mu4e"))
+  ("rss" (load! "conf/elfeed")))
 
 ;; ----- CUSTOM PACKAGES ----------------------------------------------
 ;; Add all packages/ to the load path.
 (let ((default-directory (concat doom-user-dir "packages/")))
   (normal-top-level-add-subdirs-to-load-path))
+;; HERE!
 
 ;; (require 'ht)
 ;; (require 'f)
@@ -81,4 +83,3 @@
 ;; WARN: slows down boot by ~6s
 ;; (require 'org-roam)
 ;; (org-roam-mode)
-
