@@ -24,10 +24,21 @@
                        (function org-node-capture-target)
                        "#+filetags: :elfeed:RSS:feeds:\n\n* feeds :elfeed:\n** %?")))
 
+(defun my/elfeed-toggle-read-later ()
+  "Toggle the `read_later' tag on the selected elfeed entries."
+  (interactive)
+  (let ((entries (elfeed-search-selected)))
+    (if (elfeed-tagged-p 'read_later (car entries))
+        (apply #'elfeed-untag entries '(read_later))
+      (apply #'elfeed-tag entries '(read_later)))
+    (mapc #'elfeed-search-update-entry entries)))
+
 (after! elfeed
         (add-hook! 'elfeed-search-mode-hook #'elfeed-update)
         (setq rmh-elfeed-org-files
-              (f-glob "*.org" my/elfeed--subscription-dir)))
+              (f-glob "*.org" my/elfeed--subscription-dir))
+        (map! :map elfeed-search-mode-map
+              :n "i" #'my/elfeed-toggle-read-later))
 
 (setq initial-buffer-choice
       (lambda () (elfeed) (get-buffer "*elfeed-search*")))
