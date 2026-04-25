@@ -25,12 +25,12 @@
                        "#+filetags: :elfeed:RSS:feeds:\n\n* feeds :elfeed:\n** %?")))
 
 (defun my/elfeed-toggle-read-later ()
-  "Toggle the `read_later' tag on the selected elfeed entries."
+  "Toggle the `bookmark' tag on the selected elfeed entries."
   (interactive)
   (let ((entries (elfeed-search-selected)))
-    (if (elfeed-tagged-p 'read_later (car entries))
-        (apply #'elfeed-untag entries '(read_later))
-      (apply #'elfeed-tag entries '(read_later)))
+    (if (elfeed-tagged-p 'bookmark (car entries))
+        (apply #'elfeed-untag entries '(bookmark))
+      (apply #'elfeed-tag entries '(bookmark)))
     (mapc #'elfeed-search-update-entry entries)))
 
 (after! elfeed
@@ -42,7 +42,7 @@
         (setq elfeed-search-face-alist
               ;; Order matters. Apply "read later" after "unread".
               '((unread :foreground "#ffffff" weight: bold)
-                (read_later :foreground "#00ff00")))
+                (bookmark :foreground "#00ff00")))
 
         (map! :map elfeed-search-mode-map
               :n "i" #'my/elfeed-toggle-read-later))
