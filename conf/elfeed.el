@@ -40,7 +40,9 @@
               (f-glob "*.org" my/elfeed--subscription-dir))
 
         (setq elfeed-search-face-alist
-              '((read_later :foreground "#00ff00")))
+              ;; Order matters. Apply "read later" after "unread".
+              '((unread :foreground "#ffffff" weight: bold)
+                (read_later :foreground "#00ff00")))
 
         (map! :map elfeed-search-mode-map
               :n "i" #'my/elfeed-toggle-read-later))
