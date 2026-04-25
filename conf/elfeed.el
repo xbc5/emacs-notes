@@ -19,14 +19,15 @@
 " 'utf-8 my/elfeed--default-file))
 
 (after! org
-  (add-to-list 'org-capture-templates
-               '("e" "Elfeed feed file" plain
-                 (function org-node-capture-target)
-                 "#+filetags: :elfeed:RSS:feeds:\n\n* feeds :elfeed:\n** %?")))
+        (add-to-list 'org-capture-templates
+                     '("e" "Elfeed feed file" plain
+                       (function org-node-capture-target)
+                       "#+filetags: :elfeed:RSS:feeds:\n\n* feeds :elfeed:\n** %?")))
 
 (after! elfeed
-  (setq rmh-elfeed-org-files
-        (f-glob "*.org" my/elfeed--subscription-dir)))
+        (add-hook! 'elfeed-search-mode-hook #'elfeed-update)
+        (setq rmh-elfeed-org-files
+              (f-glob "*.org" my/elfeed--subscription-dir)))
 
 (setq initial-buffer-choice
       (lambda () (elfeed) (get-buffer "*elfeed-search*")))
