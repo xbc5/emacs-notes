@@ -35,8 +35,13 @@
 
 (after! elfeed
         (add-hook! 'elfeed-search-mode-hook #'elfeed-update)
+
         (setq rmh-elfeed-org-files
               (f-glob "*.org" my/elfeed--subscription-dir))
+
+        (setq elfeed-search-face-alist
+              '((read_later :foreground "#00ff00")))
+
         (map! :map elfeed-search-mode-map
               :n "i" #'my/elfeed-toggle-read-later))
 
